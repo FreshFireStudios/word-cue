@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Word Cue is a free Mac app that listens to the pulpit mic, catches every scripture reference as it is preached, and has it ready for your booth operator to send to the screen.">
+<meta name="theme-color" content="#1C1C1A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%231C1C1A%22/%3E%3Cpath%20d%3D%22M12%203c1%203%205%205%205%2010a5%205%200%200%201-10%200c0-2%201-3.5%202-4.5%200%202%201%203%202%203%200-3-1-5%201-8.5z%22%20fill%3D%22none%22%20stroke%3D%22%23F0A050%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fresh Fire Studios">
+<meta property="og:title" content="Word Cue — Scripture on screen the moment it’s preached">
+<meta property="og:description" content="Word Cue is a free Mac app that listens to the pulpit mic, catches every scripture reference as it is preached, and has it ready for your booth operator to send to the screen.">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Word Cue: Scripture on screen the moment it’s preached. A Fresh Fire Studios app.">
+<meta name="twitter:image" content="share.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Word Cue", "applicationCategory": "MultimediaApplication", "operatingSystem": "macOS 27 or later (Apple silicon)", "description": "Word Cue is a free Mac app that listens to the pulpit mic, catches every scripture reference as it is preached, and has it ready for your booth operator to send to the screen.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Organization", "name": "Fresh Fire Studios"}}</script>
+<title>Word Cue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
+<style>
+/* Layout: a product story for a Mac app. Hero → one pinned scene where a spoken verse becomes a slide →
+   the two ways verses arrive → how detection works → shortcuts → privacy → specs → notify. Fresh Fire charcoal and amber, one look. */
+:root {
+  --char: #1C1C1A;
+  --char-2: #161614;
+  --win: #242321;
+  --panel: #201F1D;
+  --line: rgba(255,255,255,.08);
+  --fg: #F2F0EC;
+  --dim: #9E998F;
+  --orange: #B85A1B;
+  --amber: #F0A050;
+  --green: #5BD27A;
+  --yellow: #E8C35A;
+  --brand: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --gl: max(20px, env(safe-area-inset-left, 0px));
+  --gr: max(20px, env(safe-area-inset-right, 0px));
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--char); color: var(--fg); font-family: var(--brand); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: 100%; max-width: 1120px; margin-inline: auto; padding-left: var(--gl); padding-right: var(--gr); }
+h1, h2, h3 { margin: 0; letter-spacing: -0.035em; text-wrap: balance; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--amber); }
+.dim { color: var(--dim); }
+.amber { color: var(--amber); }
+.sec { padding-block: clamp(96px, 13vw, 168px); }
+.sec-head { display: grid; gap: 16px; margin-bottom: clamp(40px, 6vw, 72px); max-width: 760px; }
+.sec-head h2 { font-size: clamp(38px, 6vw, 76px); line-height: 1.02; }
+.sec-head p { font-size: clamp(17px, 1.7vw, 21px); color: var(--dim); max-width: 56ch; }
+.flame { width: 18px; height: 18px; flex: none; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Nav */
+.nav { position: fixed; inset: 0 0 auto; z-index: 50; padding-top: env(safe-area-inset-top, 0px); background: rgba(28,28,26,.72); -webkit-backdrop-filter: saturate(1.5) blur(18px); backdrop-filter: saturate(1.5) blur(18px); border-bottom: 1px solid var(--line); }
+.nav .wrap { height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mark { display: flex; align-items: center; gap: 9px; text-decoration: none; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.mark small { font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--dim); margin-left: 6px; display: none; }
+@media (min-width: 640px) { .mark small { display: inline; } }
+.nav nav { display: none; gap: 28px; font-size: 14px; }
+.nav nav a { text-decoration: none; color: #D9D5CE; }
+.nav nav a:hover { color: var(--fg); }
+@media (min-width: 880px) { .nav nav { display: flex; } }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 22px; border-radius: 999px; border: 0; font: 600 15px var(--brand); text-decoration: none; cursor: pointer; background: rgba(255,255,255,.09); color: var(--fg); transition: transform .25s, background .25s, filter .25s; }
+.btn:hover { transform: translateY(-1px); }
+.btn.pri { background: var(--orange); color: #fff; }
+.btn.pri:hover { filter: brightness(1.12); }
+.btn.lg { min-height: 52px; padding: 0 28px; font-size: 17px; }
+.btn small { font-weight: 500; opacity: .7; font-size: 13px; }
+
+/* Hero */
+.hero { position: relative; padding-top: calc(56px + env(safe-area-inset-top, 0px) + clamp(56px, 9vw, 112px)); padding-bottom: clamp(64px, 9vw, 120px); overflow: hidden; }
+.hero .glow { position: absolute; right: -18vw; top: -22vw; width: 70vw; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(184,90,27,.42) 0%, rgba(184,90,27,.12) 40%, rgba(28,28,26,0) 70%); pointer-events: none; }
+.hero-grid { position: relative; display: grid; gap: clamp(48px, 6vw, 72px); align-items: center; }
+@media (min-width: 980px) { .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); } }
+.hero h1 { font-size: clamp(64px, 11vw, 140px); line-height: .9; letter-spacing: -0.055em; font-weight: 800; }
+.hero .tag { font-size: clamp(24px, 3vw, 36px); line-height: 1.15; font-weight: 600; letter-spacing: -0.025em; margin-top: 18px; max-width: 18ch; }
+.hero .sub { margin-top: 22px; font-size: clamp(17px, 1.6vw, 19px); color: var(--dim); max-width: 46ch; }
+.hero-ctas { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hero-meta { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13.5px; color: var(--dim); }
+.hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
+.hero-meta i { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+
+/* Mac sidebar mock (shared) */
+.mac { font-family: var(--ui); background: var(--win); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; box-shadow: 0 40px 100px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4); overflow: hidden; color: var(--fg); }
+.mac-top { height: 46px; display: flex; align-items: center; gap: 7px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+.dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.mac-word { display: flex; align-items: center; gap: 7px; margin-left: 10px; font: 700 14.5px var(--brand); }
+.mac-body { padding: 14px 18px 18px; display: grid; gap: 14px; }
+.status { display: flex; align-items: center; gap: 10px; }
+.pill { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 4px 11px; font-size: 13px; font-weight: 600; background: rgba(52,199,89,.16); color: var(--green); }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.meter { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
+.meter span { width: 3px; border-radius: 2px; background: var(--amber); height: 4px; }
+.app-ok { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.hr { height: 1px; background: var(--line); }
+.lbl { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 600; color: var(--dim); }
+.conf { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--green); font-weight: 500; }
+.conf i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.ref { display: flex; align-items: baseline; gap: 8px; }
+.ref b { font-size: 28px; font-weight: 600; letter-spacing: -0.015em; }
+.ref em { font-style: normal; font-size: 13.5px; font-weight: 600; color: var(--amber); }
+.age { font-size: 12.5px; color: var(--dim); }
+.vtext { font-size: 14px; line-height: 1.5; color: #DAD6CF; }
+.acts { display: flex; gap: 10px; }
+.mbtn { display: flex; align-items: center; justify-content: center; gap: 7px; height: 38px; border-radius: 999px; font-size: 14px; font-weight: 500; background: rgba(255,255,255,.09); }
+.mbtn.pri { background: var(--orange); color: #fff; font-weight: 600; flex: 1; }
+.mbtn small { font-size: 12.5px; opacity: .7; }
+.mbtn.skip { padding: 0 18px; }
+.idle { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--dim); padding: 6px 0; }
+.idle span { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.07); display: grid; place-items: center; flex: none; }
+.hist-row { display: flex; align-items: center; height: 40px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 14px; }
+.hist-row b { flex: 1; font-weight: 500; }
+.hist-row span { font-size: 12.5px; color: var(--dim); }
+
+/* Pinned demo */
+.demo { position: relative; height: 100vh; height: 100svh; min-height: 640px; background: var(--char-2); overflow: hidden; }
+.demo-in { position: absolute; inset: 0; padding-top: calc(56px + env(safe-area-inset-top, 0px)); display: grid; grid-template-rows: auto 1fr; }
+.steps { display: flex; justify-content: center; gap: clamp(10px, 3vw, 34px); padding: clamp(16px, 3vh, 34px) 20px 0; }
+.step { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: clamp(20px, 3vw, 36px); letter-spacing: -0.03em; color: #4A4843; transition: color .4s; }
+.step i { font-style: normal; font-size: 13px; font-weight: 700; letter-spacing: .1em; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid currentColor; }
+.step.on { color: var(--fg); }
+.step.on i { background: var(--amber); border-color: var(--amber); color: #1C1C1A; }
+.scene { display: grid; gap: 18px; align-content: center; justify-content: center; padding: 16px var(--gr) 24px var(--gl); }
+@media (min-width: 980px) { .scene { grid-template-columns: minmax(0, 560px) 360px; gap: 40px; } }
+.left { display: grid; gap: 16px; min-width: 0; }
+.pulpit { background: rgba(255,255,255,.04); border: 1px solid rgba(240,160,80,.28); border-radius: 18px; padding: 18px 20px; display: flex; gap: 14px; }
+.pulpit .mic { width: 40px; height: 40px; border-radius: 12px; background: rgba(240,160,80,.15); color: var(--amber); display: grid; place-items: center; flex: none; }
+.pulpit .who { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+.said { font-size: clamp(17px, 1.8vw, 21px); line-height: 1.45; margin-top: 5px; }
+.said .w { opacity: .14; }
+.said .hi { border-radius: 4px; background-image: linear-gradient(rgba(240,160,80,.28), rgba(240,160,80,.28)); background-repeat: no-repeat; background-size: 0% 100%; }
+.screen { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 14px; background: #000; border: 2px solid #34332F; display: grid; place-items: center; text-align: center; padding: 6% 8%; position: relative; overflow: hidden; }
+.screen .tagl { position: absolute; left: 14px; top: 10px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #6E6A63; }
+.screen .tagl b { color: #F07A6A; opacity: 0; }
+.screen .vt { font-family: Georgia, "Times New Roman", serif; font-size: clamp(14px, 1.7vw, 20px); line-height: 1.5; color: #fff; }
+.screen .vr { display: block; margin-top: 10px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(12px, 1.2vw, 15px); color: #D9D5CE; }
+.screen .ph { color: #4A4843; font-size: 14px; }
+.side { width: 100%; max-width: 360px; justify-self: center; position: relative; }
+.match-wrap { position: relative; min-height: 210px; }
+.match-wrap > div { position: absolute; inset: 0; }
+.key { position: absolute; right: -10px; bottom: -14px; display: flex; align-items: center; gap: 10px; background: #F2F0EC; color: #1C1C1A; border-radius: 14px; padding: 10px 14px; font: 700 20px var(--brand); box-shadow: 0 20px 50px rgba(0,0,0,.55); opacity: 0; z-index: 3; }
+.key .cap { min-width: 44px; height: 40px; border-radius: 9px; background: #fff; border: 1px solid #D5D1CA; border-bottom-width: 4px; display: grid; place-items: center; padding: 0 10px; }
+.key small { font-size: 13px; color: #6E6A63; }
+@media (max-width: 979px) {
+  .scene { grid-template-columns: minmax(0, 1fr); max-width: 520px; margin-inline: auto; width: 100%; }
+  .screen { order: -1; }
+  .side .mac-top, .side .hist { display: none; }
+  .match-wrap { min-height: 190px; }
+}
+@media (max-height: 760px) and (max-width: 979px) { .pulpit { padding: 12px 14px; } .said { font-size: 15.5px; } .ref b { font-size: 22px; } .vtext { display: none; } .match-wrap { min-height: 128px; } }
+
+/* Stat */
+.stat { display: grid; gap: clamp(28px, 4vw, 48px); align-items: end; }
+@media (min-width: 880px) { .stat { grid-template-columns: 1fr 1fr; } }
+.stat .n { white-space: nowrap; font-size: clamp(80px, 12vw, 176px); font-weight: 800; letter-spacing: -0.06em; line-height: .85; font-variant-numeric: tabular-nums; }
+.stat .n small { font-size: .3em; letter-spacing: -0.02em; margin-left: 8px; }
+.stat p { font-size: clamp(20px, 2.4vw, 30px); line-height: 1.3; font-weight: 600; letter-spacing: -0.02em; max-width: 22ch; }
+
+/* Two ways */
+.ways { display: grid; gap: 18px; }
+@media (min-width: 880px) { .ways { grid-template-columns: 1fr 1fr; } }
+.way { position: relative; overflow: hidden; border-radius: 28px; background: var(--panel); border: 1px solid var(--line); padding: clamp(26px, 3.4vw, 40px); display: grid; gap: 22px; align-content: start; min-width: 0; }
+.way h3 { font-size: clamp(26px, 2.8vw, 34px); }
+.way p { color: var(--dim); }
+.drop-stage { position: relative; height: 300px; border-radius: 18px; background: rgba(0,0,0,.25); border: 1px solid var(--line); overflow: hidden; }
+.pdf { position: absolute; left: 22px; top: 30px; display: flex; align-items: center; gap: 10px; background: #F2F0EC; color: #1C1C1A; border-radius: 12px; padding: 10px 14px 10px 10px; font: 600 14px var(--brand); box-shadow: 0 14px 36px rgba(0,0,0,.5); z-index: 2; }
+.pdf b { width: 30px; height: 38px; border-radius: 5px; background: var(--orange); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; }
+.drop-zone { position: absolute; right: 18px; top: 18px; bottom: 18px; width: min(58%, 260px); border-radius: 14px; border: 2px dashed rgba(240,160,80,.25); display: grid; align-content: start; gap: 2px; padding: 14px 14px; font-family: var(--ui); }
+.drop-zone .h { font-size: 12px; font-weight: 600; color: var(--dim); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.drop-zone .v { display: flex; align-items: center; gap: 8px; height: 30px; font-size: 13.5px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.drop-zone .v::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+.toast { position: absolute; left: 18px; bottom: 18px; right: calc(min(58%, 260px) + 36px); background: rgba(52,51,48,.97); border-radius: 14px; padding: 12px 14px; font-family: var(--ui); font-size: 13px; display: grid; gap: 2px; }
+.toast b { font-size: 13.5px; }
+.wave { height: 300px; border-radius: 18px; background: rgba(0,0,0,.25); border: 1px solid var(--line); position: relative; overflow: hidden; display: grid; align-content: center; gap: 18px; padding: 24px; }
+.wave { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 480px) { .wave { padding: 18px; } .wave .bars { gap: 3px; } .wave .caught { gap: 8px; padding: 10px 12px; } .wave .caught b { font-size: 17px !important; } }
+.wave .bars { display: flex; align-items: center; gap: 4px; height: 90px; }
+.wave .bars i { flex: 1; border-radius: 3px; background: linear-gradient(180deg, var(--amber), var(--orange)); height: 20%; }
+.wave .caught { display: flex; align-items: center; gap: 12px; font-family: var(--ui); background: rgba(255,255,255,.05); border-radius: 12px; padding: 12px 14px; }
+.replay { position: absolute; right: 14px; bottom: 14px; z-index: 4; width: 38px; height: 38px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; color: var(--fg); background: rgba(255,255,255,.12); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); opacity: 0; transform: scale(.8); pointer-events: none; transition: opacity .35s, transform .35s, background .25s; }
+.replay.show { opacity: 1; transform: none; pointer-events: auto; }
+.replay:hover { background: rgba(255,255,255,.2); }
+.keys-wrap { position: relative; padding-bottom: 54px; }
+.keys-wrap .replay { bottom: 0; right: 0; }
+.wave .caught b { font-size: 20px; font-weight: 600; white-space: nowrap; }
+.wave .caught em { font-style: normal; font-size: 12.5px; color: var(--amber); font-weight: 600; }
+
+/* Pipeline */
+.pipe { position: relative; display: grid; gap: 0; }
+.pipe-line { position: absolute; left: 21px; top: 22px; bottom: 22px; width: 2px; background: rgba(255,255,255,.08); }
+.pipe-line i { position: absolute; inset: 0; background: linear-gradient(var(--amber), var(--orange)); transform-origin: top; transform: scaleY(0); }
+.stage-row { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 22px; padding: 22px 0; }
+.stage-row .num { width: 44px; height: 44px; border-radius: 50%; background: var(--char); border: 2px solid #3A3935; display: grid; place-items: center; font-weight: 700; font-size: 15px; color: var(--dim); z-index: 1; transition: border-color .4s, color .4s, background .4s; }
+.stage-row.lit .num { border-color: var(--amber); background: var(--amber); color: #1C1C1A; }
+.stage-row h3 { font-size: clamp(24px, 2.6vw, 32px); }
+.stage-row p { color: var(--dim); max-width: 60ch; margin-top: 6px; }
+
+/* Recognizes */
+.rec { display: grid; gap: 12px; }
+.rec-row { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, auto); align-items: center; gap: 14px; padding: 18px 22px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); }
+.rec-row .said2 { font-size: clamp(15px, 1.6vw, 19px); font-style: italic; color: #D9D5CE; min-width: 0; }
+.rec-row svg { width: 40px; height: 16px; }
+.rec-row .out { font-family: var(--ui); font-weight: 600; font-size: clamp(17px, 1.8vw, 22px); color: var(--amber); white-space: nowrap; text-align: right; }
+@media (max-width: 560px) { .drop-stage { height: 380px; } .drop-zone { width: auto; left: 18px; top: 84px; bottom: 82px; } .toast { right: 18px; } .pdf { top: 20px; } }
+@media (max-width: 640px) { .rec-row { grid-template-columns: minmax(0, 1fr); gap: 6px; } .rec-row svg { display: none; } .rec-row .out { text-align: left; } }
+.nope { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.nope span { position: relative; padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid var(--line); font-size: 15px; color: var(--dim); }
+.nope span::after { content: ""; position: absolute; left: 12px; right: 12px; top: 50%; height: 1.5px; background: #E06A5A; transform-origin: left; transform: scaleX(var(--s, 1)); }
+.beta { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #1C1C1A; background: var(--yellow); border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: 2px; font-style: normal; }
+
+/* Keys */
+.keys { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
+.kc { border-radius: 20px; background: var(--panel); border: 1px solid var(--line); padding: 22px; display: grid; gap: 14px; justify-items: start; }
+.kcap { min-width: 64px; height: 58px; padding: 0 16px; border-radius: 12px; background: #F2F0EC; color: #1C1C1A; font: 700 22px var(--ui); display: grid; place-items: center; border-bottom: 5px solid #BDB8AE; }
+.kc b { font-size: 17px; }
+.kc span { font-size: 13.5px; color: var(--dim); }
+
+/* Privacy */
+.privacy p.big { font-size: clamp(44px, 8vw, 104px); line-height: 1.04; font-weight: 800; letter-spacing: -0.05em; }
+.privacy .ln { display: block; padding-bottom: .12em; margin-bottom: -.12em; background: linear-gradient(90deg, var(--fg) 0 50%, #3A3935 50% 100%); background-size: 200% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.priv-grid { margin-top: clamp(40px, 6vw, 72px); display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+.priv-grid div { border-top: 1px solid var(--line); padding-top: 18px; }
+.priv-grid b { display: block; font-size: 17px; margin-bottom: 6px; }
+.priv-grid span { color: var(--dim); font-size: 15.5px; }
+
+/* Specs */
+.spec-grid { border-top: 1px solid var(--line); margin: 0; }
+.spec { display: grid; gap: 4px 32px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+@media (min-width: 760px) { .spec { grid-template-columns: 220px minmax(0, 1fr); } }
+.spec dt { font-weight: 600; }
+.spec dd { margin: 0; color: var(--dim); }
+
+/* Free + roadmap */
+.free { display: grid; gap: 18px; }
+@media (min-width: 880px) { .free { grid-template-columns: 1.1fr 1fr; } }
+.free-card { border-radius: 28px; padding: clamp(28px, 4vw, 48px); background: linear-gradient(150deg, #2a1b10, #1C1C1A 70%); border: 1px solid rgba(240,160,80,.2); display: grid; gap: 16px; align-content: start; }
+.free-card .price { font-size: clamp(64px, 10vw, 120px); font-weight: 800; letter-spacing: -0.06em; line-height: .9; }
+.road { border-radius: 28px; padding: clamp(28px, 4vw, 48px); background: var(--panel); border: 1px solid var(--line); display: grid; gap: 18px; align-content: start; }
+.road-item { display: grid; gap: 4px; padding-top: 16px; border-top: 1px solid var(--line); }
+.road-item b { font-size: 18px; }
+.road-item span { color: var(--dim); font-size: 15.5px; }
+
+/* Notify */
+.notify { text-align: center; }
+.notify .wrap { display: grid; justify-items: center; gap: 18px; }
+.notify h2 { font-size: clamp(48px, 8vw, 104px); line-height: 1.05; padding-bottom: .06em; letter-spacing: -0.05em; }
+.nform { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 520px; margin-top: 10px; }
+.nform input { flex: 1 1 240px; min-width: 0; min-height: 52px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: var(--fg); padding: 0 20px; font: 16px var(--brand); }
+.nform input:focus { outline: none; border-color: var(--amber); }
+.nnote { font-size: 14px; color: var(--amber); min-height: 1.4em; }
+footer { border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; }
+footer .flink { color: var(--dim); text-decoration: underline; text-underline-offset: 3px; }
+footer .flink:hover { color: var(--fg); }
+footer .wrap { padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+
+.static .demo { height: auto; min-height: 0; }
+.static .demo-in { position: relative; }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8.5z" fill="none" stroke="#F0A050" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="mark" href="#top"><svg class="flame"><use href="#flame"/></svg>Word Cue<small>FRESH FIRE STUDIOS</small></a>
+    <nav aria-label="Main"><a href="#how">How it works</a><a href="#detection">Detection</a><a href="#privacy">Privacy</a><a href="#specs">Specs</a><a href="manual.html">Docs</a></nav>
+    <a class="btn pri" href="#notify" style="min-height:36px;padding:0 16px;font-size:14px">Get notified</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow" id="hEy">For the sound booth Mac</span>
+        <h1 id="hTitle" style="margin-top:14px">Word Cue</h1>
+        <p class="tag" id="hTag">Scripture on screen the moment it&rsquo;s preached.</p>
+        <p class="sub" id="hSub">A free Mac companion for your presentation software. It listens to the pulpit mic, catches every verse the preacher reaches, and has it waiting for your operator to send.</p>
+        <div class="hero-ctas" id="hCtas"><a class="btn pri lg" href="#notify">Get notified</a><a class="btn lg" href="#how">See it work</a></div>
+        <div class="hero-meta" id="hMeta"><span><i></i>Runs on-device</span><span><i></i>No internet needed</span><span><i></i>Free</span></div>
+      </div>
+      <div class="mac" id="heroMac" aria-label="Word Cue sidebar showing a verse waiting to be sent" role="img" style="max-width:380px;justify-self:center;width:100%">
+        <div class="mac-top"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="mac-word"><svg class="flame"><use href="#flame"/></svg>Word Cue</span></div>
+        <div class="mac-body">
+          <div class="status"><span class="pill"><i></i>Listening</span><span class="meter" id="heroMeter"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span><span class="app-ok"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#34C759"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>OpenLP</span></div>
+          <div class="hr"></div>
+          <div class="lbl"><span>Likely Match</span><span class="conf"><i></i>High confidence</span></div>
+          <div class="ref"><b>Acts 2:38</b><em>KJV</em></div>
+          <div class="age">Heard 3 seconds ago</div>
+          <p class="vtext">Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost.</p>
+          <div class="acts"><span class="mbtn pri">Send<small>&crarr;</small></span><span class="mbtn skip">Skip<small>esc</small></span></div>
+          <div class="hr"></div>
+          <div class="lbl"><span>This Service</span><span style="font-weight:400">2</span></div>
+          <div><div class="hist-row"><b>John 3:5</b><span>10:31</span></div><div class="hist-row"><b style="color:var(--dim)">Ephesians 4:5</b><span style="margin-right:12px">Skipped</span><span>10:28</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo" id="how" aria-label="How a spoken verse becomes a slide">
+    <div class="demo-in">
+      <div class="steps" aria-hidden="true"><span class="step on" data-s="0"><i>1</i>Hear</span><span class="step" data-s="1"><i>2</i>Catch</span><span class="step" data-s="2"><i>3</i>Send</span></div>
+      <div class="scene">
+        <div class="left">
+          <div class="pulpit">
+            <span class="mic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+            <div style="min-width:0"><div class="who">Pulpit mic &middot; Pastor</div><p class="said" id="said">Church, open your Bibles with me to <span class="hi">John chapter three, verse five.</span> Jesus answered, Verily, verily&hellip;</p></div>
+          </div>
+          <div class="screen" id="screen">
+            <span class="tagl">Projector <b id="onAir">&#9679; Live</b></span>
+            <span class="ph" id="screenPh">[Live output]</span>
+            <div id="screenVerse" style="position:absolute;inset:0;display:grid;place-items:center;padding:6% 8%;opacity:0"><p><span class="vt">Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God.</span><span class="vr">John 3:5 (KJV)</span></p></div>
+          </div>
+        </div>
+        <div class="side">
+          <div class="mac">
+            <div class="mac-top"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="mac-word"><svg class="flame"><use href="#flame"/></svg>Word Cue</span></div>
+            <div class="mac-body">
+              <div class="status"><span class="pill"><i></i>Listening</span><span class="meter" id="demoMeter"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span><span class="app-ok"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#34C759"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>OpenLP</span></div>
+              <div class="hr"></div>
+              <div class="match-wrap">
+                <div id="mIdle"><div class="lbl"><span>Likely Match</span></div><div class="idle"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#9E998F" stroke-linecap="round" stroke-width="1.8"><path d="M3 12h1M7 8v8M11 4v16M15 7v10M19 10v4"/></svg></span>Listening for scripture&hellip;</div></div>
+                <div id="mCard" style="opacity:0;display:grid;gap:10px;align-content:start">
+                  <div class="lbl"><span>Likely Match</span><span class="conf"><i></i>High confidence</span></div>
+                  <div class="ref"><b>John 3:5</b><em>KJV</em></div>
+                  <div class="age">Heard 2 seconds ago</div>
+                  <p class="vtext">Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit&hellip;</p>
+                  <div class="acts"><span class="mbtn pri" id="sendBtn">Send<small>&crarr;</small></span><span class="mbtn skip">Skip<small>esc</small></span></div>
+                </div>
+              </div>
+              <div class="hist">
+                <div class="hr"></div>
+                <div class="lbl" style="margin-top:12px"><span>This Service</span><span style="font-weight:400" id="histCount">0</span></div>
+                <div class="hist-row" id="histRow" style="opacity:0"><b>John 3:5</b><span>10:31</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="key" id="key"><span class="cap">&crarr;</span><small>Return</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="wrap stat">
+      <div><span class="eyebrow">Why it exists</span><div class="n" style="margin-top:16px"><span id="secsA">0</span><span id="secsDash">&ndash;</span><span id="secsB">0</span><small>sec</small></div></div>
+      <p>That&rsquo;s how long a booth operator needs to find a verse by hand. <span class="dim">In a Spirit-led service, the preacher has already moved on. Word Cue has the reference waiting before you could type it.</span></p>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Two ways in</span><h2>Every verse,<br><span class="dim">planned or not.</span></h2></div>
+      <div class="ways">
+        <div class="way" id="wayLive">
+          <div class="wave">
+            <div class="bars" id="waveBars" aria-hidden="true"></div>
+            <div class="caught" id="caught"><svg class="flame" style="width:22px;height:22px"><use href="#flame"/></svg><b>Colossians 2:9</b><em>KJV</em><span class="conf" style="margin-left:auto"><i></i>High</span></div>
+            <button type="button" class="replay" id="replayLive" aria-label="Replay live detection"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+          </div>
+          <h3>Live detection</h3>
+          <p>Continuous listening during the sermon. Each verse the preacher reaches appears as a Likely Match, ready to send or skip.</p>
+        </div>
+        <div class="way" id="wayFile">
+          <div class="drop-stage">
+            <div class="pdf" id="pdf"><b>PDF</b>sermon-notes.pdf</div>
+            <div class="drop-zone" id="dropZone"><div class="h"><span>OpenLP service list</span><span>Sermon</span></div>
+              <div class="v">John 3:5</div><div class="v">Acts 2:38</div><div class="v">Acts 2:4</div><div class="v">Joel 2:28</div><div class="v">Acts 4:12</div><div class="v">Colossians 2:9</div></div>
+            <button type="button" class="replay" id="replayDrop" aria-label="Replay sermon notes"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            <div class="toast" id="dropToast"><b>6 verses added to OpenLP</b><span class="dim">From sermon-notes.pdf &middot; Undo &#8984;Z</span></div>
+          </div>
+          <h3>From the sermon notes</h3>
+          <p>Drop the pastor&rsquo;s notes (PDF, photo or text) and every reference lands in your service list, in order. No microphone needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0" id="detection">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">How detection works</span><h2>Six steps.<br><span class="dim">All on the booth Mac.</span></h2><p>A person stays between detection and the screen, unless your church turns on Auto-send.</p></div>
+      <div class="pipe" id="pipe">
+        <div class="pipe-line" aria-hidden="true"><i id="pipeFill"></i></div>
+        <div class="stage-row"><span class="num">1</span><div><h3>Listen</h3><p>Reads the soundboard feed from your USB audio interface and turns the sermon into text in real time with Apple&rsquo;s on-device speech recognition.</p></div></div>
+        <div class="stage-row"><span class="num">2</span><div><h3>Understand</h3><p>Apple&rsquo;s on-device model decides whether a reference just happened, including spoken addresses, ordinals like &ldquo;First Timothy,&rdquo; and quoted verses.</p></div></div>
+        <div class="stage-row"><span class="num">3</span><div><h3>Check</h3><p>&ldquo;first timothy three sixteen&rdquo; becomes 1 Timothy 3:16. The book and chapter are confirmed to exist, and quoted text is matched against the bundled KJV.</p></div></div>
+        <div class="stage-row"><span class="num">4</span><div><h3>Filter</h3><p>Anything under the confidence floor is dropped, common-word books need a chapter number, and the same verse won&rsquo;t repeat within a minute.</p></div></div>
+        <div class="stage-row"><span class="num">5</span><div><h3>Suggest</h3><p>The verse appears as the Likely Match with a confidence level, waiting for your operator.</p></div></div>
+        <div class="stage-row"><span class="num">6</span><div><h3>Send</h3><p>One key and the verse is live in OpenLP through its remote connection, with keyboard shortcuts as an automatic backup.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">What it understands</span><h2>Preachers don&rsquo;t say &ldquo;colon.&rdquo;</h2><p>Word Cue hears scripture the way it&rsquo;s actually preached and turns it into a proper reference.</p></div>
+      <div class="rec" id="rec">
+        <div class="rec-row"><span class="said2">&ldquo;John chapter three, verse five&rdquo;</span><svg viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5" fill="none" stroke="#F0A050" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="out">John 3:5</span></div>
+        <div class="rec-row"><span class="said2">&ldquo;first timothy three sixteen&rdquo;</span><svg viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5" fill="none" stroke="#F0A050" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="out">1 Timothy 3:16</span></div>
+        <div class="rec-row"><span class="said2">&ldquo;verses five through seven&rdquo;</span><svg viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5" fill="none" stroke="#F0A050" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="out">John 3:5&ndash;7</span></div>
+        <div class="rec-row"><span class="said2">&ldquo;&hellip;and verse eight&rdquo;</span><svg viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5" fill="none" stroke="#F0A050" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="out">John 3:8</span></div>
+        <div class="rec-row"><span class="said2">&ldquo;Except a man be born of water&hellip;&rdquo; <em class="beta">BETA</em></span><svg viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h34M30 3l6 5-6 5" fill="none" stroke="#F0A050" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="out">John 3:5</span></div>
+      </div>
+      <p class="dim" style="margin-top:44px;max-width:62ch">And it knows when you&rsquo;re not quoting scripture. Books that are everyday words only count when a chapter number follows, and detection pauses during the music.</p>
+      <div class="nope" id="nope"><span>&ldquo;mark my words&rdquo;</span><span>&ldquo;acts of kindness&rdquo;</span><span>&ldquo;a job well done&rdquo;</span><span>&ldquo;by the numbers&rdquo;</span><span>&ldquo;judges at the fair&rdquo;</span></div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Built for the booth</span><h2>Keep your hands<br><span class="dim">where they are.</span></h2><p>Every action has a key. Add &#8963;&#8997; and the same keys work while your presentation app is in front, without typing into it.</p></div>
+      <div class="keys-wrap">
+      <div class="keys" id="keys">
+        <div class="kc"><span class="kcap">&crarr;</span><b>Send</b><span>Verse goes live</span></div>
+        <div class="kc"><span class="kcap">esc</span><b>Skip</b><span>Clear the match</span></div>
+        <div class="kc"><span class="kcap" style="min-width:120px">space</span><b>Pause</b><span>Stop or resume listening</span></div>
+        <div class="kc"><span class="kcap">&#8984;B</span><b>Clear Screen</b><span>Blank the projector</span></div>
+        <div class="kc"><span class="kcap">&#8984;R</span><b>Resend</b><span>The last verse again</span></div>
+        <div class="kc"><span class="kcap">&#8984;\</span><b>Compact</b><span>Small floating panel</span></div>
+      </div>
+      <button type="button" class="replay" id="replayKeys" aria-label="Replay the shortcuts"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec privacy" style="padding-top:0" id="privacy">
+    <div class="wrap">
+      <span class="eyebrow">Privacy</span>
+      <p class="big" id="privBig" style="margin-top:18px"><span class="ln">No internet.</span><span class="ln">No cloud.</span><span class="ln">No recordings.</span></p>
+      <p class="dim" style="margin-top:28px;font-size:clamp(17px,1.7vw,21px);max-width:58ch">Ministers sometimes share sensitive things from the pulpit. Word Cue is built so none of it can leave the building. It uses Apple&rsquo;s on-device models only.</p>
+      <div class="priv-grid">
+        <div><b>Audio</b><span>Never recorded or saved.</span></div>
+        <div><b>Transcripts</b><span>Kept on the Mac for 7 days by default, or not at all.</span></div>
+        <div><b>Diagnostics</b><span>Sent only when you choose, and never with audio or transcripts.</span></div>
+        <div><b>Permissions</b><span>Microphone and Speech Recognition, used only on this Mac.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0" id="specs">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Tech specs</span><h2>The details.</h2></div>
+      <dl class="spec-grid">
+        <div class="spec"><dt>Platform</dt><dd>macOS 27 or later, Apple silicon. Native Mac app.</dd></div>
+        <div class="spec"><dt>Audio input</dt><dd>Any USB or Thunderbolt audio interface, with channel selection</dd></div>
+        <div class="spec"><dt>Speech</dt><dd>Apple&rsquo;s on-device speech recognition, with Enhanced mode on Apple Intelligence Macs. Fully offline.</dd></div>
+        <div class="spec"><dt>Bible</dt><dd>King James Version bundled and set as the default</dd></div>
+        <div class="spec"><dt>Presentation software</dt><dd>OpenLP on the same Mac at launch. ProPresenter, FreeShow, EasyWorship and Proclaim are planned.</dd></div>
+        <div class="spec"><dt>Languages</dt><dd>English and Spanish</dd></div>
+        <div class="spec"><dt>Updates</dt><dd>Signed automatic updates that never install during a service</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-top:0">
+    <div class="wrap free">
+      <div class="free-card" id="freeCard">
+        <span class="eyebrow">Price</span>
+        <span class="price">Free.</span>
+        <p style="font-size:clamp(18px,1.8vw,21px)">No purchase, no subscription, no per-seat cost. Install it on every church Mac you have.</p>
+        <p class="dim">The goal is missional, not financial. An optional donation supports development, and open source is planned.</p>
+      </div>
+      <div class="road" id="road">
+        <span class="eyebrow">What&rsquo;s next</span>
+        <div class="road-item"><b>iPhone and iPad companion</b><span>Scan a bulletin or outline, import a PDF, or dictate a verse list and send it to the booth Mac.</span></div>
+        <div class="road-item"><b>More presentation apps</b><span>ProPresenter, FreeShow, EasyWorship and Proclaim.</span></div>
+        <div class="road-item"><b>Service Log export</b><span>A record of every verse in a service, ready to share with the congregation.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec notify" id="notify" style="padding-top:0">
+    <div class="wrap">
+      <svg class="flame" style="width:44px;height:44px"><use href="#flame"/></svg>
+      <h2>Coming to Mac.</h2>
+      <p class="dim" style="font-size:clamp(17px,1.8vw,21px);max-width:44ch">Word Cue is in development. Leave your email and we&rsquo;ll let you know when it&rsquo;s ready for your booth.</p>
+      <form class="nform" id="nform" novalidate>
+        <label class="sr-only" for="nEmail">Email</label>
+        <input id="nEmail" type="email" placeholder="you@yourchurch.org" autocomplete="email">
+        <button class="btn pri lg" type="submit">Notify me</button>
+      </form>
+      <p class="nnote" id="nnote" role="status"></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><span>Word Cue &middot; A Fresh Fire Studios app</span><a href="manual.html" class="flink">User guide</a><span>Mac only &middot; On-device &middot; Free</span></div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var G = window.gsap, ST = window.ScrollTrigger, MOTION = !!(G && ST) && !RM;
+  function $(s) { return document.querySelector(s); }
+  function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+
+  // Wave bars for the live-detection card
+  var wb = $('#waveBars');
+  var seed = 11; function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  var prof = [];
+  for (var i = 0; i < 48; i++) { var b = document.createElement('i'); var env = 0.3 + 0.7 * Math.abs(Math.sin(i * 0.31)); var h = i % 12 === 11 ? 0.08 : 0.12 + 0.82 * env * (0.4 + 0.6 * rnd()); prof.push(Math.max(0.45, h)); b.style.height = (h * 100) + '%'; wb.appendChild(b); }
+
+  // Split the sermon line into words (keeping the highlighted phrase together for its marker)
+  var said = $('#said');
+  (function split(el) {
+    Array.prototype.slice.call(el.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        var f = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (p) { if (!p) return; if (/^\s+$/.test(p)) f.appendChild(document.createTextNode(p)); else { var s = document.createElement('span'); s.className = 'w'; s.textContent = p; f.appendChild(s); } });
+        el.replaceChild(f, n);
+      } else if (n.nodeType === 1) split(n);
+    });
+  })(said);
+  var words = $$('#said .w');
+
+  $('#nform').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('#nEmail').value.trim(), note = $('#nnote');
+    note.textContent = /.+@.+\..+/.test(v) ? 'Thanks! This preview doesn’t send yet; on the live site you’d be on the list.' : 'Enter an email address so we can reach you.';
+  });
+
+  if (!MOTION) {
+    document.documentElement.classList.add('static');
+    words.forEach(function (w) { w.style.opacity = 1; });
+    $('#mCard').style.opacity = 1; $('#mIdle').style.opacity = 0; $('#screenVerse').style.opacity = 1; $('#screenPh').style.opacity = 0;
+    $('#secsA').textContent = '7'; $('#secsB').textContent = '14';
+    $$('.privacy .ln').forEach(function (l) { l.style.backgroundPosition = '0 0'; });
+    $$('.stage-row').forEach(function (r) { r.classList.add('lit'); }); $('#pipeFill').style.transform = 'scaleY(1)';
+    return;
+  }
+  G.registerPlugin(ST);
+
+  // Meters breathe while "listening"
+  function meter(sel) { $$(sel + ' span').forEach(function (s, i) { G.to(s, { height: function () { return 4 + Math.random() * 12; }, duration: 0.18 + i * 0.02, repeat: -1, yoyo: true, repeatRefresh: true, ease: 'sine.inOut' }); }); }
+  meter('#heroMeter'); meter('#demoMeter');
+
+  // Hero entrance: copy resolves from a blur, the app slides in from the right
+  G.timeline({ delay: 0.15 })
+    .from('#hEy, #hTitle, #hTag, #hSub, #hCtas, #hMeta', { opacity: 0, y: 26, filter: 'blur(12px)', stagger: 0.1, duration: 1.1, ease: 'power3.out' })
+    .from('#heroMac', { opacity: 0, x: 80, rotateY: -12, transformPerspective: 1200, duration: 1.4, ease: 'power3.out' }, 0.25)
+    .from('.hero .glow', { opacity: 0, scale: 0.6, duration: 2, ease: 'power2.out' }, 0);
+  G.to('#heroMac', { y: -40, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+
+  // Desktop polish: once it has slid in, the app leans toward the mouse as it glides across the hero, then settles back
+  if (window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 900px)').matches) {
+    var heroEl = $('.hero'), mac = $('#heroMac'), tiltOn = false;
+    var rx = G.quickTo(mac, 'rotationX', { duration: 0.9, ease: 'power3.out' }),
+        ry = G.quickTo(mac, 'rotationY', { duration: 0.9, ease: 'power3.out' }),
+        tx = G.quickTo(mac, 'x', { duration: 0.9, ease: 'power3.out' });
+    G.delayedCall(1.8, function () { G.set(mac, { transformPerspective: 1000 }); tiltOn = true; });
+    heroEl.addEventListener('mousemove', function (e) {
+      if (!tiltOn) return;
+      var r = heroEl.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      ry(px * 16); rx(-py * 10); tx(px * 14);
+    });
+    heroEl.addEventListener('mouseleave', function () { if (tiltOn) { ry(0); rx(0); tx(0); } });
+  }
+
+  // The pinned scene: hear → catch → send, all on scroll
+  var steps = $$('.step');
+  function setStep(n) { steps.forEach(function (s, i) { s.classList.toggle('on', i <= n); }); }
+  var tl = G.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#how', start: 'top top', end: '+=320%', pin: true, scrub: 0.6, anticipatePin: 1,
+    onUpdate: function (self) { var p = self.progress; setStep(p < 0.36 ? 0 : p < 0.6 ? 1 : 2); } } });
+  tl.to(words, { opacity: 1, stagger: 0.012, duration: 0.02 }, 0.02)
+    .to('#said .hi', { backgroundSize: '100% 100%', duration: 0.08 }, 0.2)
+    .to('#mIdle', { opacity: 0, y: -10, duration: 0.05 }, 0.34)
+    .fromTo('#mCard', { opacity: 0, y: 16, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.08 }, 0.37)
+    .fromTo('#key', { opacity: 0, y: 14, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.05 }, 0.56)
+    .to('#sendBtn', { scale: 0.94, filter: 'brightness(1.3)', duration: 0.02 }, 0.62)
+    .to('#sendBtn', { scale: 1, filter: 'brightness(1)', duration: 0.02 }, 0.645)
+    .to('#screenPh', { opacity: 0, duration: 0.03 }, 0.64)
+    .fromTo('#screenVerse', { opacity: 0, scale: 0.96, filter: 'blur(10px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.1 }, 0.65)
+    .to('#screen', { borderColor: '#B85A1B', duration: 0.04 }, 0.65)
+    .to('#onAir', { opacity: 1, duration: 0.03 }, 0.66)
+    .to('#mCard', { opacity: 0, y: -10, duration: 0.05 }, 0.72)
+    .to('#mIdle', { opacity: 1, y: 0, duration: 0.05 }, 0.76)
+    .fromTo('#histRow', { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.05 }, 0.74)
+    .to('#key', { opacity: 0, duration: 0.04 }, 0.74)
+    .to({}, { duration: 0.12 }, 0.86);
+  ST.create({ trigger: '#how', start: 'top top', end: '+=320%', onUpdate: function (s) { $('#histCount').textContent = s.progress > 0.74 ? '1' : '0'; } });
+
+  // Seconds count up
+  // Hold the finished width of "14" from the start, so nothing shifts while it counts
+  var sA = $('#secsA'), sB = $('#secsB'), sD = $('#secsDash');
+  sB.textContent = '14'; sB.style.display = 'inline-block';
+  sB.style.minWidth = (sB.getBoundingClientRect().width / parseFloat(getComputedStyle(sB).fontSize)) + 'em';
+  sB.textContent = '8'; G.set([sD, sB], { opacity: 0 });
+  // One continuous, evenly paced count: 0 to 7, the dash eases in, then 8 to 14 settles to a stop
+  var cnt = { v: 0 }, dashOn = false, bOn = false;
+  G.to(cnt, { v: 14, duration: 2.8, ease: 'sine.inOut', scrollTrigger: { trigger: '#secsA', start: 'top 55%', once: true },
+    onUpdate: function () {
+      var n = Math.round(cnt.v);
+      sA.textContent = Math.min(n, 7);
+      if (!dashOn && cnt.v >= 7.3) { dashOn = true; G.fromTo(sD, { opacity: 0, x: '-0.06em', filter: 'blur(6px)' }, { opacity: 1, x: 0, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }); }
+      if (n >= 8) { sB.textContent = n; if (!bOn) { bOn = true; G.fromTo(sB, { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.35, ease: 'power2.out' }); } }
+    } });
+
+  // Two ways
+  G.from('.way', { y: 50, opacity: 0, stagger: 0.12, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.ways', start: 'top 72%', once: true } });
+  // Live detection: the original wave and caught card, played slower, with a replay button
+  // Speech-like loudness: syllables grouped into words, words into phrases. New every play, never a loop.
+  function speech(dur, hz) {
+    var n = Math.ceil(dur * hz), a = new Float32Array(n), t = 0.2;
+    while (t < dur - 1) {
+      var words = 3 + Math.floor(Math.random() * 4);
+      for (var w = 0; w < words && t < dur - 1; w++) {
+        var syl = 1 + Math.floor(Math.random() * 3), stress = 0.6 + 0.4 * Math.random();
+        for (var s = 0; s < syl; s++) {
+          var d = 0.14 + Math.random() * 0.12, amp = stress * (0.55 + 0.45 * Math.random());
+          for (var k = Math.floor(t * hz); k < Math.min(n, (t + d) * hz); k++) { var sv = Math.sin(Math.PI * (k / hz - t) / d); a[k] = Math.min(1, a[k] + amp * sv * sv); }
+          t += d * 0.85;
+        }
+        t += 0.04 + Math.random() * 0.1;
+      }
+      t += 0.3 + Math.random() * 0.35;
+    }
+    // light smoothing (about 50 ms) so no edge is sharp
+    var b = new Float32Array(n);
+    for (var j = 0; j < n; j++) { var sum = 0, c = 0; for (var q = -2; q <= 2; q++) { if (j + q >= 0 && j + q < n) { sum += a[j + q]; c++; } } b[j] = sum / c; }
+    return b;
+  }
+  var bars = $$('#waveBars i'), LIVE = 10, HZ = 60, liveTl = null, curH = [], curO = [];
+  function ss(x) { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); }
+  function restBars() { bars.forEach(function (b, i) { curH[i] = 0.06; curO[i] = 0.25; b.style.transform = 'scaleY(0.06)'; b.style.opacity = 0.25; }); }
+  function playLive() {
+    if (liveTl) liveTl.kill();
+    $('#replayLive').classList.remove('show');
+    var a = speech(LIVE, HZ), st = { t: 0 }, lastT = 0;
+    function level(t) { var x = t * HZ, k = Math.floor(x); if (k < 0 || k >= a.length - 1) return 0; return a[k] + (a[k + 1] - a[k]) * (x - k); }
+    function draw() {
+      var t = st.t, dt = Math.min(0.1, Math.max(0, t - lastT)); lastT = t;
+      var settle = ss((t - (LIVE - 1.1)) / 1.1);                                     // last second: glides into the resting wave
+      for (var i = 0; i < bars.length; i++) {
+        var on = ss((t - i * 0.06) / 0.35);                                          // the sweep: bars switch on left to right
+        var live = 1.7 * prof[i] * level(t - i * 0.035) * (0.92 + 0.08 * Math.sin(t * 6 + i * 1.7)); // sound travels left to right
+        var h = (0.06 + 0.94 * Math.min(1, live)) * (1 - settle) + prof[i] * settle;
+        var target = 0.06 + (h - 0.06) * on, tO = 0.25 + 0.75 * on;
+        // meter-style motion: rises quickly, falls gently, like a real audio level
+        var tau = target > curH[i] ? 0.05 : 0.13;
+        curH[i] += (target - curH[i]) * (1 - Math.exp(-dt / tau));
+        curO[i] += (tO - curO[i]) * (1 - Math.exp(-dt / 0.15));
+        bars[i].style.transform = 'scaleY(' + curH[i].toFixed(3) + ')';
+        bars[i].style.opacity = curO[i].toFixed(3);
+      }
+    }
+    liveTl = G.timeline({ onComplete: function () { $('#replayLive').classList.add('show'); } });
+    liveTl.set('#caught', { opacity: 0 })
+      .to(st, { t: LIVE, duration: LIVE, ease: 'none', onUpdate: draw })
+      .fromTo('#caught', { y: 20, opacity: 0, filter: 'blur(8px)' }, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, 6.5);
+  }
+  bars.forEach(function (b) { b.style.height = '100%'; }); restBars(); G.set('#caught', { opacity: 0 });
+  ST.create({ trigger: '#wayLive', start: 'top 55%', once: true, onEnter: playLive });
+  $('#replayLive').addEventListener('click', playLive);
+
+  // Sermon notes: the PDF drops in and the service list fills. Replayable.
+  var dz = $('#dropZone'), dropTl = null;
+  function playDrop() {
+    if (dropTl) dropTl.kill();
+    $('#replayDrop').classList.remove('show');
+    G.set('#pdf', { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 }); G.set('#dropZone .v, #dropToast', { opacity: 0 });
+    dropTl = G.timeline({ onComplete: function () { $('#replayDrop').classList.add('show'); } });
+    dropTl.from('#pdf', { x: -40, opacity: 0, duration: 0.5, ease: 'power2.out' })
+      .to('#pdf', { x: function () { return dz.offsetLeft - 22 + 20; }, y: function () { return dz.offsetTop + 20; }, rotate: -4, duration: 1, ease: 'power3.inOut' }, '+=0.2')
+      .to(dz, { borderColor: 'rgba(240,160,80,.9)', backgroundColor: 'rgba(240,160,80,.06)', duration: 0.25 }, '-=0.3')
+      .to('#pdf', { scale: 0.5, opacity: 0, duration: 0.3 })
+      .to(dz, { borderColor: 'rgba(240,160,80,.25)', backgroundColor: 'rgba(0,0,0,0)', duration: 0.4 })
+      .to('#dropZone .v', { opacity: 1, x: 0, stagger: 0.09, duration: 0.35, startAt: { x: -10 } }, '-=0.3')
+      .to('#dropToast', { opacity: 1, y: 0, duration: 0.4, startAt: { y: 12 } }, '-=0.2')
+      .to({}, { duration: 0.6 });
+  }
+  ST.create({ trigger: '#wayFile', start: 'top 55%', once: true, onEnter: playDrop });
+  $('#replayDrop').addEventListener('click', playDrop);
+
+  // Pipeline: the line fills and each step lights as it's reached
+  G.to('#pipeFill', { scaleY: 1, ease: 'none', scrollTrigger: { trigger: '#pipe', start: 'top 32%', end: 'bottom 32%', scrub: 0.4 } });
+  $$('.stage-row').forEach(function (r) {
+    ST.create({ trigger: r, start: 'top 34%', onEnter: function () { r.classList.add('lit'); }, onLeaveBack: function () { r.classList.remove('lit'); } });
+    G.from(r.children[1], { y: 16, opacity: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: r, start: 'top 80%', once: true } });
+  });
+
+  // Spoken → reference
+  $$('.rec-row').forEach(function (row) {
+    var t = G.timeline({ scrollTrigger: { trigger: row, start: 'top 75%', once: true } });
+    t.from(row, { y: 24, opacity: 0, duration: 0.6, ease: 'power3.out' })
+     .from(row.querySelector('svg path'), { strokeDasharray: 60, strokeDashoffset: 60, duration: 0.5, ease: 'power2.out' }, '-=0.2')
+     .from(row.querySelector('.out'), { opacity: 0, x: -12, filter: 'blur(8px)', duration: 0.5, ease: 'power3.out' }, '-=0.2');
+  });
+  G.fromTo('#nope span', { '--s': 0 }, { '--s': 1, stagger: 0.12, duration: 0.5, ease: 'power2.out', scrollTrigger: { trigger: '#nope', start: 'top 75%', once: true } });
+
+  // Keys press down in turn
+  G.from('.kc', { y: 40, opacity: 0, stagger: 0.07, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '#keys', start: 'top 72%', once: true } });
+  var keyTl = null;
+  function playKeys() {
+    if (keyTl) keyTl.kill();
+    $('#replayKeys').classList.remove('show');
+    keyTl = G.timeline({ onComplete: function () { $('#replayKeys').classList.add('show'); } });
+    for (var round = 0; round < 2; round++) {
+      keyTl.to('.kcap', { y: 4, borderBottomWidth: 1, stagger: { each: 0.16, from: 'random' }, duration: 0.12, yoyo: true, repeat: 1, ease: 'power1.inOut' }, round ? '+=0.5' : 0);
+    }
+  }
+  ST.create({ trigger: '#keys', start: 'top 60%', once: true, onEnter: function () { G.delayedCall(0.4, playKeys); } });
+  $('#replayKeys').addEventListener('click', playKeys);
+
+  // Privacy lines light up as you read
+  G.to('.privacy .ln', { backgroundPosition: '0% 0', stagger: 0.3, ease: 'none', scrollTrigger: { trigger: '#privBig', start: 'top 80%', end: 'bottom 45%', scrub: 0.5 } });
+  G.from('.priv-grid > div', { y: 24, opacity: 0, stagger: 0.08, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: '.priv-grid', start: 'top 75%', once: true } });
+
+  // Specs, price, roadmap, close
+  G.from('.spec', { opacity: 0, y: 18, stagger: 0.05, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: '.spec-grid', start: 'top 75%', once: true } });
+  G.from('#freeCard, #road', { y: 40, opacity: 0, stagger: 0.12, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.free', start: 'top 72%', once: true } });
+  G.from('#freeCard .price', { scale: 0.85, filter: 'blur(12px)', opacity: 0, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: '.free', start: 'top 78%', once: true } });
+  G.from('.notify .wrap > *', { y: 30, opacity: 0, filter: 'blur(10px)', stagger: 0.1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '#notify', start: 'top 78%', once: true } });
+
+  addEventListener('load', function () { ST.refresh(); });
+})();
+</script>
+
+</body>
+</html>

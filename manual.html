@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="The Word Cue user guide: setup, the Service View, how detection works, every setting, keyboard shortcuts, troubleshooting and privacy.">
+<meta name="theme-color" content="#1C1C1A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%231C1C1A%22/%3E%3Cpath%20d%3D%22M12%203c1%203%205%205%205%2010a5%205%200%200%201-10%200c0-2%201-3.5%202-4.5%200%202%201%203%202%203%200-3-1-5%201-8.5z%22%20fill%3D%22none%22%20stroke%3D%22%23F0A050%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Fresh Fire Studios">
+<meta property="og:title" content="Word Cue User Guide">
+<meta property="og:description" content="Setup, the Service View, detection, settings, shortcuts, troubleshooting and privacy.">
+<meta property="og:image" content="share.png">
+<meta name="twitter:card" content="summary_large_image">
+<title>Word Cue User Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root { --char: #1C1C1A; --panel: #201F1D; --line: rgba(255,255,255,.08); --fg: #F2F0EC; --dim: #9E998F; --orange: #B85A1B; --amber: #F0A050;
+  --brand: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gl: max(20px, env(safe-area-inset-left, 0px)); --gr: max(20px, env(safe-area-inset-right, 0px)); color-scheme: dark; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 84px; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--char); color: var(--fg); font-family: var(--brand); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: 100%; max-width: 1160px; margin-inline: auto; padding-left: var(--gl); padding-right: var(--gr); }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--fg); color: var(--char); padding: 8px 14px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 12px; }
+
+.nav { position: sticky; top: 0; z-index: 20; background: rgba(28,28,26,.82); -webkit-backdrop-filter: saturate(160%) blur(16px); backdrop-filter: saturate(160%) blur(16px); border-bottom: 1px solid var(--line); }
+.nav .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mark { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.02em; text-decoration: none; }
+.mark small { font-size: 10.5px; letter-spacing: .14em; color: var(--dim); font-weight: 600; margin-left: 6px; }
+.flame { width: 22px; height: 22px; }
+.back { font-size: 14px; color: #D9D5CE; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.back:hover { color: var(--fg); }
+#prog { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; background: linear-gradient(90deg, var(--orange), var(--amber)); transform-origin: left; transform: scaleX(0); }
+
+.hero { position: relative; overflow: hidden; padding: clamp(56px, 9vw, 112px) 0 clamp(36px, 6vw, 64px); border-bottom: 1px solid var(--line); }
+.hero .glow { position: absolute; right: -200px; top: -240px; width: 720px; height: 720px; border-radius: 50%; background: radial-gradient(circle, rgba(184,90,27,.32), rgba(184,90,27,0) 65%); pointer-events: none; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+h1 { font-size: clamp(48px, 8vw, 96px); font-weight: 800; letter-spacing: -0.045em; line-height: 1; margin: 14px 0 0; }
+.hero p { font-size: clamp(19px, 2.2vw, 24px); color: #D9D5CE; margin: 16px 0 0; font-weight: 500; letter-spacing: -0.01em; }
+
+.dl { margin-top: 28px; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 999px; background: var(--orange); color: #fff; font-weight: 600; font-size: 16px; text-decoration: none; transition: transform .25s, background .25s; }
+.dl:hover { background: #C9661F; transform: translateY(-1px); }
+.dl span { font-size: 12px; letter-spacing: .08em; opacity: .75; }
+.shot { margin: 24px 0 28px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #1C1C1A; text-align: center; }
+.shot img { display: block; width: auto; max-width: 100%; height: auto; max-height: min(1100px, 140vh); margin: 0 auto; }
+.shot figcaption { text-align: left; padding: 12px 16px 14px; font-size: 14px; line-height: 1.5; color: var(--dim); border-top: 1px solid var(--line); background: var(--panel); }
+.acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.acts .dl { margin-top: 0; }
+.dl.ghost { background: transparent; border: 1px solid rgba(255,255,255,.18); color: var(--fg); }
+.dl.ghost:hover { background: rgba(255,255,255,.06); }
+.demo video { display: block; width: 100%; height: auto; background: #141413; }
+.demo { margin-top: 0; margin-bottom: 56px; }
+.layout { display: grid; gap: 40px; padding-block: 48px 96px; }
+@media (min-width: 980px) { .layout { grid-template-columns: 240px minmax(0, 1fr); gap: 64px; } }
+.toc { display: none; }
+@media (min-width: 980px) { .toc { display: block; position: sticky; top: 92px; align-self: start; max-height: calc(100vh - 110px); overflow: auto; } }
+.toc nav { position: relative; display: grid; border-left: 1px solid var(--line); }
+.toc a { display: flex; gap: 10px; padding: 7px 0 7px 16px; font-size: 14px; color: var(--dim); text-decoration: none; transition: color .25s; }
+.toc a span { font-variant-numeric: tabular-nums; color: rgba(158,153,143,.6); min-width: 18px; }
+.toc a:hover, .toc a.on { color: var(--fg); }
+.toc a.on span { color: var(--amber); }
+#tocBar { position: absolute; left: -1px; width: 2px; background: var(--amber); border-radius: 2px; top: 0; height: 0; transition: top .35s cubic-bezier(.2,.8,.2,1), height .35s cubic-bezier(.2,.8,.2,1); }
+details.mtoc { margin-bottom: 36px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+details.mtoc summary { cursor: pointer; padding: 14px 18px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; min-height: 48px; align-items: center; }
+details.mtoc summary::-webkit-details-marker { display: none; }
+details.mtoc summary::after { content: "+"; color: var(--amber); font-size: 20px; }
+details.mtoc[open] summary::after { content: "–"; }
+details.mtoc nav { display: grid; padding: 0 8px 10px; }
+details.mtoc a { padding: 10px; font-size: 15px; color: #D9D5CE; text-decoration: none; display: flex; gap: 10px; }
+details.mtoc a span { color: var(--amber); min-width: 20px; }
+@media (min-width: 980px) { details.mtoc { display: none; } }
+
+.doc { min-width: 0; max-width: 760px; }
+.sec { padding-top: 8px; margin-bottom: 72px; }
+h2 { font-size: clamp(30px, 3.6vw, 42px); letter-spacing: -0.035em; line-height: 1.1; margin: 0 0 22px; display: flex; align-items: baseline; gap: 14px; }
+h2 .num { font-size: .42em; color: var(--amber); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+h3 { font-size: 21px; letter-spacing: -0.02em; margin: 36px 0 10px; }
+p { margin: 0 0 16px; color: #D9D5CE; }
+strong { color: var(--fg); font-weight: 700; }
+ul, ol { margin: 0 0 20px; padding-left: 22px; color: #D9D5CE; }
+li { margin-bottom: 8px; padding-left: 4px; }
+li::marker { color: var(--amber); }
+.note { margin: 24px 0; padding: 18px 22px; border-radius: 16px; background: rgba(184,90,27,.1); border: 1px solid rgba(240,160,80,.22); }
+.note p { margin: 0; color: var(--fg); }
+.note p + p { margin-top: 10px; }
+.tbl { overflow-x: auto; margin: 20px 0 28px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+th { font-size: 13px; letter-spacing: .04em; color: var(--amber); font-weight: 600; background: rgba(184,90,27,.08); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; color: var(--fg); min-width: 140px; }
+td { color: #D9D5CE; }
+
+footer { border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; }
+footer .wrap { padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+footer a { color: var(--dim); }
+.print-cover { display: none; }
+/* The downloadable PDF is printed from this same page: light paper, one section per page */
+@media print {
+  @page { size: letter; margin: 16mm 16mm 18mm; }
+  body { background: #fff; color: #1C1C1A; font-size: 10.5pt; line-height: 1.55; }
+  .nav, .toc, details.mtoc, .dl, .skip, .hero .glow, #mEy, #mTitle, #mSub, footer a { display: none !important; }
+  .demo { display: none; }
+  .print-cover { display: block; width: 100%; border-radius: 10px; }
+  .hero { border: 0; padding: 0; }
+  .wrap { max-width: none; padding: 0; }
+  .layout { display: block; padding: 0; }
+  .doc { max-width: none; }
+  .sec { break-before: page; margin: 0; }
+  h2 { color: #1C1C1A; break-after: avoid; } h2 .num { color: #B85A1B; }
+  h3 { color: #1C1C1A; break-after: avoid; }
+  p, li, td { color: #3A3936; } strong { color: #1C1C1A; }
+  li::marker { color: #B85A1B; }
+  .note { background: #FBF1E8; border-color: #F0C9A0; } .note p { color: #1C1C1A; }
+  .tbl { background: #fff; border-color: #DDD8D0; overflow: visible; }
+  th { background: #FBF1E8; color: #9A4A14; } th, td { border-color: #E8E4DE; } td:first-child { color: #1C1C1A; }
+  tr { break-inside: avoid; }
+  .shot { break-inside: avoid; border-color: #DDD8D0; background: #fff; text-align: center; }
+  .shot img { width: auto; max-width: 100%; max-height: 205mm; margin: 0 auto; }
+  .shot figcaption { text-align: left; background: #fff; color: #6B675F; border-color: #E8E4DE; font-style: italic; text-align: left; font-size: 9pt; }
+  footer { border: 0; color: #9E998F; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#doc">Skip to the guide</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8.5z" fill="none" stroke="#F0A050" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="mark" href="index.html"><svg class="flame" aria-hidden="true"><use href="#flame"/></svg>Word Cue<small>USER GUIDE</small></a>
+    <a class="back" href="index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Back to site</a>
+  </div>
+  <div id="prog" aria-hidden="true"></div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="wrap">
+      <img class="print-cover" src="manual/cover.webp" alt="Word Cue Product Overview and User Guide">
+      <span class="eyebrow" id="mEy">Documentation</span>
+      <h1 id="mTitle">Word Cue</h1>
+      <p id="mSub">Product Overview &amp; User Guide</p>
+      <span class="acts" id="mActs"><a class="dl" id="mDl" href="manual/Word-Cue-User-Guide.pdf" download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download the manual <span>PDF</span></a><a class="dl ghost" href="#demo"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Watch how it works</a></span>
+    </div>
+  </section>
+
+  <div class="wrap layout">
+    <aside class="toc" aria-label="Contents"><nav id="toc"><span id="tocBar" aria-hidden="true"></span>
+<a href="#what-is-word-cue"><span>01</span>What Is Word Cue</a>
+<a href="#first-run-setup"><span>02</span>First-Run Setup</a>
+<a href="#the-service-view"><span>03</span>The Service View</a>
+<a href="#service-view-states"><span>04</span>Service View States</a>
+<a href="#adding-verses-from-files"><span>05</span>Adding Verses From Files</a>
+<a href="#how-detection-works"><span>06</span>How Detection Works</a>
+<a href="#settings"><span>07</span>Settings</a>
+<a href="#keyboard-shortcuts"><span>08</span>Keyboard Shortcuts</a>
+<a href="#troubleshooting"><span>09</span>Troubleshooting</a>
+<a href="#privacy-and-permissions"><span>10</span>Privacy and Permissions</a>
+<a href="#technical-specifications"><span>11</span>Technical Specifications</a>
+<a href="#pricing-and-distribution"><span>12</span>Pricing and Distribution</a>
+<a href="#roadmap"><span>13</span>Roadmap</a>
+    </nav></aside>
+    <div class="doc" id="doc">
+      <details class="mtoc"><summary>Contents</summary><nav>
+<a href="#what-is-word-cue"><span>01</span>What Is Word Cue</a>
+<a href="#first-run-setup"><span>02</span>First-Run Setup</a>
+<a href="#the-service-view"><span>03</span>The Service View</a>
+<a href="#service-view-states"><span>04</span>Service View States</a>
+<a href="#adding-verses-from-files"><span>05</span>Adding Verses From Files</a>
+<a href="#how-detection-works"><span>06</span>How Detection Works</a>
+<a href="#settings"><span>07</span>Settings</a>
+<a href="#keyboard-shortcuts"><span>08</span>Keyboard Shortcuts</a>
+<a href="#troubleshooting"><span>09</span>Troubleshooting</a>
+<a href="#privacy-and-permissions"><span>10</span>Privacy and Permissions</a>
+<a href="#technical-specifications"><span>11</span>Technical Specifications</a>
+<a href="#pricing-and-distribution"><span>12</span>Pricing and Distribution</a>
+<a href="#roadmap"><span>13</span>Roadmap</a>
+      </nav></details>
+<figure class="shot demo" id="demo">
+        <video src="manual/Word-Cue-in-Action.mp4" poster="manual/Word-Cue-in-Action.jpg" controls muted playsinline preload="metadata" aria-label="Word Cue in Action: a Sunday in the sound booth, start to finish."></video>
+        <figcaption>Word Cue in Action: a Sunday in the sound booth, start to finish.</figcaption>
+      </figure>
+<section class="sec" id="what-is-word-cue"><h2><span class="num">01</span>What Is Word Cue</h2>
+<p>Word Cue is a native macOS companion app that listens to the pulpit mic through your soundboard, recognizes scripture as it is preached, and lets the booth operator put it on screen in OpenLP with one key. Everything runs on the booth Mac. No internet, no cloud, no recordings.</p>
+<p>It covers the two ways scripture reaches the screen on a Sunday:</p>
+<ul><li><strong>Live detection.</strong> Continuous listening during the sermon. Each verse the preacher reaches appears as a Likely Match, ready to Send or Skip.</li><li><strong>From files.</strong> Drop the pastor's sermon notes (PDF, image or text) onto Word Cue and every reference goes straight into OpenLP's service list, in order.</li></ul>
+<aside class="note"><p><strong>WHY</strong> · In a live, Spirit-led service the preacher moves fast and rarely follows a script. A booth operator typically needs 7 to 14 seconds to find and show a verse by hand. Word Cue has the reference waiting before the operator could have typed it.</p></aside>
+<figure class="shot"><img src="manual/img-01.webp" alt="Word Cue beside OpenLP" loading="lazy" decoding="async"><figcaption>Figure 1 — Word Cue runs as a fixed-width sidebar on the right edge of the operator's screen, beside OpenLP. OpenLP carries the service; Word Cue only cues scripture.</figcaption></figure>
+<h3>What Word Cue is, and is not</h3>
+<div class="tbl"><table><tr><th>Word Cue is</th><th>Word Cue is not</th></tr><tr><td>A companion that runs beside OpenLP on the same Mac</td><td>A presentation app. Songs, media and slides stay in OpenLP</td></tr><tr><td>Listening to the soundboard feed and transcribing on-device</td><td>A scripture search tool. Operators search in OpenLP</td></tr><tr><td>Suggesting verses that the operator sends or skips</td><td>A multi-computer or network system</td></tr><tr><td>Private: no cloud, no audio saved</td><td>Something that changes the screen on its own by default</td></tr></table></div>
+<h3>Five principles</h3>
+<p>Every screen and setting is checked against these rules.</p>
+<ol><li><strong>Reviewed by default.</strong> Nothing reaches the screen without the operator, unless a church chooses Auto-send.</li><li><strong>Private and on-device.</strong> Audio is never recorded or uploaded. Everything runs on the booth Mac.</li><li><strong>Apple structure, Fresh Fire identity.</strong> Native macOS layout, controls and type, with Fresh Fire color and wordmark on top.</li><li><strong>Stay out of the way.</strong> OpenLP carries the service. Word Cue is a quiet sidebar that never grows into it.</li><li><strong>One home per setting.</strong> Every setting lives in exactly one place, with no duplicates across pages or views.</li></ol>
+</section>
+<section class="sec" id="first-run-setup"><h2><span class="num">02</span>First-Run Setup</h2>
+<p>Setup takes about five minutes and runs once. A five-step window walks the operator through it; the dots at the bottom show progress, and Back is available from step 2 on.</p>
+<h3>Step 1 — Welcome</h3>
+<p>Explains the three things Word Cue does: hears the sermon from the soundboard, finds the verses in real time, and waits for the operator to send them.</p>
+<figure class="shot"><img src="manual/img-02.webp" alt="Setup step 1" loading="lazy" decoding="async"><figcaption>Figure 2 — Welcome screen.</figcaption></figure>
+<h3>Step 2 — Allow access</h3>
+<p>Word Cue asks macOS for two permissions: Microphone (to receive audio from the soundboard's USB interface) and Speech Recognition (to transcribe the sermon on this Mac). Accessibility is not requested here; it is asked for later, only if a feature needs it.</p>
+<figure class="shot"><img src="manual/img-03.webp" alt="Setup step 2" loading="lazy" decoding="async"><figcaption>Figure 3 — Permissions. Nothing allowed here ever leaves the Mac.</figcaption></figure>
+<h3>Step 3 — Choose your audio</h3>
+<p>Pick the audio interface carrying the soundboard feed and the channel carrying the pulpit mic, then say a few words into it. The live level meter shows a check mark when speech is detected.</p>
+<figure class="shot"><img src="manual/img-04.webp" alt="Setup step 3" loading="lazy" decoding="async"><figcaption>Figure 4 — Audio interface and channel selection with a live level check.</figcaption></figure>
+<aside class="note"><p><strong>BEST PRACTICE</strong> · Feed the pastor's mic channel from the board into a USB audio interface rather than using a room mic. A direct board feed removes room echo, congregation noise and music bleed, which makes transcription far more accurate.</p></aside>
+<h3>Step 4 — Connect your presentation app</h3>
+<p>Open OpenLP on the same Mac, turn on Remote in OpenLP's settings, then come back. Word Cue finds OpenLP automatically and shows "Connected to OpenLP · Using OpenLP's API." A Test button sends a signal without changing what is on screen.</p>
+<figure class="shot"><img src="manual/img-05.webp" alt="Setup step 4" loading="lazy" decoding="async"><figcaption>Figure 5 — Connecting to OpenLP.</figcaption></figure>
+<h3>Step 5 — You're all set</h3>
+<p>A summary confirms audio, speech recognition and OpenLP are ready. Two switches are on by default: Launch Word Cue at login, and Show Word Cue when OpenLP opens. From now on Word Cue appears beside OpenLP whenever it opens.</p>
+<figure class="shot"><img src="manual/img-06.webp" alt="Setup step 5" loading="lazy" decoding="async"><figcaption>Figure 6 — Setup summary.</figcaption></figure>
+</section>
+<section class="sec" id="the-service-view"><h2><span class="num">03</span>The Service View</h2>
+<p>The Service View is where the operator works during a service. It comes in two sizes: a full sidebar (default) and a compact floating panel. Switch between them with the button in the title bar or ⌘.</p>
+<h3>Full sidebar</h3>
+<p>A fixed-width sidebar (about 380 px) pinned to the right edge of the operator's screen, full height, never on the projector display. It cannot be dragged wider, so it never grows into OpenLP. Top to bottom:</p>
+<figure class="shot"><img src="manual/img-07.webp" alt="Service View, full sidebar" loading="lazy" decoding="async"><figcaption>Figure 7 — The full sidebar while listening, with a Likely Match waiting and this service's history below.</figcaption></figure>
+<div class="tbl"><table><tr><th>Area</th><th>What it shows</th></tr><tr><td><strong>Title bar</strong></td><td>Word Cue wordmark, compact-mode button, Settings button</td></tr><tr><td><strong>Status row</strong></td><td>Listening / Ready / Paused / No audio pill, a live mic-level meter, and OpenLP's connection status (green check or red ×)</td></tr><tr><td><strong>Problem banner</strong></td><td>Appears only when something is wrong, with a one-click fix (Reconnect, Audio Settings)</td></tr><tr><td><strong>Likely Match</strong></td><td>The detected reference in large type (e.g. Acts 2:38), the translation label, a confidence indicator, how long ago it was heard, and the verse text</td></tr><tr><td><strong>Send / Skip</strong></td><td>Send (↩) puts the verse on screen in OpenLP. Skip (esc) clears it without sending</td></tr><tr><td><strong>This Service</strong></td><td>Every verse handled this service, newest first, with the time, a Skipped or Auto-sent tag, and a Resend button</td></tr><tr><td><strong>Live Transcript</strong></td><td>Collapsed and off by default. Turn it on to see the rolling transcript</td></tr><tr><td><strong>Footer</strong></td><td>Pause / Start Listening (space) and Clear Screen (⌘B)</td></tr></table></div>
+<aside class="note"><p><strong>TIP</strong> · Press Return to send and Esc to skip while Word Cue is in front. When OpenLP is in front, the same actions work with ⌃⌥ added (⌃⌥↩, ⌃⌥⎋), so typing in OpenLP is never affected. See section 08.</p></aside>
+<h3>Compact panel</h3>
+<p>A small floating panel that stays above other windows, for operators who want OpenLP full-screen with a minimal cue on top. It shows status, the reference with confidence, the first line of the verse, and Send, Skip and Clear Screen. Its corner position, opacity and stay-on-top behavior are set in Appearance.</p>
+<figure class="shot"><img src="manual/img-08.webp" alt="Compact panel" loading="lazy" decoding="async"><figcaption>Figure 8 — The compact panel, normal (left) and with OpenLP disconnected (right).</figcaption></figure>
+<h3>How the windows behave</h3>
+<ol><li><strong>Mac starts.</strong> Word Cue launches at login and waits quietly in the menu bar.</li><li><strong>OpenLP opens.</strong> The sidebar appears on the right edge of the operator's screen.</li><li><strong>Operator starts listening.</strong> One click, or automatically when OpenLP opens, depending on the Start listening setting.</li><li><strong>A verse is heard.</strong> It appears as a Likely Match. Send or Skip, unless Auto-send is on and confidence is high enough.</li><li><strong>Switching apps.</strong> Clicking OpenLP or Word Cue brings both forward; clicking anything else sends both back.</li><li><strong>OpenLP quits.</strong> Word Cue hides by default, or quits if the church prefers.</li></ol>
+</section>
+<section class="sec" id="service-view-states"><h2><span class="num">04</span>Service View States</h2>
+<p>The sidebar always tells the operator what Word Cue is doing. Status colors each have one job: green is healthy, yellow means a verse is waiting, red means a problem.</p>
+<figure class="shot"><img src="manual/img-09.webp" alt="Normal service states" loading="lazy" decoding="async"><figcaption>Figure 9 — Normal states, left to right: Ready, Listening with no verses yet, Verse waiting, Auto-sent verse.</figcaption></figure>
+<figure class="shot"><img src="manual/img-10.webp" alt="Paused and problem states" loading="lazy" decoding="async"><figcaption>Figure 10 — Paused, OpenLP lost connection, and No audio.</figcaption></figure>
+<div class="tbl"><table><tr><th>State</th><th>Status pill</th><th>Likely Match area</th><th>Footer button</th></tr><tr><td><strong>Ready</strong></td><td>Gray "Ready"</td><td>"Start listening to catch verses as they're preached."</td><td>Start Listening</td></tr><tr><td><strong>Listening, no verses yet</strong></td><td>Green "Listening" + mic meter</td><td>"Listening for scripture…"</td><td>Pause</td></tr><tr><td><strong>Likely Match</strong></td><td>Green "Listening"</td><td>Reference, verse text, "Heard 4 seconds ago"</td><td>Pause</td></tr><tr><td><strong>Verse waiting</strong></td><td>Green "Listening"</td><td>Yellow "Waiting for you · 15 seconds"</td><td>Pause</td></tr><tr><td><strong>Auto-sent</strong></td><td>Green "Listening"</td><td>Back to listening; the verse shows in history tagged Auto-sent</td><td>Pause</td></tr><tr><td><strong>Paused</strong></td><td>Gray "Paused"</td><td>"Nothing is being detected until you resume."</td><td>Resume</td></tr><tr><td><strong>OpenLP lost connection</strong></td><td>Green "Listening"; red × by OpenLP</td><td>Red banner with Reconnect; Send and Skip dimmed</td><td>Pause</td></tr><tr><td><strong>No audio</strong></td><td>Red "No audio"</td><td>Red banner with Audio Settings; "Waiting for audio from the soundboard."</td><td>Pause</td></tr></table></div>
+<p>In the OpenLP-lost state Word Cue keeps listening, so nothing is missed. Detected verses stay in the history and can be resent once OpenLP is back.</p>
+</section>
+<section class="sec" id="adding-verses-from-files"><h2><span class="num">05</span>Adding Verses From Files</h2>
+<p>Drag the pastor's sermon notes onto the sidebar and Word Cue loads every reference into OpenLP's service list, in the order they appear. This works before the service or mid-service, and it does not need the microphone at all.</p>
+<figure class="shot"><img src="manual/img-11.webp" alt="Dragging a file in and the drop confirmation" loading="lazy" decoding="async"><figcaption>Figure 11 — Dragging a file over the sidebar (left) and the confirmation after the drop (right).</figcaption></figure>
+<h3>How it works</h3>
+<ol><li>Drag a PDF, image or text file over the Word Cue sidebar. An orange drop zone appears: "Drop to add verses."</li><li>Drop it. Word Cue reads the file (images through on-device text recognition) and pulls out every scripture reference.</li><li>The references are added to OpenLP's service list in order. A confirmation shows the count and the file, e.g. "6 verses added to OpenLP · From sermon-notes.pdf."</li><li>Changed your mind? Press Undo (⌘Z) on the confirmation.</li></ol>
+<div class="tbl"><table><tr><th>Feature</th><th>Detail</th></tr><tr><td><strong>Input formats</strong></td><td>PDF, image, plain text</td></tr><tr><td><strong>Order</strong></td><td>Same order the references appear in the file</td></tr><tr><td><strong>Destination</strong></td><td>OpenLP's service list</td></tr><tr><td><strong>Undo</strong></td><td>⌘Z from the confirmation</td></tr><tr><td><strong>Needs audio?</strong></td><td>No. A prepared list works with live listening off</td></tr></table></div>
+<aside class="note"><p><strong>WHY</strong> · With the planned scriptures already in OpenLP, live detection becomes the safety net for what wasn't planned rather than the thing the service depends on.</p></aside>
+</section>
+<section class="sec" id="how-detection-works"><h2><span class="num">06</span>How Detection Works</h2>
+<p>Every verse goes through the same six stages, all on the booth Mac. A human tap sits between detection and the screen unless the church turns on Auto-send.</p>
+<ol><li><strong>Listen.</strong> AVAudioEngine reads the chosen USB interface and channel. Apple's on-device Speech framework turns the sermon into text in real time. Standard works on every supported Mac; Enhanced uses Apple Intelligence where available.</li><li><strong>Understand.</strong> Apple's on-device Foundation Model reads the transcript and decides whether a scripture reference just happened, and which one. It handles spoken addresses ("turn to Acts 2"), ordinals ("First Timothy"), and verse text quoted without a reference.</li><li><strong>Check.</strong> The result is cleaned and verified. "first timothy three sixteen" becomes 1 Timothy 3:16. The book and chapter are confirmed to exist, known recognizer mistakes on KJV names are corrected, and quoted text is looked up in the bundled KJV.</li><li><strong>Filter.</strong> Anything below the minimum confidence (70% by default) is dropped. Common-word book names need a chapter number, ignored phrases and books are skipped, and the same verse won't repeat within 60 seconds.</li><li><strong>Suggest.</strong> The verse appears as the Likely Match with a confidence indicator. In Review first mode it waits for Send; in Auto-send mode, verses at or above 95% go straight to the screen.</li><li><strong>Send.</strong> On approval, Word Cue tells OpenLP to show the verse through OpenLP's remote API, falling back to keyboard shortcuts automatically if the API isn't available.</li></ol>
+<h3>What Word Cue recognizes</h3>
+<div class="tbl"><table><tr><th>Pattern</th><th>Example</th></tr><tr><td><strong>Written-style references</strong></td><td>"John 3:5"</td></tr><tr><td><strong>Spoken references</strong></td><td>"John chapter three, verse five"</td></tr><tr><td><strong>Verse ranges</strong></td><td>"verses five through seven"</td></tr><tr><td><strong>Follow-up verses</strong></td><td>"…and verse eight" (uses the last chapter mentioned)</td></tr><tr><td><strong>Book name variations</strong></td><td>"First Timothy," "1st Timothy," "Song of Songs"</td></tr><tr><td><strong>Quoted scripture, no reference</strong> (Beta)</td><td>Spoken verse text matched to the Bible when no reference is said</td></tr></table></div>
+<h3>Avoiding false matches</h3>
+<p>Several book names are everyday words: Mark, Job, Acts, Numbers, Judges, Revelation, Lamentations. Word Cue only treats them as books when a chapter number follows, so "mark my words" or "acts of kindness" never trigger a verse. Pause detection during music (on by default) keeps worship lyrics that quote scripture from triggering.</p>
+<aside class="note"><p><strong>BEST PRACTICE</strong> · Before the first Sunday, use Run a Practice Session (General › Quick Links) with a recorded sermon. It shows exactly what Word Cue catches and lets you tune the confidence settings without a live service.</p></aside>
+</section>
+<section class="sec" id="settings"><h2><span class="num">07</span>Settings</h2>
+<p>Most settings are set once during setup and never touched again. The Settings window has a searchable sidebar with nine pages in three groups: Service (Audio Input, Scripture Detection, Verse Output), Customization (Appearance, Shortcuts &amp; Controls, Filters) and System (Advanced, Support), plus General at the top.</p>
+<h3>General</h3>
+<p>The home page: Word Cue's status with a Start Listening button, Cue mode, startup behavior, and quick links.</p>
+<figure class="shot"><img src="manual/img-12.webp" alt="General settings" loading="lazy" decoding="async"><figcaption>Figure 12 — General settings, with the full Settings sidebar on the left.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>Options</th><th>Default</th></tr><tr><td><strong>Cue mode</strong></td><td>Review first · Auto-send</td><td>Review first</td></tr><tr><td><strong>Auto-send at</strong></td><td>80–100% (Auto-send mode only)</td><td>95%</td></tr><tr><td><strong>Start listening</strong></td><td>When OpenLP opens · Manually</td><td>When OpenLP opens</td></tr><tr><td><strong>Launch Word Cue at login</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Show menu bar icon</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Keep Mac awake while listening</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Confirm before quitting while listening</strong></td><td>On · Off</td><td>On</td></tr></table></div>
+<p>Quick Links open the Service Log, Run a Practice Session, and Help &amp; Setup Guides.</p>
+<h3>Audio Input</h3>
+<p>Where the sermon comes from and how it is transcribed. A live meter at the top shows the input, level and whether speech is detected.</p>
+<figure class="shot"><img src="manual/img-13.webp" alt="Audio Input settings" loading="lazy" decoding="async"><figcaption>Figure 13 — Audio Input.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>What it does</th></tr><tr><td><strong>Audio interface</strong></td><td>The USB interface or input carrying the soundboard feed</td></tr><tr><td><strong>Input channel</strong></td><td>The channel carrying the pulpit mic (e.g. Channel 1 — Pulpit, or Stereo mix 1–2)</td></tr><tr><td><strong>Input gain</strong></td><td>Boosts a quiet feed; the live level meter shows the result</td></tr><tr><td><strong>Noise gate</strong></td><td>Sounds quieter than this (fans, room noise) are ignored</td></tr><tr><td><strong>Pause detection during music</strong></td><td>Skips worship songs so lyrics that quote scripture don't trigger verses</td></tr><tr><td><strong>Auto-pause after silence</strong></td><td>2, 5 or 10 minutes, or Never</td></tr><tr><td><strong>Speech engine</strong></td><td>Standard · Enhanced (Apple Intelligence on supported Macs; default)</td></tr><tr><td><strong>Language</strong></td><td>English (US), Spanish</td></tr><tr><td><strong>Custom vocabulary</strong></td><td>Words your pastor uses often, e.g. Apostolic, Pentecost, Holy Ghost, the pastor's name</td></tr><tr><td><strong>Keep transcripts for</strong></td><td>This service only, 7 days (default), 30 days, or Don't keep</td></tr></table></div>
+<h3>Scripture Detection</h3>
+<p>Which Bible to use, which kinds of references to catch, and how sure Word Cue must be. A preview at the top shows a sample transcript turning into a Likely Match.</p>
+<figure class="shot"><img src="manual/img-14.webp" alt="Scripture Detection settings" loading="lazy" decoding="async"><figcaption>Figure 14 — Scripture Detection.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>Options</th><th>Default</th></tr><tr><td><strong>Bible translation</strong></td><td>KJV · NKJV · ESV</td><td>KJV</td></tr><tr><td><strong>Second translation</strong></td><td>None or a parallel translation shown under the first</td><td>None</td></tr><tr><td><strong>Show translation abbreviation on slides</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Recognize</strong></td><td>The six patterns in section 06, each switchable</td><td>All on, except quoted scripture (Beta)</td></tr><tr><td><strong>Minimum confidence to show</strong></td><td>Slider; anything below is never shown</td><td>70%</td></tr><tr><td><strong>Detection speed</strong></td><td>Faster · Balanced · More accurate</td><td>Balanced</td></tr></table></div>
+<h3>Verse Output</h3>
+<p>How Word Cue talks to OpenLP and how verses land on screen.</p>
+<figure class="shot"><img src="manual/img-15.webp" alt="Verse Output settings" loading="lazy" decoding="async"><figcaption>Figure 15 — Verse Output.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>Options</th><th>Default</th></tr><tr><td><strong>Presentation app</strong></td><td>OpenLP</td><td>OpenLP</td></tr><tr><td><strong>Connection method</strong></td><td>Automatic (API first, then keyboard shortcuts) · API only · Keyboard shortcuts only</td><td>Automatic</td></tr><tr><td><strong>Port</strong></td><td>Detected automatically</td><td>4316</td></tr><tr><td><strong>Reconnect automatically</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>When a verse is sent</strong></td><td>Go live immediately · Add to service list</td><td>Go live immediately</td></tr><tr><td><strong>Verses per slide</strong></td><td>1 verse · 2 verses · Whole passage</td><td>1 verse</td></tr><tr><td><strong>Include surrounding verses</strong></td><td>None · 1 before and after · Rest of the paragraph</td><td>None</td></tr><tr><td><strong>Clear the screen after</strong></td><td>Never · 1, 2 or 5 minutes</td><td>Never</td></tr><tr><td><strong>Play a sound when a verse is waiting</strong></td><td>On · Off</td><td>Off</td></tr><tr><td><strong>Dismiss unsent verses after</strong></td><td>30 seconds · 1 minute · Never</td><td>30 seconds</td></tr><tr><td><strong>Pair with OpenLP</strong></td><td>Both apps come forward and go back together</td><td>On</td></tr><tr><td><strong>Show Word Cue when OpenLP opens</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Open OpenLP when Word Cue starts</strong></td><td>On · Off</td><td>Off</td></tr><tr><td><strong>When OpenLP quits</strong></td><td>Hide Word Cue · Quit Word Cue</td><td>Hide Word Cue</td></tr><tr><td><strong>Snap OpenLP beside Word Cue</strong></td><td>Resizes OpenLP to fill the rest of the screen; needs Accessibility</td><td>Off</td></tr></table></div>
+<p>Test Connection sends a test signal without changing what's on screen.</p>
+<aside class="note"><p><strong>TIP</strong> · macOS Stage Manager can also group Word Cue and OpenLP so they stay together.</p></aside>
+<h3>Appearance</h3>
+<figure class="shot"><img src="manual/img-16.webp" alt="Appearance settings" loading="lazy" decoding="async"><figcaption>Figure 16 — Appearance, with a live preview of the compact panel.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>Options</th><th>Default</th></tr><tr><td><strong>Appearance</strong></td><td>System · Light · Dark</td><td>System</td></tr><tr><td><strong>Accent color</strong></td><td>Color swatches</td><td>Fresh Fire</td></tr><tr><td><strong>Compact panel position</strong></td><td>Top right · Top left · Bottom right · Bottom left</td><td>Top right</td></tr><tr><td><strong>Compact panel opacity</strong></td><td>Slider</td><td>95%</td></tr><tr><td><strong>Show confidence level</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Keep compact panel above other windows</strong></td><td>On · Off</td><td>On</td></tr><tr><td><strong>Menu bar icon</strong></td><td>Flame · Waveform · Open book</td><td>Flame</td></tr><tr><td><strong>Show listening status in the menu bar</strong></td><td>Icon turns orange while listening</td><td>On</td></tr><tr><td><strong>Show the waiting verse in the menu bar</strong></td><td>On · Off</td><td>Off</td></tr></table></div>
+<h3>Shortcuts &amp; Controls</h3>
+<p>Every service action has an in-app key and an "anywhere" key. The full list is in section 08.</p>
+<figure class="shot"><img src="manual/img-17.webp" alt="Shortcuts &amp; Controls settings" loading="lazy" decoding="async"><figcaption>Figure 17 — Shortcuts &amp; Controls.</figcaption></figure>
+<h3>Filters</h3>
+<p>Stops everyday speech from turning into verses.</p>
+<figure class="shot"><img src="manual/img-18.webp" alt="Filters settings" loading="lazy" decoding="async"><figcaption>Figure 18 — Filters.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>What it does</th><th>Default</th></tr><tr><td><strong>Require a chapter number</strong></td><td>Common-word books (Mark, Job, Acts, Numbers, Judges, Revelation, Lamentations) only match when a chapter follows; the list is editable</td><td>On</td></tr><tr><td><strong>Ignored phrases</strong></td><td>Phrases that should never trigger a verse</td><td>None</td></tr><tr><td><strong>Ignored books</strong></td><td>Books Word Cue skips entirely</td><td>None</td></tr><tr><td><strong>Duplicate cooldown</strong></td><td>The same verse won't appear again within this time</td><td>60 s</td></tr></table></div>
+<h3>Advanced</h3>
+<p>For troubleshooting and unusual setups. Most churches never open this page.</p>
+<figure class="shot"><img src="manual/img-19.webp" alt="Advanced settings" loading="lazy" decoding="async"><figcaption>Figure 19 — Advanced.</figcaption></figure>
+<div class="tbl"><table><tr><th>Setting</th><th>What it does</th></tr><tr><td><strong>Buffer size</strong></td><td>Balanced · Lower delay (faster) · More stable (avoids dropouts on busy Macs)</td></tr><tr><td><strong>On-device model</strong></td><td>Shows model status; Re-download or Reset the model</td></tr><tr><td><strong>Debug logging</strong></td><td>Saves detection details to troubleshoot missed verses; Open Logs Folder</td></tr><tr><td><strong>Diagnostics report</strong></td><td>Export for support requests. Contains no audio or transcripts</td></tr><tr><td><strong>Connection override</strong></td><td>Custom host and port, for unusual setups only</td></tr><tr><td><strong>Reset all settings</strong></td><td>Returns every setting to its default. Can't be undone</td></tr></table></div>
+<h3>Support</h3>
+<p>Contact, permissions, feedback, updates and backup in one place.</p>
+<figure class="shot"><img src="manual/img-20.webp" alt="Support settings" loading="lazy" decoding="async"><figcaption>Figure 20 — Support.</figcaption></figure>
+<ul><li><strong>Permissions</strong> — live status of Microphone, Speech Recognition, Accessibility and Notifications (details in section 10).</li><li><strong>Send Feedback</strong> — Bug, Feature Request or Other, an optional email for a reply, and an optional "Include diagnostic info" box (settings and recent logs, never audio or transcripts).</li><li><strong>Updates</strong> — current version, Stable or Beta channel, Check Now, and automatic updates that never install during a service.</li><li><strong>Backup</strong> — Export settings to set up another church's Mac; Import a settings file.</li></ul>
+<h3>Settings search</h3>
+<p>Type in the search box at the top of the sidebar to find any setting by name. Results show the setting and the section it lives in.</p>
+<figure class="shot"><img src="manual/img-21.webp" alt="Settings search" loading="lazy" decoding="async"><figcaption>Figure 21 — Search results for settings.</figcaption></figure>
+</section>
+<section class="sec" id="keyboard-shortcuts"><h2><span class="num">08</span>Keyboard Shortcuts</h2>
+<p>Word Cue has two sets of keys. Plain keys work while Word Cue is in front. "Anywhere" keys add ⌃⌥ so they work while OpenLP is in front without interfering with typing in OpenLP. Keys are shown in light gray inside the button they trigger, like Mac menu shortcuts.</p>
+<div class="tbl"><table><tr><th>Action</th><th>In Word Cue</th><th>Anywhere</th></tr><tr><td><strong>Send</strong></td><td>↩</td><td>⌃⌥↩</td></tr><tr><td><strong>Skip</strong></td><td>esc</td><td>⌃⌥⎋</td></tr><tr><td><strong>Pause or resume listening</strong></td><td>space</td><td>⌃⌥Space</td></tr><tr><td><strong>Clear screen</strong></td><td>⌘B</td><td>⌃⌥B</td></tr><tr><td><strong>Resend last verse</strong></td><td>⌘R</td><td>⌃⌥R</td></tr><tr><td><strong>Switch compact / full</strong></td><td>⌘\</td><td>—</td></tr><tr><td><strong>Show or hide Word Cue</strong></td><td>—</td><td>⌥⌘W</td></tr><tr><td><strong>Undo a file drop</strong></td><td>⌘Z</td><td>—</td></tr></table></div>
+<p>All keys can be changed in Settings › Shortcuts &amp; Controls, and Reset to Defaults restores them. "Shortcuts work while OpenLP is in front" turns the Anywhere set on or off.</p>
+</section>
+<section class="sec" id="troubleshooting"><h2><span class="num">09</span>Troubleshooting</h2>
+<p>When something goes wrong mid-service, Word Cue shows a red banner with a one-click fix and keeps working on everything it still can.</p>
+<div class="tbl"><table><tr><th>Problem</th><th>What you see</th><th>What to do</th></tr><tr><td><strong>OpenLP lost connection</strong></td><td>Red banner, red × next to OpenLP, Send and Skip dimmed. Word Cue keeps listening</td><td>Press Reconnect. If it fails, check OpenLP is open and Remote is on in its settings, then Test Connection in Verse Output</td></tr><tr><td><strong>No audio from the interface</strong></td><td>Red "No audio" pill and banner</td><td>Check the USB cable and that the pulpit channel is up on the board. Audio Settings opens the input page</td></tr><tr><td><strong>Verses aren't being caught</strong></td><td>Listening, but no Likely Matches</td><td>Check the live level in Audio Input; add names to Custom vocabulary; lower Minimum confidence slightly; turn on Debug logging</td></tr><tr><td><strong>Wrong verses appear</strong></td><td>Everyday phrases turning into verses</td><td>Add the phrase to Ignored phrases; keep Require a chapter number on; raise Minimum confidence</td></tr><tr><td><strong>Same verse keeps reappearing</strong></td><td>Repeats within a minute</td><td>Raise Duplicate cooldown in Filters</td></tr><tr><td><strong>Audio drops out on a busy Mac</strong></td><td>Gaps in detection</td><td>Set Buffer size to More stable in Advanced</td></tr><tr><td><strong>Keys type into OpenLP</strong></td><td>A plain key reaches OpenLP</td><td>Use the ⌃⌥ Anywhere keys while OpenLP is in front</td></tr></table></div>
+<aside class="note"><p><strong>TIP</strong> · Turn on Notifications in Support › Permissions so you are alerted if audio or OpenLP drops while Word Cue is hidden behind the compact panel or another app.</p></aside>
+<p>For anything else, send a report from Support › Send Feedback with "Include diagnostic info" checked. It sends settings and recent logs only, never audio or transcripts.</p>
+</section>
+<section class="sec" id="privacy-and-permissions"><h2><span class="num">10</span>Privacy and Permissions</h2>
+<p>Audio never leaves the booth Mac. Transcription and detection run on-device, audio is never recorded or saved, and Word Cue works with no internet connection at all.</p>
+<aside class="note"><p><strong>WHY</strong> · Missionaries and ministers sometimes share sensitive things from the pulpit. Word Cue is built so none of it can leave the building. It uses Apple's on-device models only and will never use AI models from unverified or untrusted sources.</p></aside>
+<h3>Permissions</h3>
+<div class="tbl"><table><tr><th>Permission</th><th>When asked</th><th>Why</th></tr><tr><td><strong>Microphone</strong></td><td>Always, at setup</td><td>Receive audio from the soundboard's USB interface. macOS treats every audio input as a microphone</td></tr><tr><td><strong>Speech Recognition</strong></td><td>Always, at setup</td><td>Transcribe the sermon on this Mac</td></tr><tr><td><strong>Accessibility</strong></td><td>Only if needed</td><td>Keyboard-shortcut fallback, pairing without stealing focus, and snapping OpenLP</td></tr><tr><td><strong>Notifications</strong></td><td>Optional</td><td>Alerts if audio or OpenLP drops while Word Cue is hidden</td></tr></table></div>
+<h3>What is kept, and for how long</h3>
+<div class="tbl"><table><tr><th>Data</th><th>Kept</th><th>Where</th></tr><tr><td><strong>Audio</strong></td><td>Never</td><td>Not recorded</td></tr><tr><td><strong>Transcripts</strong></td><td>7 days by default (this service only, 30 days, or don't keep)</td><td>This Mac</td></tr><tr><td><strong>Service history</strong></td><td>Verses cued in past services</td><td>This Mac</td></tr><tr><td><strong>Settings</strong></td><td>Until changed; exportable as a file</td><td>This Mac</td></tr><tr><td><strong>Diagnostics</strong></td><td>Only when you export or send them; never audio or transcripts</td><td>Sent only by you</td></tr></table></div>
+</section>
+<section class="sec" id="technical-specifications"><h2><span class="num">11</span>Technical Specifications</h2>
+<div class="tbl"><table><tr><th>Feature</th><th>Detail</th></tr><tr><td><strong>Platform</strong></td><td>macOS 27 or later — native SwiftUI application, Mac only</td></tr><tr><td><strong>Hardware</strong></td><td>Apple silicon required. RAM and storage minimums will be set by what the app actually needs and published before release</td></tr><tr><td><strong>Interface</strong></td><td>Native macOS controls and system materials; SF Pro for interface text, Plus Jakarta Sans for the Word Cue wordmark</td></tr><tr><td><strong>Audio input</strong></td><td>Any USB or Thunderbolt audio interface macOS recognizes, read through AVAudioEngine, with channel selection</td></tr><tr><td><strong>Speech engine</strong></td><td>Apple's on-device Speech framework; Enhanced mode on Apple Intelligence Macs. Fully offline</td></tr><tr><td><strong>Detection</strong></td><td>Apple's on-device Foundation Model plus a reference parser, confidence scoring, filters and cooldown</td></tr><tr><td><strong>Bible text</strong></td><td>KJV bundled (public domain); KJV is the default</td></tr><tr><td><strong>Presentation app</strong></td><td>OpenLP on the same Mac, through its remote API (port 4316) with automatic keyboard-shortcut fallback. Output is a swappable adapter so other apps can be added</td></tr><tr><td><strong>Updates</strong></td><td>Sparkle, cryptographically signed. Never installs during a service</td></tr><tr><td><strong>Settings</strong></td><td>Stored locally; export and import as a file</td></tr><tr><td><strong>Data privacy</strong></td><td>No audio or transcripts ever transmitted</td></tr><tr><td><strong>Internet required</strong></td><td>Never during services</td></tr></table></div>
+</section>
+<section class="sec" id="pricing-and-distribution"><h2><span class="num">12</span>Pricing and Distribution</h2>
+<aside class="note"><p><strong>PRICE</strong> · Free. No purchase, no subscription, no per-seat cost. An optional donation supports development.</p></aside>
+<p>Word Cue is open source and is distributed directly from the Fresh Fire Studios website as a signed and notarized macOS app, so macOS installs it without security warnings. It is not on the Mac App Store: the App Store sandbox conflicts with soundboard audio capture, local network access and Accessibility-based automation, which Word Cue needs.</p>
+<div class="tbl"><table><tr><th>Feature</th><th>Detail</th></tr><tr><td><strong>Price</strong></td><td>Free, with an optional donation</td></tr><tr><td><strong>License</strong></td><td>Open source (Apache 2.0 planned)</td></tr><tr><td><strong>Distribution</strong></td><td>Direct download from the Fresh Fire Studios website — Apple-notarized through the Developer ID program</td></tr><tr><td><strong>Updates</strong></td><td>Free and automatic via Sparkle; Stable or Beta channel</td></tr><tr><td><strong>Seats</strong></td><td>Install on as many church Macs as needed; export settings to copy a setup</td></tr><tr><td><strong>Support</strong></td><td>Contact and in-app feedback through Support</td></tr></table></div>
+<aside class="note"><p><strong>WHY</strong> · The goal is missional, not financial: any church can use Word Cue freely, and other platforms are welcome to build on the work if it genuinely helps churches.</p></aside>
+</section>
+<section class="sec" id="roadmap"><h2><span class="num">13</span>Roadmap</h2>
+<p>Version 1 is the Mac app paired with OpenLP. These come after it.</p>
+<h3>Planned</h3>
+<div class="tbl"><table><tr><th>Item</th><th>What it adds</th></tr><tr><td><strong>iPhone and iPad companion</strong></td><td>Scan a printed bulletin or handwritten outline with the camera, import a PDF, or dictate a verse list, and send it to the Mac over the local network. Also lets someone advance or reject verses from their phone instead of sitting at the booth</td></tr><tr><td><strong>More presentation apps</strong></td><td>Output adapters for FreeShow, ProPresenter, EasyWorship and Proclaim, using each app's API where one exists and keyboard automation where it doesn't</td></tr><tr><td><strong>Service Log export</strong></td><td>A full record of every verse in a service, exportable after the service for the pastor and congregation</td></tr></table></div>
+</section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><span>Word Cue &middot; A Fresh Fire Studios app</span><a href="index.html">Back to the Word Cue site</a></div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  var MOTION = window.gsap && window.ScrollTrigger && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a')), bar = document.getElementById('tocBar');
+  function mark(id) {
+    links.forEach(function (a) {
+      var on = a.getAttribute('href') === '#' + id; a.classList.toggle('on', on);
+      if (on) { bar.style.top = a.offsetTop + 'px'; bar.style.height = a.offsetHeight + 'px'; }
+    });
+  }
+  // Close the phone contents menu after a tap
+  document.querySelectorAll('details.mtoc a').forEach(function (a) { a.addEventListener('click', function () { a.closest('details').open = false; }); });
+  var vid = document.querySelector('.demo video');
+  document.querySelectorAll('a[href="#demo"]').forEach(function (a) {
+    a.addEventListener('click', function () { if (vid) setTimeout(function () { vid.play().catch(function () {}); }, 600); });
+  });
+  var secs = Array.prototype.slice.call(document.querySelectorAll('.sec'));
+  if (!MOTION) {
+    // Still highlight the current section without animation
+    window.addEventListener('scroll', function () { var cur = secs[0]; secs.forEach(function (s) { if (s.getBoundingClientRect().top < 140) cur = s; }); mark(cur.id); }, { passive: true });
+    mark(secs[0].id); return;
+  }
+  var G = gsap; G.registerPlugin(ScrollTrigger);
+  // Same entrance as the product page: the title resolves from a blur
+  G.from('#mEy, #mTitle, #mSub, #mActs', { opacity: 0, y: 24, filter: 'blur(12px)', stagger: 0.1, duration: 1.1, ease: 'power3.out', delay: 0.1 });
+  G.from('.hero .glow', { opacity: 0, scale: 0.6, duration: 2, ease: 'power2.out' });
+  // Reading progress along the bottom of the top bar
+  G.to('#prog', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: '#doc', start: 'top 70px', end: 'bottom bottom', scrub: 0.3 } });
+  // Each section: heading, then its content, fade up once it's on screen
+  secs.forEach(function (s) {
+    G.from(s.querySelector('h2'), { opacity: 0, y: 28, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: s, start: 'top 78%', once: true } });
+    G.from(Array.prototype.slice.call(s.children).slice(1).filter(function (c) { return !c.classList.contains('shot'); }), { opacity: 0, y: 18, duration: 0.8, stagger: 0.06, ease: 'power3.out', scrollTrigger: { trigger: s, start: 'top 72%', once: true } });
+    ScrollTrigger.create({ trigger: s, start: 'top 140px', end: 'bottom 140px', onToggle: function (st) { if (st.isActive) mark(s.id); } });
+  });
+  document.querySelectorAll('.shot').forEach(function (f) { G.from(f, { scale: 0.97, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: f, start: 'top 85%', once: true } }); });
+  mark(secs[0].id);
+})();
+</script>
+</body>
+</html>
