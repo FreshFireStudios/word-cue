@@ -11,11 +11,11 @@
 <meta property="og:title" content="Word Cue — Scripture on screen the moment it’s preached">
 <meta property="og:description" content="Word Cue is a free Mac app that listens to the pulpit mic, catches every scripture reference as it is preached, and has it ready for your booth operator to send to the screen.">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="share.png">
+<meta property="og:image" content="https://freshfirestudios.github.io/word-cue/share.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Word Cue: Scripture on screen the moment it’s preached. A Fresh Fire Studios app.">
-<meta name="twitter:image" content="share.png">
+<meta name="twitter:image" content="https://freshfirestudios.github.io/word-cue/share.png">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Word Cue", "applicationCategory": "MultimediaApplication", "operatingSystem": "macOS 27 or later (Apple silicon)", "description": "Word Cue is a free Mac app that listens to the pulpit mic, catches every scripture reference as it is preached, and has it ready for your booth operator to send to the screen.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Organization", "name": "Fresh Fire Studios"}}</script>
 <title>Word Cue</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -491,6 +491,7 @@ footer .wrap { padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px))
       <form class="nform" id="nform" novalidate>
         <label class="sr-only" for="nEmail">Email</label>
         <input id="nEmail" type="email" placeholder="you@yourchurch.org" autocomplete="email">
+        <input class="sr-only" type="text" name="website" id="nHp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn pri lg" type="submit">Notify me</button>
       </form>
       <p class="nnote" id="nnote" role="status"></p>
@@ -531,10 +532,16 @@ footer .wrap { padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px))
   })(said);
   var words = $$('#said .w');
 
+  var SIGNUP_URL = 'PASTE_WEB_APP_URL_HERE';
   $('#nform').addEventListener('submit', function (e) {
     e.preventDefault();
-    var v = $('#nEmail').value.trim(), note = $('#nnote');
-    note.textContent = /.+@.+\..+/.test(v) ? 'Thanks! This preview doesn’t send yet; on the live site you’d be on the list.' : 'Enter an email address so we can reach you.';
+    var v = $('#nEmail').value.trim(), note = $('#nnote'), btn = $('#nform button');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { note.textContent = 'Enter an email address so we can reach you.'; return; }
+    btn.disabled = true; note.textContent = 'Adding you to the list…';
+    fetch(SIGNUP_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({ email: v, source: 'word-cue site', website: $('#nHp').value }) })
+      .then(function () { note.textContent = 'You’re on the list. We’ll email you when Word Cue is ready.'; $('#nEmail').value = ''; })
+      .catch(function () { note.textContent = 'That didn’t go through. Check your connection and try again.'; })
+      .then(function () { btn.disabled = false; });
   });
 
   if (!MOTION) {
