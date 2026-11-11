@@ -25,3 +25,25 @@ ROOT CAUSE: rounds 1-2 used only `pdftotext` of ../manual/Word-Cue-User-Guide.pd
 - Rules vs Foundation Model: 31/31 on 3 sermons, 0 false alarms, 2 wrong verse from speech-to-text, 1 dropped under 70% (correctly), 19 quote matches. I am biased (wrote the rules, tuned on the same sermons, never ran the model). Plan: rules stay the engine, model as second opinion, compare on the Mac.
 
 ## Figure notes (fill in during R1)
+
+### Seen so far: pages 8-9 only (Figures 7 and 8). Pages 3, 6-7, 10, 12, 16-33 still to read.
+General look (both figures): DARK window, near-black warm charcoal (#232220-ish) with rounded outer corners ~14px, sitting on a light warm-grey rounded card in the manual. Text off-white. All buttons are fully rounded PILLS. Orange (#C2611F-ish, the brand burnt orange) is the Send colour; amber/gold for small accents (KJV tag, mic bars, "Waiting for you"). Green only for healthy status. Type is a clean geometric sans (SF Pro in app), medium weights, small sizes; lots of air; hairline dividers at low opacity.
+
+Figure 7, full sidebar, top to bottom:
+1. Title bar: real traffic lights (red/yellow/green), then small flame icon + "Word Cue" wordmark (semibold, ~13px). Right: ONE dark rounded pill holding two icons: compress/arrows-in (compact) and a gear/sun-like settings icon.
+2. Status row: pill "● Listening" = dark green tinted pill, green dot, green text. Next to it a tiny 5-6 bar audio meter in AMBER (vertical bars of varying height, last ones dimmer), not a horizontal bar. Far right: green circle check icon + "ProPresenter" in white.
+3. Likely Match block: left label "Likely Match" (small, grey, sentence case, not uppercase). Right: "● High confidence" in green with green dot (WORD, not a percent). Then "John 3:16" large bold white (~22-24px) with "KJV" small amber superscript-ish tag beside it. Under it "● Waiting for you · 15 seconds" in amber/yellow with dot. Then verse text in the SANS face (not serif), light grey-white, ~12px, 3 lines.
+4. Buttons row: "Send ↩" wide ORANGE pill (about 2/3 width, white bold text, return glyph), then "Skip esc" dark-grey pill (1/3), "esc" dimmer.
+5. Hairline divider. "This Service" label left (small grey), count "7" right.
+6. History rows, each separated by a hairline: reference left in white medium (~12px); right side: time "10:42" in grey, then a small circular-arrows RESEND ICON (not a text button). A skipped row is dimmed, with "Skipped" small grey tag before the time. Rows shown: Romans 10:9, Acts 2:38, Ephesians 4:5 (Skipped), Acts 2:4, Joel 2:28, Acts 4:12, John 3:5.
+7. Bottom: hairline; row "› Live Transcript" (chevron, label) with a small toggle switch on the right (off).
+8. Footer: two pills side by side: "Pause space" (dark grey pill, "space" dimmer) and "Clear Screen ⌘B" in RED-ORANGE text on a dark reddish-tinted pill.
+
+Figure 8, compact panel (dark rounded card, ~290x145):
+Row 1: "● Listening" green pill, amber mic bars, then right: green check + "ProPresenter", and a round dark button with expand arrows.
+Row 2: "John 3:16" bold + amber "KJV"; right "● High confidence" green.
+Row 3: first line of the verse, one line, ellipsis.
+Row 4: "Send ↩" orange pill (wide), "Skip esc" grey pill, and a small round dark button with a red clear-screen icon (x in a rectangle).
+Disconnected variant: no Listening pill shown; right side red x-circle + "OpenLP"; then a dark-red banner row: warning triangle, "OpenLP lost connection" in salmon, and a "Reconnect" grey pill at right; rest the same.
+
+So the app is DARK-FIRST in the manual (my round-2 preview used system/light and looked generic). Confidence shows as words ("High confidence"), history uses icon buttons, meter is bars.
