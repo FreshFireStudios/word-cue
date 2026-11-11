@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="margin:0">
+<title>Word Cue App Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: notes and controls on the left, the app window and the congregation's screen side by side on the right; one column on a phone. */
+:root {
+  color-scheme: dark;
+  --char: #1C1C1A; --win: #242321; --panel: #201F1D; --line: rgba(255,255,255,.09); --card: rgba(255,255,255,.05);
+  --fg: #F2F0EC; --dim: #9E998F; --orange: #B85A1B; --amber: #F0A050; --green: #5BD27A; --yellow: #E8C35A; --screen: #0B0B0A;
+  --brand: "Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif;
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --verse: Georgia, "Times New Roman", serif;
+}
+* { box-sizing: border-box; }
+body { background: var(--char); color: var(--fg); font-family: var(--brand); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 36px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 32px; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); align-items: start; }
+h1 { font-size: 28px; line-height: 1.15; margin: 0; font-weight: 700; text-wrap: balance; }
+h2 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin: 0; }
+p { margin: 0; }
+.side { display: grid; gap: 22px; min-width: 0; }
+.lede { color: var(--dim); }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; color: var(--yellow); border: 1px solid rgba(232,195,90,.35); border-radius: 999px; padding: 2px 10px; }
+.group { display: grid; gap: 10px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, .mac:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.tab { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 14px; }
+.tab[aria-selected="true"] { background: var(--fg); color: var(--char); border-color: var(--fg); font-weight: 600; }
+.play { background: var(--orange); border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 600; color: #fff; }
+.play.ghost { background: transparent; border: 1px solid var(--line); color: var(--fg); font-weight: 500; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.keys > kbd { justify-self: start; }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; color: var(--dim); align-items: baseline; }
+kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: rgba(255,255,255,.1); border-radius: 5px; padding: 2px 6px; color: var(--fg); white-space: nowrap; }
+.log { font-size: 13px; color: var(--dim); min-height: 1.5em; }
+.stage { display: grid; gap: 24px; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); align-items: start; min-width: 0; }
+.col { display: grid; gap: 10px; min-width: 0; }
+/* the app window */
+.mac { font-family: var(--ui); font-size: 13px; line-height: 1.4; background: var(--win); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.titlebar { display: flex; align-items: center; gap: 7px; padding: 9px 12px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.dot { width: 11px; height: 11px; border-radius: 50%; background: #55524c; }
+.titlebar b { flex: 1; text-align: center; font-weight: 600; font-size: 12px; color: var(--dim); margin-right: 47px; }
+.hdr { display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--panel); }
+.status { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; background: none; border: 0; padding: 0; }
+.led { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); }
+.led.on { background: var(--green); }
+.meter { width: 54px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--amber); transition: width .2s; }
+.grow { flex: 1; }
+.icon { background: none; border: 0; padding: 2px 4px; color: var(--dim); font-size: 15px; }
+.banner { padding: 8px 14px; background: rgba(232,195,90,.08); color: var(--yellow); }
+.list { display: grid; gap: 8px; padding: 12px; min-height: 330px; align-content: start; max-height: 460px; overflow-y: auto; }
+.empty { display: grid; gap: 8px; justify-items: center; text-align: center; align-content: center; min-height: 306px; color: var(--dim); padding: 0 18px; }
+.empty b { color: var(--fg); font-size: 16px; }
+.sg { display: grid; gap: 7px; padding: 11px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); text-align: left; width: 100%; font-size: 13px; }
+.sg.sel { border: 1.5px solid var(--amber); }
+.sg.live { background: rgba(91,210,122,.10); }
+.sg.sent { opacity: .55; }
+.sg.prov { opacity: .6; }
+.sg-top { display: flex; align-items: baseline; gap: 8px; }
+.sg-ref { font-size: 17px; font-weight: 600; color: var(--amber); flex: 1; }
+.live .sg-ref { color: var(--green); }
+.badge { font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.badge .sure { background: var(--green); } .badge .likely { background: var(--yellow); }
+.live .badge { color: var(--green); font-weight: 600; }
+.sg-text { font-family: var(--verse); font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sel .sg-text { -webkit-line-clamp: 8; }
+.sg-act { display: flex; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--line); background: rgba(255,255,255,.08); border-radius: 7px; padding: 4px 11px; font-size: 13px; }
+.btn.go { background: var(--amber); color: #1C1C1A; border-color: var(--amber); font-weight: 600; }
+.btn[disabled] { opacity: .5; cursor: default; }
+.heard { font-size: 11px; color: var(--dim); }
+.hearing { padding: 9px 14px; background: var(--panel); display: grid; gap: 3px; }
+.hearing small { font-size: 10px; font-weight: 600; letter-spacing: .06em; color: var(--dim); }
+.hearing p { min-height: 2.8em; font-size: 13px; }
+.hearing em { color: var(--dim); font-style: normal; }
+.foot { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 8px 14px; background: var(--char); font-size: 11px; color: var(--dim); align-items: center; }
+.auto { color: var(--amber); font-weight: 700; margin-left: auto; }
+.compact { padding: 12px; display: grid; gap: 8px; }
+.compact .sg-ref { font-size: 21px; }
+.form { padding: 14px; display: grid; gap: 14px; }
+.form fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 0; display: grid; gap: 9px; min-width: 0; }
+.form legend { font-size: 11px; color: var(--dim); font-weight: 600; padding: 0 4px; }
+.fr { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.fr label { min-width: 0; }
+.form input[type=text], .form select, .form textarea { font: inherit; color: var(--fg); background: rgba(255,255,255,.07); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; width: 150px; }
+.form textarea { width: 100%; height: 90px; resize: vertical; }
+.note { font-size: 11px; color: var(--dim); }
+.warn { font-size: 11px; color: var(--yellow); }
+/* the congregation's screen */
+.out { aspect-ratio: 16 / 9; max-width: 100%; background: var(--screen); border: 1px solid var(--line); border-radius: 8px; display: grid; align-content: center; padding: 6% 8%; gap: 12px; }
+.out q { quotes: none; font-family: var(--verse); font-size: clamp(14px, 1.9vw, 21px); line-height: 1.45; color: #fff; }
+.out cite { font-family: var(--verse); font-style: normal; font-size: clamp(12px, 1.3vw, 15px); color: #D9D5CE; }
+.out .blank { color: #4a4843; font-family: var(--ui); font-size: 13px; text-align: center; }
+.cap { font-size: 13px; color: var(--dim); }
+ul.notes { margin: 0; padding-left: 18px; color: var(--dim); font-size: 14px; display: grid; gap: 6px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <div class="side">
+    <div class="group">
+      <span class="tag" style="justify-self:start">Preview, not the real app</span>
+      <h1>Word Cue app screens</h1>
+      <p class="lede">Click through the screens before Xcode builds them. The sample service plays a short stretch of preaching so you can watch suggestions arrive.</p>
+    </div>
+    <div class="group">
+      <h2>Screen</h2>
+      <div class="tabs" role="tablist" aria-label="Screen">
+        <button class="tab" role="tab" id="tab-sidebar" data-screen="sidebar">Sidebar</button>
+        <button class="tab" role="tab" id="tab-compact" data-screen="compact">Compact</button>
+        <button class="tab" role="tab" id="tab-settings" data-screen="settings">Settings</button>
+        <button class="tab" role="tab" id="tab-report" data-screen="report">Report a problem</button>
+      </div>
+    </div>
+    <div class="group">
+      <h2>Sample service</h2>
+      <div class="row">
+        <button class="play" id="play">Play sample</button>
+        <button class="play ghost" id="reset">Start over</button>
+        <button class="play ghost" id="fail">ProPresenter offline</button>
+      </div>
+      <p class="log" id="log" aria-live="polite"></p>
+    </div>
+    <div class="group">
+      <h2>Keyboard</h2>
+      <div class="keys">
+        <kbd>Return</kbd><span>Send the selected verse to the screen</span>
+        <kbd>Delete</kbd><span>Dismiss it</span>
+        <kbd>↑</kbd><span>and <kbd>↓</kbd> move between suggestions</span>
+        <kbd>Esc</kbd><span>Clear the screen</span>
+        <kbd>L</kbd><span>Start or stop listening (⌘L in the app)</span>
+        <kbd>K</kbd><span>Compact mode (⌘K in the app)</span>
+      </div>
+      <p class="note">In the app, the same actions also work with Control-Option held while ProPresenter is in front.</p>
+    </div>
+    <div class="group">
+      <h2>What to react to</h2>
+      <ul class="notes">
+        <li>Is the card the right amount of information at a glance?</li>
+        <li>Sure / Likely / Maybe, or show the percentage?</li>
+        <li>Should a sent verse stay in the list, faded, as it does here?</li>
+        <li>Is the "hearing" strip useful or a distraction?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="col">
+      <h2>Word Cue</h2>
+      <div class="mac" id="mac" tabindex="0" aria-label="Word Cue window preview"></div>
+    </div>
+    <div class="col">
+      <h2>What the congregation sees</h2>
+      <div class="out" id="out"></div>
+      <p class="cap">ProPresenter's screen. Nothing appears here until the operator sends it, unless the church turns on auto-send in Settings.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const V = {"ACT 2:1": "And when the day of Pentecost was fully come, they were all with one accord in one place.", "ACT 2:38": "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost.", "ACT 2:39": "For the promise is unto you, and to your children, and to all that are afar off, even as many as the Lord our God shall call.", "JHN 3:5": "Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God.", "ACT 4:12": "Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved.", "COL 2:9": "For in him dwelleth all the fulness of the Godhead bodily."};
+// Each step: words heard, then what the detector does with them.
+const SCRIPT = [
+  { say: "Turn with me in your Bibles to Acts chapter two", add: { key: "ACT 2:38", ref: "Acts 2", conf: 0.80, heard: "acts chapter two", text: V["ACT 2:1"], prov: true } },
+  { say: "and verse thirty eight.", update: { key: "ACT 2:38", ref: "Acts 2:38", conf: 0.95, heard: "acts chapter two and verse thirty eight", text: V["ACT 2:38"] } },
+  { say: "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ." },
+  { say: "Now look at the next verse.", add: { key: "ACT 2:39", ref: "Acts 2:39", conf: 0.60, heard: "next verse", text: V["ACT 2:39"] } },
+  { say: "Jesus told Nicodemus in John 3 and 5", add: { key: "JHN 3:5", ref: "John 3:5", conf: 0.85, heard: "john 3 and 5", text: V["JHN 3:5"] } },
+  { say: "Mark my words, church, the numbers do not matter to God.", log: "“Mark” and “numbers” are book names, and Word Cue ignored them." },
+  { say: "Acts 4:12, neither is there salvation in any other.", add: { key: "ACT 4:12", ref: "Acts 4:12", conf: 0.95, heard: "acts 4:12", text: V["ACT 4:12"] } },
+  { say: "And Paul wrote in Colossians 2 and 9", add: { key: "COL 2:9", ref: "Colossians 2:9", conf: 0.85, heard: "colossians 2 and 9", text: V["COL 2:9"] } }
+];
+const S = { screen: "sidebar", listening: false, step: 0, timer: null, items: [], sel: null, lines: [], vol: "", banner: "", offline: false, auto: false, threshold: 90, top: true, hearing: true, report: "" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const word = c => c >= 0.85 ? "Sure" : c >= 0.6 ? "Likely" : "Maybe";
+const visible = () => S.items.filter(x => x.state !== "dismissed");
+const live = () => S.items.find(x => x.state === "live");
+
+function log(t) { $("log").textContent = t || ""; }
+
+function send(key) {
+  const it = S.items.find(x => x.key === key); if (!it) return;
+  if (S.offline) { S.banner = "ProPresenter did not take it. “" + it.ref + "” is copied. Paste it into ProPresenter’s Bible search."; S.sel = key; return render(); }
+  S.items.forEach(x => { if (x.state === "live") x.state = "sent"; });
+  it.state = "live"; S.sel = key; S.banner = ""; render();
+}
+function dismiss() {
+  const it = S.items.find(x => x.key === S.sel); if (!it) return;
+  it.state = "dismissed"; S.sel = (visible()[0] || {}).key || null; render();
+}
+function clearScreen() { S.items.forEach(x => { if (x.state === "live") x.state = "sent"; }); render(); }
+function move(d) {
+  const v = visible(); if (!v.length) return;
+  const i = Math.max(0, v.findIndex(x => x.key === S.sel));
+  S.sel = v[Math.max(0, Math.min(v.length - 1, i + d))].key; render();
+}
+function tick() {
+  const st = SCRIPT[S.step];
+  if (!st) { S.vol = ""; S.timer = null; log("End of the sample. Send, dismiss, or start over."); return render(); }
+  S.lines.push(st.say); S.vol = "";
+  if (st.add) { S.items.unshift({ key: st.add.key, ref: st.add.ref, conf: st.add.conf, heard: st.add.heard, text: st.add.text, state: st.add.prov ? "prov" : "pending" }); if (!S.sel || !live()) S.sel = st.add.key; }
+  if (st.update) { const it = S.items.find(x => x.key === st.update.key); if (it && (it.state === "prov" || it.state === "pending")) Object.assign(it, st.update, { state: "pending" }); }
+  log(st.log || "");
+  const cur = st.add && !st.add.prov ? st.add : st.update;
+  if (cur && S.auto && cur.conf * 100 >= S.threshold) { send(cur.key); log("Auto-send put " + cur.ref + " on screen with nobody approving it."); }
+  S.step++; render();
+  S.timer = setTimeout(tick, 2100);
+}
+function play() {
+  if (S.timer) return;
+  if (S.step >= SCRIPT.length) reset();
+  S.listening = true; S.screen = S.screen === "compact" ? "compact" : "sidebar"; log(""); tick();
+}
+function reset() {
+  clearTimeout(S.timer);
+  Object.assign(S, { listening: false, step: 0, timer: null, items: [], sel: null, lines: [], vol: "", banner: "" });
+  log(""); render();
+}
+function toggleListen() { if (S.listening) { clearTimeout(S.timer); S.timer = null; S.listening = false; render(); } else play(); }
+
+function card(it) {
+  const sel = it.key === S.sel, isLive = it.state === "live";
+  const cls = ["sg", sel ? "sel" : "", isLive ? "live" : "", it.state === "sent" ? "sent" : "", it.state === "prov" ? "prov" : ""].join(" ");
+  const badge = isLive ? "On screen" : it.state === "sent" ? "Shown" : it.state === "prov" ? "Listening…"
+    : '<i class="' + word(it.conf).toLowerCase() + '"></i>' + word(it.conf);
+  let h = '<div class="' + cls + '" data-key="' + it.key + '"><div class="sg-top"><span class="sg-ref">' + esc(it.ref) + '</span><span class="badge">' + badge + '</span></div>'
+    + '<div class="sg-text">' + esc(it.text) + '</div>';
+  if (sel) h += '<div class="sg-act"><button class="btn go" data-act="send"' + (isLive ? " disabled" : "") + '>' + (isLive ? "On Screen" : "Send to Screen") + '</button><span class="grow"></span>'
+    + '<button class="btn" data-act="' + (isLive ? "clear" : "dismiss") + '">' + (isLive ? "Clear" : "Dismiss") + '</button></div>'
+    + '<div class="heard">Heard: “' + esc(it.heard) + '”</div>';
+  return h + '</div>';
+}
+function header() {
+  return '<div class="hdr"><button class="status" data-act="listen"><span class="led' + (S.listening ? " on" : "") + '"></span>' + (S.listening ? "Listening" : "Not listening") + '</button>'
+    + '<span class="meter"><i style="width:' + (S.timer ? 35 + (S.step * 17) % 50 : 0) + '%"></i></span><span class="grow"></span>'
+    + '<button class="icon" data-act="compact" aria-label="Compact mode" title="Compact mode">⤓</button>'
+    + '<button class="icon" data-act="settings" aria-label="Settings" title="Settings">⚙</button></div>';
+}
+function sidebar() {
+  const v = visible();
+  let h = header();
+  if (S.banner) h += '<div class="banner">' + esc(S.banner) + '</div>';
+  h += '<div class="list">';
+  if (!v.length) h += S.listening
+    ? '<div class="empty"><b>Listening for scripture</b><span>References show up here as they are preached, like “Acts 2:38.”</span></div>'
+    : '<div class="empty"><b>Ready when you are</b><span>Press Command-L to start listening, or drop a PDF, image or text file here.</span><button class="btn go" data-act="listen">Start Listening</button></div>';
+  else h += v.map(card).join("");
+  h += '</div>';
+  if (S.hearing) h += '<div class="hearing"><small>HEARING</small><p>' + esc(S.lines.slice(-2).join(" ")) + ' <em>' + esc(S.vol) + '</em></p></div>';
+  h += '<div class="foot"><span><kbd>↩</kbd> Send</span><span><kbd>⌫</kbd> Dismiss</span><span><kbd>esc</kbd> Clear</span>' + (S.auto ? '<span class="auto">AUTO</span>' : "") + '</div>';
+  return h;
+}
+function compact() {
+  const v = visible(), it = v.find(x => x.key === S.sel) || v[0];
+  let h = '<div class="compact"><div class="sg-top"><span class="led' + (S.listening ? " on" : "") + '"></span><span class="badge">' + (S.listening ? "Listening" : "Not listening") + '</span><span class="grow"></span>'
+    + '<span class="badge">' + v.filter(x => x.state === "pending").length + ' waiting</span><button class="icon" data-act="full" aria-label="Full sidebar" title="Full sidebar">⤒</button></div>';
+  if (it) h += '<div class="' + (it.state === "live" ? "live" : "") + '"><span class="sg-ref">' + esc(it.ref) + '</span></div><div class="sg-text">' + esc(it.text) + '</div>'
+    + '<div class="sg-act"><button class="btn go" data-act="send"' + (it.state === "live" ? " disabled" : "") + '>' + (it.state === "live" ? "On Screen" : "Send") + '</button><button class="btn" data-act="dismiss">Dismiss</button></div>';
+  else h += '<div class="empty" style="min-height:70px"><b>' + (S.listening ? "Listening for scripture" : "Press Command-L to start") + '</b></div>';
+  return h + '</div>';
+}
+function settings() {
+  return '<div class="form">'
+    + '<fieldset><legend>Audio</legend><div class="fr"><label for="in">Input</label><select id="in"><option>Soundboard USB feed</option><option>System default</option><option>MacBook Pro Microphone</option></select></div><span class="note">Pick the audio interface that carries the soundboard feed.</span></fieldset>'
+    + '<fieldset><legend>ProPresenter</legend><div class="fr"><label for="host">Computer</label><input type="text" id="host" value="127.0.0.1"></div><div class="fr"><label for="port">Port</label><input type="text" id="port" value="50001"></div>'
+    + '<div class="sg-act"><button class="btn" data-act="test">Test Connection</button><button class="btn" data-act="setup">Set Up Message</button></div><span class="note" id="conn">In ProPresenter, open Settings &gt; Network and turn on Enable Network.</span></fieldset>'
+    + '<fieldset><legend>Suggestions</legend><div class="fr"><label for="auto">Send sure matches to the screen automatically</label><input type="checkbox" id="auto"' + (S.auto ? " checked" : "") + '></div>'
+    + (S.auto ? '<div class="fr"><label for="thr">Only when at least <b>' + S.threshold + '%</b></label><input type="range" id="thr" min="80" max="99" value="' + S.threshold + '"></div><span class="warn">With this on, a verse can reach the screen without anyone approving it.</span>' : '<span class="note">Off: nothing reaches the screen until the operator sends it.</span>')
+    + '</fieldset>'
+    + '<fieldset><legend>Window</legend><div class="fr"><label for="top">Keep Word Cue on top of other windows</label><input type="checkbox" id="top"' + (S.top ? " checked" : "") + '></div><div class="fr"><label for="hear">Show what Word Cue is hearing</label><input type="checkbox" id="hear"' + (S.hearing ? " checked" : "") + '></div></fieldset>'
+    + '<div class="sg-act"><span class="grow"></span><button class="btn go" data-act="full">Done</button></div></div>';
+}
+function report() {
+  return '<div class="form"><b style="font-size:17px">Report a Problem</b><span class="note" style="font-size:13px">What went wrong? For example: “It showed Acts 2:28 but he said Acts 2:38.”</span>'
+    + '<label for="rep" class="note">Your note</label><textarea id="rep">' + esc(S.report) + '</textarea>'
+    + '<div class="fr"><label for="inc">Include the last few lines Word Cue heard</label><input type="checkbox" id="inc"></div>'
+    + '<span class="note">The report lists this service’s suggestions and your note. No audio is ever included.</span><span class="note" id="repmsg"></span>'
+    + '<div class="sg-act"><span class="grow"></span><button class="btn" data-act="full">Close</button><button class="btn go" data-act="save">Save Report</button></div></div>';
+}
+function render() {
+  const names = { sidebar: "Word Cue", compact: "Word Cue", settings: "Word Cue Settings", report: "Word Cue" };
+  $("mac").innerHTML = '<div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><b>' + names[S.screen] + '</b></div>' + ({ sidebar, compact, settings, report }[S.screen])();
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.screen === S.screen));
+  const l = live();
+  $("out").innerHTML = l ? '<q>' + esc(l.text) + '</q><cite>' + esc(l.ref) + ' KJV</cite>' : '<span class="blank">Nothing on screen</span>';
+  $("play").textContent = S.timer ? "Playing…" : (S.step >= SCRIPT.length ? "Play again" : "Play sample");
+  $("fail").textContent = S.offline ? "ProPresenter back online" : "ProPresenter offline";
+}
+$("mac").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"), c = e.target.closest(".sg[data-key]");
+  if (c) S.sel = c.dataset.key;
+  if (!b) { if (c) render(); return; }
+  const a = b.dataset.act;
+  if (a === "send") send(S.sel || (visible()[0] || {}).key);
+  else if (a === "dismiss") dismiss();
+  else if (a === "clear") clearScreen();
+  else if (a === "listen") toggleListen();
+  else if (a === "compact") { S.screen = "compact"; render(); }
+  else if (a === "full") { S.screen = "sidebar"; render(); }
+  else if (a === "settings") { S.screen = "settings"; render(); }
+  else if (a === "test") $("conn").textContent = S.offline ? "Could not reach ProPresenter. Is it open, with Enable Network turned on?" : "Connected to ProPresenter. The Word Cue message is ready.";
+  else if (a === "setup") $("conn").textContent = S.offline ? "Could not reach ProPresenter." : "The Word Cue message is in ProPresenter. Pick a Theme for it there.";
+  else if (a === "save") $("repmsg").textContent = "Report saved on this Mac.";
+});
+$("mac").addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "auto") { S.auto = t.checked; render(); }
+  else if (t.id === "top") S.top = t.checked;
+  else if (t.id === "hear") S.hearing = t.checked;
+});
+$("mac").addEventListener("input", e => {
+  if (e.target.id === "thr") { S.threshold = +e.target.value; e.target.previousElementSibling.querySelector("b").textContent = S.threshold + "%"; }
+  if (e.target.id === "rep") S.report = e.target.value;
+});
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { S.screen = t.dataset.screen; render(); }));
+$("play").addEventListener("click", play);
+document.querySelectorAll(".side button").forEach(b => b.addEventListener("click", () => { b.blur(); $("mac").focus({ preventScroll: true }); }));
+$("reset").addEventListener("click", reset);
+$("fail").addEventListener("click", () => { S.offline = !S.offline; if (!S.offline) S.banner = ""; log(S.offline ? "ProPresenter is now unreachable. Try sending a verse." : ""); render(); });
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input, textarea, select") || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest("button") && (e.key === "Enter" || e.key === " ")) return;
+  const k = e.key;
+  if (k === "Enter") send(S.sel || (visible()[0] || {}).key);
+  else if (k === "Backspace" || k === "Delete") dismiss();
+  else if (k === "ArrowDown") move(1);
+  else if (k === "ArrowUp") move(-1);
+  else if (k === "Escape") clearScreen();
+  else if (k === "l" || k === "L") toggleListen();
+  else if (k === "k" || k === "K") { S.screen = S.screen === "compact" ? "sidebar" : "compact"; render(); }
+  else return;
+  e.preventDefault();
+});
+render();
+</script>
+</body>
+</html>
