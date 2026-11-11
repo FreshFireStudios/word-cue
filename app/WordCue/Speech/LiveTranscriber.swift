@@ -109,6 +109,31 @@ final class LiveTranscriber: @unchecked Sendable {
         }
     }
 
+    /// Practice Session and Word Cue Lab: runs a recorded sermon through the
+    /// same recogniser, as fast as the Mac can go. VERIFY: `start(inputAudioFile:finishAfterFile:)`.
+    func transcribe(file url: URL, locale: Locale = Locale(identifier: "en-US"), vocabulary: [String],
+                    onUpdate: @escaping @Sendable (TranscriptUpdate) -> Void) async throws {
+        guard let supported = await SpeechTranscriber.supportedLocale(equivalentTo: locale) else {
+            throw TranscriberError.unsupportedLocale
+        }
+        let transcriber = SpeechTranscriber(locale: supported, transcriptionOptions: [], reportingOptions: [], attributeOptions: [])
+        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+            try await request.downloadAndInstall()
+        }
+        let analyzer = SpeechAnalyzer(modules: [transcriber])
+        let context = AnalysisContext()
+        context.contextualStrings[.general] = vocabulary
+        try await analyzer.setContext(context)
+        let file = try AVAudioFile(forReading: url)
+        async let reading: Void = {
+            for try await result in transcriber.results where result.isFinal {
+                onUpdate(.final(String(result.text.characters)))
+            }
+        }()
+        try await analyzer.start(inputAudioFile: file, finishAfterFile: true)
+        try await reading
+    }
+
     func stop() async {
         inputContinuation?.finish()
         inputContinuation = nil

@@ -78,27 +78,67 @@ final class AudioInput {
         }
     }
 
-    /// Starts capturing. `onBuffer` is called on an audio thread, many times a second.
-    /// - Parameter deviceUID: empty string = whatever macOS has as the default input.
-    func start(deviceUID: String, onBuffer: @escaping (AVAudioPCMBuffer) -> Void) async throws {
+    struct Options {
+        var deviceUID = ""          // empty = whatever macOS has as the default input
+        var channel = 1             // 1-based; 0 = mix every channel together
+        var gainDB: Double = 6      // boosts a quiet feed
+        var gateDB: Double = -45    // anything quieter than this is treated as silence
+        var bufferFrames: UInt32 = 1024
+    }
+
+    /// Starts capturing. `onBuffer` is called on an audio thread, many times a
+    /// second, with one-channel audio, its loudness (0...1) and whether it is above the noise gate.
+    func start(_ options: Options, onBuffer: @escaping (AVAudioPCMBuffer, Float, Bool) -> Void) async throws {
         guard await Self.requestPermission() else { throw AudioInputError.noPermission }
         stop()
         let input = engine.inputNode
-        if !deviceUID.isEmpty, let device = Self.inputDevices().first(where: { $0.uid == deviceUID }),
+        if !options.deviceUID.isEmpty, let device = Self.inputDevices().first(where: { $0.uid == options.deviceUID }),
            let unit = input.audioUnit {
             var id = device.id
             AudioUnitSetProperty(unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0,
                                  &id, UInt32(MemoryLayout<AudioDeviceID>.size))
         }
         let format = input.outputFormat(forBus: 0)
-        guard format.channelCount > 0, format.sampleRate > 0 else { throw AudioInputError.noInput }
-        // Small buffers keep the delay low: 1024 frames is about 21 ms at 48 kHz.
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
-            onBuffer(buffer)
+        guard format.channelCount > 0, format.sampleRate > 0,
+              let mono = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: format.sampleRate, channels: 1, interleaved: false)
+        else { throw AudioInputError.noInput }
+        let gain = Float(pow(10, options.gainDB / 20))
+        // 1024 frames is about 21 ms at 48 kHz. Smaller = less delay, larger = fewer dropouts.
+        input.installTap(onBus: 0, bufferSize: options.bufferFrames, format: format) { buffer, _ in
+            guard let source = buffer.floatChannelData,
+                  let out = AVAudioPCMBuffer(pcmFormat: mono, frameCapacity: buffer.frameLength),
+                  let dest = out.floatChannelData?[0] else { return }
+            let frames = Int(buffer.frameLength)
+            let channels = Int(buffer.format.channelCount)
+            out.frameLength = buffer.frameLength
+            var sum: Float = 0
+            let pick = options.channel >= 1 && options.channel <= channels ? options.channel - 1 : -1
+            for i in 0..<frames {
+                var v: Float = 0
+                if pick >= 0 {
+                    v = source[pick][i]
+                } else {
+                    for c in 0..<channels { v += source[c][i] }
+                    v /= Float(channels)
+                }
+                v *= gain
+                dest[i] = v
+                sum += v * v
+            }
+            let db = 20 * log10(max((sum / Float(max(frames, 1))).squareRoot(), 0.000_01))
+            let open = Double(db) > options.gateDB
+            if !open { for i in 0..<frames { dest[i] = 0 } }      // below the noise gate: send silence
+            onBuffer(out, max(0, min(1, (db + 50) / 50)), open)
         }
         engine.prepare()
         try engine.start()
         isRunning = true
+    }
+
+    /// How many input channels a device has (for the channel picker).
+    static func channelCount(uid: String) -> Int {
+        guard let device = inputDevices().first(where: { $0.uid == uid }) else { return 2 }
+        return max(1, inputChannelCount(device.id))
     }
 
     func stop() {
@@ -106,15 +146,5 @@ final class AudioInput {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         isRunning = false
-    }
-
-    /// Loudness of a buffer from 0 to 1, for the level meter.
-    static func level(of buffer: AVAudioPCMBuffer) -> Float {
-        guard let data = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return 0 }
-        var sum: Float = 0
-        for i in 0..<Int(buffer.frameLength) { sum += data[i] * data[i] }
-        let rms = (sum / Float(buffer.frameLength)).squareRoot()
-        let db = 20 * log10(max(rms, 0.000_01))
-        return max(0, min(1, (db + 50) / 50))
     }
 }
