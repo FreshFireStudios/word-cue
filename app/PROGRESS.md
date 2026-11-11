@@ -47,3 +47,14 @@ Row 4: "Send ↩" orange pill (wide), "Skip esc" grey pill, and a small round da
 Disconnected variant: no Listening pill shown; right side red x-circle + "OpenLP"; then a dark-red banner row: warning triangle, "OpenLP lost connection" in salmon, and a "Reconnect" grey pill at right; rest the same.
 
 So the app is DARK-FIRST in the manual (my round-2 preview used system/light and looked generic). Confidence shows as words ("High confidence"), history uses icon buttons, meter is bars.
+
+### Pages 10-12 (Figures 9, 10, 11) seen.
+Empty Likely Match area (Ready / Listening / Paused / No audio): label "Likely Match", then a ROW: small rounded-square dark icon tile (sparkle/asterisk glyph) + grey one-line message to its right ("Start listening to catch verses as they're preached." / "Listening for scripture..." / "Paused. Nothing is being detected until you resume." / "Waiting for audio from the soundboard"). It is a short block, NOT a tall centred area; This Service follows right under it.
+This Service empty: label + "0" at right, then grey "Verses appear here as they're sent."
+Ready state: status pill is GREY "● Ready"; no mic bars; footer primary button "Start Listening space" is an ORANGE pill (same orange as Send). Paused: grey "● Paused" pill; footer "Resume space" ORANGE pill. Listening: footer "Pause space" dark-grey pill. Clear Screen pill always at right, red-tinted.
+Likely Match fresh: under the reference a grey line "Heard 4 seconds ago"; when waiting 15 s it becomes amber "● Waiting for you · 15 seconds".
+Auto-sent: Likely Match area back to "Listening for scripture..."; top history row shows amber "Auto-sent" tag before the time.
+App lost connection (FreeShow shown): status pill still green Listening; app name at right with RED x-circle. Dark-red rounded banner under the status row: warning triangle, bold "FreeShow lost connection", small text "Verses can't be sent until it's back. Word Cue is still listening.", and a grey "Reconnect" pill at right. Send and Skip dimmed.
+No audio: RED "● No audio" pill. Banner: "No audio from [Soundboard Interface]", "Check the USB cable and that the pulpit channel is up on the board.", grey pill "Audio Settings". Likely Match row says "Waiting for audio from the soundboard".
+Figure 11 drag: whole sidebar dimmed with an orange DASHED rounded border inset; centre: orange rounded-square tile with a download arrow, bold "Drop to add verses", small grey "Every reference goes straight into EasyWorship's service list, in order." (REWORD per R3: "...is added here, in order."), tiny "PDF · Image · Text".
+After drop: a centred floating dark rounded CARD (toast) over the list: big green check circle, bold "6 verses added to EasyWorship" (REWORD per R3: "6 verses added"), small grey "From sermon-notes.pdf", and a grey pill "Undo ⌘Z".
