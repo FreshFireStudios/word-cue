@@ -19,7 +19,7 @@ Read that score with one large caution: **I wrote the rules while looking at the
 
 "Spoken reference" means the preacher named a book and a chapter, with or without a verse. I built the answer key by reading all three transcripts start to finish.
 
-The shared test file holds 110 cases (81 written by hand, 29 phrases from these sermons). The Python engine passes all 110, both when it reads the text at once and when it is fed one word at a time the way live speech arrives.
+The shared test file now holds 119 cases (90 written by hand, 29 phrases from these sermons). The Python engine passes all 119, both when it reads the text at once and when it is fed one word at a time the way live speech arrives.
 
 ## What it caught
 
@@ -35,7 +35,7 @@ The shared test file holds 110 cases (81 written by hand, 29 phrases from these 
 | Words between book and chapter | "the book of Acts. Amen. In the beginning of chapter two" | Acts 2 |
 | Verse arriving a sentence later | "book of Acts, chapter two. And let us just read the verse 1" | Acts 2:1 |
 
-It also made two **follow-on** suggestions that lean on the last reference, both at a lower score of 60%:
+It also made two **follow-on** suggestions that lean on the last reference, both at a lower score of 72%:
 
 - "the next verse tells us" became Acts 2:2.
 - "read in the first chapter" became Acts 1.
@@ -44,7 +44,7 @@ It also made two **follow-on** suggestions that lean on the last reference, both
 
 1. **Wrong verse, twice, from speech-to-text.**
    - "1 Kings 13 and 20" was suggested as 1 Kings 13:20. The preacher then read 13:2 and said "1 Kings 13 and 2" a moment later, which was caught correctly. The first one was most likely "13 and 2" misheard.
-   - "for Samuel 2 and 8" was suggested as 1 Samuel 2:8 at 60%. He had just said "1 Samuel 2 and 18", so this was "First Samuel 2 and 18" misheard twice over. The detector recovered the book (it reuses the last Samuel it heard) but could not recover the verse.
+   - "for Samuel 2 and 8" was suggested as 1 Samuel 2:8 at 60%, which is under the 70% minimum, so the operator would not see it. He had just said "1 Samuel 2 and 18", so this was "First Samuel 2 and 18" misheard twice over. The detector recovered the book (it reuses the last Samuel it heard) but could not recover the verse.
 
 ⋮
 
@@ -52,7 +52,18 @@ It also made two **follow-on** suggestions that lean on the last reference, both
 
 ⋮
 
-3. **Scripture quoted without a reference is not detected at all.** This is the biggest gap. Examples: "ye shall receive power after" (Acts 1:8), "seek the kingdom of God first" (Matthew 6:33), "today is the day of salvation" (2 Corinthians 6:2), and the Acts 2:2–4 passage read aloud in two of the sermons. I did not count these. Catching them means matching spoken words against the Bible text, which is a separate feature for a later step.
+3. **Scripture quoted without a reference was not detected in the first pass.** I have since added quoted-scripture matching (Beta, off by default). Turned on, it found 20 more verses in these three sermons and every one was a real verse being read or quoted, for example:
+
+   | Sermon | Words heard | Matched |
+   |---|---|---|
+   | A Certain Sound | "suddenly there came a sound from heaven as a rushing mighty wind" | Acts 2:2 |
+   | Cleaned, But Not Occupied | "when he cometh, he findeth it swept and garnished" | Luke 11:25 |
+   | Cleaned, But Not Occupied | "the sting of death is sin and the strength of sin is the law" | 1 Corinthians 15:56 |
+   | Cleaned, But Not Occupied | "the gates of hell shall not prevail" | Matthew 16:18 |
+   | Creating the Atmosphere | "do all that is in thy heart, turn thee" | 1 Samuel 14:7 |
+   | Creating the Atmosphere | "a little maid, and she waited on Naaman's wife" | 2 Kings 5:2 |
+
+   It needs about eight words in a row from one verse, so short phrases like "in the name of Jesus Christ" do not trigger it. Words that appear in several verses ("woe unto you scribes and Pharisees, hypocrites") give no suggestion unless the chapter was just named. It did not catch looser paraphrases such as "seek the kingdom of God first."
 
 ⋮
 
@@ -81,7 +92,7 @@ Re-reading 3,000 words of transcript takes about **2 milliseconds** in Python, a
 | Rules were tuned on these three sermons | The score is a best case |
 | Transcripts came from Whisper (small English model), not Apple's recogniser | Apple will mishear different words and may write "Acts 2:38" where Whisper writes "Acts 2 and 38". Both styles are in the test cases, but real Apple output is untested |
 | Three preachers, one church, 108 minutes | Other accents, rooms and habits will bring new phrasings |
-| The Swift engine has not been compiled | It is a line-by-line copy of the Python and should pass the same 110 cases, but that is unproven until `swift test` runs on the Mac |
+| The Swift engine has not been compiled | It is a line-by-line copy of the Python and should pass the same 119 cases, but that is unproven until `swift test` runs on the Mac |
 | Verse text is King James only | Other translations need a licence |
 
 ## Next for accuracy
@@ -94,4 +105,4 @@ Re-reading 3,000 words of transcript takes about **2 milliseconds** in Python, a
 
 ⋮
 
-3. Decide whether quoted-scripture matching is in the first release.
+3. Try quoted-scripture matching on more sermons before turning it on by default.

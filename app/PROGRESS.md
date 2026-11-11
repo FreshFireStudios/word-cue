@@ -19,8 +19,8 @@ Work top to bottom. Commit + push after each item. Tick it here.
 - [x] B3 App: shortcuts per manual (Return, esc, space, Cmd-B, Cmd-R, Cmd-\, Cmd-Z; Anywhere = Control-Option; Option-Cmd-W), editable.
 - [x] B4 App: first-run setup (5 steps), Settings window with 9 panels + search.
 - [x] B5 App: file drop -> queue/service list with Undo; practice session (run a recorded sermon file); feedback + diagnostics; Sparkle hook (package not added until keys exist).
-- [ ] C1 Word Cue Lab app target: import audio, transcribe on device, run engine, review detections against transcript, mark corrections, export new cases for cases.json.
-- [ ] C2 Lab MCP connector: small stdio MCP server target so Claude can read Lab sessions and run the detector. Config snippet in docs.
+- [x] C1 Word Cue Lab app target: import audio, transcribe on device, run engine, review detections against transcript, mark corrections, export new cases for cases.json.
+- [x] C2 Lab MCP connector: small stdio MCP server target so Claude can read Lab sessions and run the detector. Config snippet in docs.
 - [ ] D1 Xcode project: add Lab + MCP targets; update preview page, README, CLAUDE.md, DECISIONS.md; delete this file.
 
 ## Design notes worth keeping
@@ -43,3 +43,4 @@ Work top to bottom. Commit + push after each item. Tick it here.
 - Sermon transcripts live only in the scratchpad (may be gone after a reset); Bryson will transcribe the rest himself and run_transcript.py now accepts plain .txt.
 - (later, same day) Services + AppModel rewritten and pushed: KeyboardAdapter, OutputRouter, AppWatcher, SystemIntegration, GlobalHotKeys(dictionary of KeyCombo), Updater stub, FeedbackReporter(kind/email/diagnostics), MusicDetector, AudioInput.Options, LiveTranscriber.transcribe(file:), AppSettings(holds WordCueSettings as `s`), CueItem, AppModel (waiting / history / onScreenID / status / problem / perform(action) / windowActions).
 - NEXT: rewrite ALL views to the new model (old RootView/SidebarView/SuggestionCard/CompactView/SettingsView/ReportView still reference the round-1 model and must be replaced), WordCueApp.swift (commands from settings.shortcuts, MenuBarExtra, Settings scene), window manager (380 px right-edge sidebar, compact floating panel in a corner), SetupView (5 steps), SettingsView (9 panels + search). Then C1/C2/D1.
+- (18:40 UTC) Lab app, MCP tool, 2-target Xcode project (tools/make_xcodeproj.py), docs LAB.md/CONNECTIONS.md, RESULTS + DECISIONS updated: all pushed. LEFT for D1: rewrite preview/index.html to the manual's Service View (still shows round-1 cards) and republish the artifact (file in scratchpad may be gone: rebuild from preview/index.html body); update README.md table + CLAUDE.md product decisions (sidebar is fixed-width now, min confidence 70, auto-send 95); final self-review pass over Swift for obvious compile errors; delete PROGRESS.md.
