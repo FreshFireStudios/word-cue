@@ -588,6 +588,31 @@ final class AppModel {
         log.pruneTranscripts(keepDays: s.keepTranscriptsDays, currentService: record.id)
     }
 
+    // MARK: - Level check (setup and Settings > Audio Input)
+
+    /// Runs the input with no transcription, just to move the level meter.
+    func startLevelCheck() {
+        guard !isListening else { return }
+        var options = AudioInput.Options()
+        options.deviceUID = s.inputDeviceUID
+        options.channel = s.inputChannel
+        options.gainDB = s.inputGainDB
+        options.gateDB = s.noiseGateDB
+        Task {
+            try? await audio.start(options) { [weak self] _, level, open in
+                Task { @MainActor in self?.heard(level: level, open: open) }
+            }
+            refreshPermissions()
+        }
+    }
+
+    func stopLevelCheck() {
+        guard !isListening else { return }
+        audio.stop()
+        level = 0
+        speechDetected = false
+    }
+
     func refreshDevices() { inputDevices = AudioInput.inputDevices() }
     func refreshPermissions() { Task { permissions = await SystemIntegration.permissions() } }
 
