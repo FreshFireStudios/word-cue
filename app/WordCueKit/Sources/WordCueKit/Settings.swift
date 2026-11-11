@@ -177,7 +177,12 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
         return try e.encode(self)
     }
 
+    /// Reads a settings file. Keys the file does not have keep their defaults,
+    /// so a file exported by an older Word Cue still imports.
     public static func imported(_ data: Data) throws -> WordCueSettings {
-        try JSONDecoder().decode(WordCueSettings.self, from: data)
+        let defaults = try JSONSerialization.jsonObject(with: JSONEncoder().encode(WordCueSettings())) as? [String: Any] ?? [:]
+        let incoming = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+        let merged = defaults.merging(incoming.filter { defaults[$0.key] != nil }) { _, new in new }
+        return try JSONDecoder().decode(WordCueSettings.self, from: JSONSerialization.data(withJSONObject: merged))
     }
 }

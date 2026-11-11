@@ -11,9 +11,9 @@ No Swift compiler here. Every Swift file starts with an UNTESTED line.
 ## Round 2 plan (Bryson, Nov 11: "build everything, both apps, connections and integrations")
 Work top to bottom. Commit + push after each item. Tick it here.
 - [~] A1 (Kit API adapters written in PresentationAdapters.swift: ProPresenter, FreeShow, OpenLP. Still to do: KeyboardAdapter + OutputRouter in the app target) Kit: `PresentationAdapter` protocol + adapters: ProPresenter (exists), OpenLP (Remote API :4316), FreeShow (API :5505), Keyboard (EasyWorship/Other via Accessibility keystrokes). Automatic = API first, then keyboard.
-- [~] A2 (Settings.swift written with every manual setting + defaults; uses plain synthesized Codable, so a settings file missing a key will fail to import - make decoding tolerant; AppSettings in the app still uses the old round-1 fields and must be switched to WordCueSettings) Kit: settings model matching manual section 08 (all 9 panels), Codable, export/import, defaults from the manual.
+- [~] A2 (Kit part done, import is tolerant; AppSettings in the app still uses the old round-1 fields and must be switched to WordCueSettings) Kit: settings model matching manual section 08 (all 9 panels), Codable, export/import, defaults from the manual.
 - [x] A3 (done, pushed; Swift mirrored; 119 cases pass in Python) Engine: filters (ignored phrases, ignored books, editable require-chapter list), confidence re-tuned so manual's 70% minimum shows bare chapters and follow-ons; quoted-scripture matcher (Beta) in Python first, then Swift; add cases.
-- [ ] A4 Kit: ServiceLog (history per service, transcripts retention, export).
+- [x] A4 Kit: ServiceLog (history per service, transcripts retention, export).
 - [ ] B1 App: Service View per manual 04/05 (status row, problem banner, Likely Match, Send/Skip, This Service history with Resend, Live Transcript, footer Pause/Clear), all states.
 - [ ] B2 App: compact floating panel (corner, opacity, on top), menu bar extra, window pairing with presentation app, show/hide, launch at login, keep awake, confirm quit.
 - [ ] B3 App: shortcuts per manual (Return, esc, space, Cmd-B, Cmd-R, Cmd-\, Cmd-Z; Anywhere = Control-Option; Option-Cmd-W), editable.
