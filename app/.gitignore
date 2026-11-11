@@ -1,0 +1,14 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+.build/
+.swiftpm/
+# Python
+__pycache__/
+*.pyc
+# Sermon audio and full transcripts stay off the public repo (see DECISIONS.md)
+test-audio/
+transcripts/
+*.mp3
+*.wav

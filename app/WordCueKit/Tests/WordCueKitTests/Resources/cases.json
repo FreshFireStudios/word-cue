@@ -1,0 +1,867 @@
+{
+ "about": "Shared test cases. The Python reference engine and the Swift engine must both pass every case. expect uses book ids from books.json: 'ACT 2:38', 'ACT 2' (whole chapter), 'ACT 2:38-39' (range).",
+ "cases": [
+  {
+   "id": "basic-01",
+   "mode": "speech",
+   "text": "Turn with me to Acts 2:38.",
+   "expect": [
+    "ACT 2:38"
+   ]
+  },
+  {
+   "id": "basic-02",
+   "mode": "speech",
+   "text": "Then Peter said unto them, Repent, Acts 2:38-39",
+   "expect": [
+    "ACT 2:38-39"
+   ]
+  },
+  {
+   "id": "basic-03",
+   "mode": "speech",
+   "text": "John 3:5 says except a man be born of water and of the Spirit",
+   "expect": [
+    "JHN 3:5"
+   ]
+  },
+  {
+   "id": "basic-04",
+   "mode": "speech",
+   "text": "Deuteronomy 6:4, hear O Israel",
+   "expect": [
+    "DEU 6:4"
+   ]
+  },
+  {
+   "id": "basic-05",
+   "mode": "speech",
+   "text": "1 Timothy 3:16 and Colossians 2:9",
+   "expect": [
+    "1TI 3:16",
+    "COL 2:9"
+   ]
+  },
+  {
+   "id": "basic-06",
+   "mode": "speech",
+   "text": "Isaiah 9:6 – for unto us a child is born",
+   "expect": [
+    "ISA 9:6"
+   ]
+  },
+  {
+   "id": "basic-07",
+   "mode": "speech",
+   "text": "Revelations 1:8",
+   "expect": [
+    "REV 1:8"
+   ]
+  },
+  {
+   "id": "basic-08",
+   "mode": "speech",
+   "text": "Song of Solomon 2:4",
+   "expect": [
+    "SNG 2:4"
+   ]
+  },
+  {
+   "id": "basic-09",
+   "mode": "speech",
+   "text": "Psalm 23",
+   "expect": [
+    "PSA 23"
+   ]
+  },
+  {
+   "id": "basic-10",
+   "mode": "speech",
+   "text": "Psalms 119:105",
+   "expect": [
+    "PSA 119:105"
+   ]
+  },
+  {
+   "id": "spoken-01",
+   "mode": "speech",
+   "text": "acts chapter two verse thirty eight",
+   "expect": [
+    "ACT 2:38"
+   ]
+  },
+  {
+   "id": "spoken-02",
+   "mode": "speech",
+   "text": "Acts two thirty-eight",
+   "expect": [
+    "ACT 2:38"
+   ]
+  },
+  {
+   "id": "spoken-03",
+   "mode": "speech",
+   "text": "acts chapter 2 and verse 38",
+   "expect": [
+    "ACT 2:38"
+   ]
+  },
+  {
+   "id": "spoken-04",
+   "mode": "speech",
+   "text": "the book of Acts chapter nineteen verses one through six",
+   "expect": [
+    "ACT 19:1-6"
+   ]
+  },
+  {
+   "id": "spoken-05",
+   "mode": "speech",
+   "text": "John three sixteen",
+   "expect": [
+    "JHN 3:16"
+   ]
+  },
+  {
+   "id": "spoken-06",
+   "mode": "speech",
+   "text": "Acts 4 and 12 says neither is there salvation in any other",
+   "expect": [
+    "ACT 4:12"
+   ]
+  },
+  {
+   "id": "spoken-07",
+   "mode": "speech",
+   "text": "Acts 10, 44 through 48",
+   "expect": [
+    "ACT 10:44-48"
+   ]
+  },
+  {
+   "id": "spoken-08",
+   "mode": "speech",
+   "text": "first John chapter five verse seven",
+   "expect": [
+    "1JN 5:7"
+   ]
+  },
+  {
+   "id": "spoken-09",
+   "mode": "speech",
+   "text": "Second Timothy two fifteen",
+   "expect": [
+    "2TI 2:15"
+   ]
+  },
+  {
+   "id": "spoken-10",
+   "mode": "speech",
+   "text": "2nd Corinthians 5 17",
+   "expect": [
+    "2CO 5:17"
+   ]
+  },
+  {
+   "id": "spoken-11",
+   "mode": "speech",
+   "text": "first Corinthians chapter thirteen",
+   "expect": [
+    "1CO 13"
+   ]
+  },
+  {
+   "id": "spoken-12",
+   "mode": "speech",
+   "text": "Matthew twenty eight nineteen",
+   "expect": [
+    "MAT 28:19"
+   ]
+  },
+  {
+   "id": "spoken-13",
+   "mode": "speech",
+   "text": "Matthew 28 verse 19 and Acts 2 verse 38",
+   "expect": [
+    "MAT 28:19",
+    "ACT 2:38"
+   ]
+  },
+  {
+   "id": "spoken-14",
+   "mode": "speech",
+   "text": "Romans chapter 6 verses 3 and 4",
+   "expect": [
+    "ROM 6:3-4"
+   ]
+  },
+  {
+   "id": "spoken-15",
+   "mode": "speech",
+   "text": "Isaiah forty three verse ten",
+   "expect": [
+    "ISA 43:10"
+   ]
+  },
+  {
+   "id": "spoken-16",
+   "mode": "speech",
+   "text": "Hebrews 13 8, Jesus Christ the same yesterday and today and forever",
+   "expect": [
+    "HEB 13:8"
+   ]
+  },
+  {
+   "id": "spoken-17",
+   "mode": "speech",
+   "text": "Psalm one nineteen verse one oh five",
+   "expect": [
+    "PSA 119:105"
+   ]
+  },
+  {
+   "id": "spoken-18",
+   "mode": "speech",
+   "text": "Psalm one hundred and fifty",
+   "expect": [
+    "PSA 150"
+   ]
+  },
+  {
+   "id": "spoken-19",
+   "mode": "speech",
+   "text": "Psalm one oh three",
+   "expect": [
+    "PSA 103"
+   ]
+  },
+  {
+   "id": "spoken-20",
+   "mode": "speech",
+   "text": "Psalm one fifty verse six",
+   "expect": [
+    "PSA 150:6"
+   ]
+  },
+  {
+   "id": "spoken-21",
+   "mode": "speech",
+   "text": "Jude 3 says earnestly contend for the faith",
+   "expect": [
+    "JUD 1:3"
+   ]
+  },
+  {
+   "id": "spoken-22",
+   "mode": "speech",
+   "text": "Jude 1:3",
+   "expect": [
+    "JUD 1:3"
+   ]
+  },
+  {
+   "id": "spoken-23",
+   "mode": "speech",
+   "text": "the second chapter of Acts",
+   "expect": [
+    "ACT 2"
+   ]
+  },
+  {
+   "id": "spoken-24",
+   "mode": "speech",
+   "text": "the second chapter of the book of Acts verse four",
+   "expect": [
+    "ACT 2:4"
+   ]
+  },
+  {
+   "id": "spoken-25",
+   "mode": "speech",
+   "text": "Acts the second chapter",
+   "expect": [
+    "ACT 2"
+   ]
+  },
+  {
+   "id": "spoken-26",
+   "mode": "speech",
+   "text": "chapter 3 of John, verse 5",
+   "expect": [
+    "JHN 3:5"
+   ]
+  },
+  {
+   "id": "spoken-27",
+   "mode": "speech",
+   "text": "the twenty third psalm",
+   "expect": [
+    "PSA 23"
+   ]
+  },
+  {
+   "id": "spoken-28",
+   "mode": "speech",
+   "text": "the 23rd Psalm",
+   "expect": [
+    "PSA 23"
+   ]
+  },
+  {
+   "id": "spoken-29",
+   "mode": "speech",
+   "text": "Genesis one one, in the beginning",
+   "expect": [
+    "GEN 1:1"
+   ]
+  },
+  {
+   "id": "spoken-30",
+   "mode": "speech",
+   "text": "Colossians 2 and 1 Corinthians 15",
+   "expect": [
+    "COL 2",
+    "1CO 15"
+   ]
+  },
+  {
+   "id": "spoken-31",
+   "mode": "speech",
+   "text": "Habakkuk two fourteen",
+   "expect": [
+    "HAB 2:14"
+   ]
+  },
+  {
+   "id": "spoken-32",
+   "mode": "speech",
+   "text": "Revelation chapter twenty two verse twenty",
+   "expect": [
+    "REV 22:20"
+   ]
+  },
+  {
+   "id": "quirk-01",
+   "mode": "speech",
+   "text": "Acts 238",
+   "expect": [
+    "ACT 2:38"
+   ],
+   "note": "digits glued together"
+  },
+  {
+   "id": "quirk-02",
+   "mode": "speech",
+   "text": "John 316",
+   "expect": [
+    "JHN 3:16"
+   ]
+  },
+  {
+   "id": "quirk-03",
+   "mode": "speech",
+   "text": "axe chapter 2 verse 38",
+   "expect": [
+    "ACT 2:38"
+   ],
+   "note": "misheard book name"
+  },
+  {
+   "id": "quirk-04",
+   "mode": "speech",
+   "text": "Philippines 4 and 8",
+   "expect": [
+    "PHP 4:8"
+   ],
+   "note": "misheard Philippians"
+  },
+  {
+   "id": "quirk-05",
+   "mode": "speech",
+   "text": "Samuel 17 and 47",
+   "expect": [
+    "1SA 17:47"
+   ],
+   "note": "no first/second: assumes 1 Samuel at low confidence"
+  },
+  {
+   "id": "quirk-06",
+   "mode": "speech",
+   "text": "Second Samuel 6 and 14. Later in Samuel 7 and 18",
+   "expect": [
+    "2SA 6:14",
+    "2SA 7:18"
+   ],
+   "note": "reuses the last Samuel heard"
+  },
+  {
+   "id": "quirk-07",
+   "mode": "speech",
+   "text": "Acts 2 verse 99",
+   "expect": [
+    "ACT 2"
+   ],
+   "note": "impossible verse dropped, chapter kept"
+  },
+  {
+   "id": "quirk-08",
+   "mode": "speech",
+   "text": "Acts 2:38. Acts 2:38 again",
+   "expect": [
+    "ACT 2:38"
+   ],
+   "note": "same reference repeated right away is reported once"
+  },
+  {
+   "id": "follow-01",
+   "mode": "speech",
+   "text": "Acts chapter 2. Now look at verse 4",
+   "expect": [
+    "ACT 2:4"
+   ],
+   "note": "'verse 4' close behind the chapter joins it"
+  },
+  {
+   "id": "follow-07",
+   "mode": "speech",
+   "text": "Acts chapter 2. And I want everybody in this room tonight to notice something special down in verse 4",
+   "expect": [
+    "ACT 2",
+    "ACT 2:4"
+   ]
+  },
+  {
+   "id": "follow-02",
+   "mode": "speech",
+   "text": "Acts 2:38. The next verse says the promise is unto you",
+   "expect": [
+    "ACT 2:38",
+    "ACT 2:39"
+   ]
+  },
+  {
+   "id": "follow-03",
+   "mode": "speech",
+   "text": "John chapter 3 verse 5. Then in chapter 4 verse 24",
+   "expect": [
+    "JHN 3:5",
+    "JHN 4:24"
+   ]
+  },
+  {
+   "id": "follow-04",
+   "mode": "speech",
+   "text": "We were in Acts chapter 2. We read in the first chapter that they waited",
+   "expect": [
+    "ACT 2",
+    "ACT 1"
+   ]
+  },
+  {
+   "id": "follow-05",
+   "mode": "speech",
+   "text": "Acts 10:44. Look at verses 46 through 48",
+   "expect": [
+    "ACT 10:44",
+    "ACT 10:46-48"
+   ]
+  },
+  {
+   "id": "follow-06",
+   "mode": "speech",
+   "text": "look at verse 4",
+   "expect": [],
+   "note": "no earlier reference to lean on"
+  },
+  {
+   "id": "neg-01",
+   "mode": "speech",
+   "text": "It's not your job to inspect people. That's the pastor's job.",
+   "expect": []
+  },
+  {
+   "id": "neg-02",
+   "mode": "speech",
+   "text": "Mark my words, the numbers are going up.",
+   "expect": []
+  },
+  {
+   "id": "neg-03",
+   "mode": "speech",
+   "text": "Genesis to Revelation, 66 books, 1,189 chapters, 31,102 verses.",
+   "expect": []
+  },
+  {
+   "id": "neg-04",
+   "mode": "speech",
+   "text": "You can read it in Matthew and Mark and Luke.",
+   "expect": []
+  },
+  {
+   "id": "neg-05",
+   "mode": "speech",
+   "text": "James and John wanted to sit right next to him.",
+   "expect": []
+  },
+  {
+   "id": "neg-06",
+   "mode": "speech",
+   "text": "John the Baptist made it very clear",
+   "expect": []
+  },
+  {
+   "id": "neg-07",
+   "mode": "speech",
+   "text": "Peter, standing up with the 11, lifted up his voice",
+   "expect": []
+  },
+  {
+   "id": "neg-08",
+   "mode": "speech",
+   "text": "I see it's 7:29 and we have a 12-week Bible study",
+   "expect": []
+  },
+  {
+   "id": "neg-09",
+   "mode": "speech",
+   "text": "Samuel, Samuel, he got up and ran to Eli",
+   "expect": []
+  },
+  {
+   "id": "neg-10",
+   "mode": "speech",
+   "text": "the judges of the land and the kings of the earth",
+   "expect": []
+  },
+  {
+   "id": "neg-11",
+   "mode": "speech",
+   "text": "He was eight years old when he became king",
+   "expect": []
+  },
+  {
+   "id": "neg-12",
+   "mode": "speech",
+   "text": "The Bible says that in Corinthians if there's an uncertain sound",
+   "expect": [],
+   "note": "book with no chapter is not a reference"
+  },
+  {
+   "id": "neg-13",
+   "mode": "speech",
+   "text": "I caught four. I was looking for five.",
+   "expect": []
+  },
+  {
+   "id": "neg-14",
+   "mode": "speech",
+   "text": "there were 12 baskets and 5,000 men",
+   "expect": []
+  },
+  {
+   "id": "neg-15",
+   "mode": "speech",
+   "text": "the acts of God in these last days",
+   "expect": []
+  },
+  {
+   "id": "doc-01",
+   "mode": "document",
+   "text": "Jn 3:16; Acts 2:38; 4:12",
+   "expect": [
+    "JHN 3:16",
+    "ACT 2:38",
+    "ACT 4:12"
+   ]
+  },
+  {
+   "id": "doc-02",
+   "mode": "document",
+   "text": "1 Cor. 13:4-7, Eph. 4:5",
+   "expect": [
+    "1CO 13:4-7",
+    "EPH 4:5"
+   ]
+  },
+  {
+   "id": "doc-03",
+   "mode": "document",
+   "text": "Reading: Acts 2:1–4 and Acts 19:1-6",
+   "expect": [
+    "ACT 2:1-4",
+    "ACT 19:1-6"
+   ]
+  },
+  {
+   "id": "doc-04",
+   "mode": "document",
+   "text": "Deut 6:4 / Isa 9:6 / Col 2:9 / 1 Tim 3:16",
+   "expect": [
+    "DEU 6:4",
+    "ISA 9:6",
+    "COL 2:9",
+    "1TI 3:16"
+   ]
+  },
+  {
+   "id": "doc-05",
+   "mode": "document",
+   "text": "Ps. 23 and Rom 8:28",
+   "expect": [
+    "PSA 23",
+    "ROM 8:28"
+   ]
+  },
+  {
+   "id": "doc-06",
+   "mode": "document",
+   "text": "Jesus is Lord. There is 1 God. I am 5 minutes late.",
+   "expect": [],
+   "note": "short abbreviations (is, am) need a verse"
+  },
+  {
+   "id": "doc-07",
+   "mode": "document",
+   "text": "Matt 28:19, Mk 16:16, Lk 24:47",
+   "expect": [
+    "MAT 28:19",
+    "MRK 16:16",
+    "LUK 24:47"
+   ]
+  },
+  {
+   "id": "doc-08",
+   "mode": "document",
+   "text": "John 3:16, 5:24",
+   "expect": [
+    "JHN 3:16",
+    "JHN 5:24"
+   ]
+  },
+  {
+   "id": "sermon-01",
+   "mode": "speech",
+   "text": "but let's go to Acts chapter two. We're just gonna revisit the book of Acts here for a moment.",
+   "expect": [
+    "ACT 2"
+   ]
+  },
+  {
+   "id": "sermon-02",
+   "mode": "speech",
+   "text": "And so now it brings us to the book of Acts, chapter two. And let us just read the verse 1 here and end.",
+   "expect": [
+    "ACT 2:1"
+   ]
+  },
+  {
+   "id": "sermon-03",
+   "mode": "speech",
+   "text": "The book of Acts. Amen. In the beginning of chapter two, it's just more.",
+   "expect": [
+    "ACT 2"
+   ]
+  },
+  {
+   "id": "sermon-04",
+   "mode": "speech",
+   "text": "Oh, thank you, Lord. Luke chapter 11 and verse 24, thank you for your spirit of worship",
+   "expect": [
+    "LUK 11:24"
+   ]
+  },
+  {
+   "id": "sermon-05",
+   "mode": "speech",
+   "text": "Colossians 2 and 15 says, \"And having spoiled principalities in power.\"",
+   "expect": [
+    "COL 2:15"
+   ]
+  },
+  {
+   "id": "sermon-06",
+   "mode": "speech",
+   "text": "Amen. 1 Corinthians 15 and 55 says, \"Oh death, where is your sting?",
+   "expect": [
+    "1CO 15:55"
+   ]
+  },
+  {
+   "id": "sermon-07",
+   "mode": "speech",
+   "text": "Christ. Amen 2nd Corinthians 10 and 4 very familiar says for the weapons of our warfare",
+   "expect": [
+    "2CO 10:4"
+   ]
+  },
+  {
+   "id": "sermon-08",
+   "mode": "speech",
+   "text": "It's fun. Luke 11 and 23 says, Jesus said, \"He that is not with me is against me",
+   "expect": [
+    "LUK 11:23"
+   ]
+  },
+  {
+   "id": "sermon-09",
+   "mode": "speech",
+   "text": "Luke 11, 24 says, \"When the unclean spirit has gone out of a man",
+   "expect": [
+    "LUK 11:24"
+   ]
+  },
+  {
+   "id": "sermon-10",
+   "mode": "speech",
+   "text": "in the closet. Matthew 23 and 26 says, \"Woe unto you scribes and Pharisees",
+   "expect": [
+    "MAT 23:26"
+   ]
+  },
+  {
+   "id": "sermon-11",
+   "mode": "speech",
+   "text": "as the forerunner of Jesus in Matthew 3, 11, he says, \"I indeed baptize you with water",
+   "expect": [
+    "MAT 3:11"
+   ]
+  },
+  {
+   "id": "sermon-12",
+   "mode": "speech",
+   "text": "Mark 1 and 8 says, \"I indeed baptize you with water, but he shall baptize you with the Holy Ghost.\" John 1 and 33 says, \"And I knew him not",
+   "expect": [
+    "MRK 1:8",
+    "JHN 1:33"
+   ]
+  },
+  {
+   "id": "sermon-13",
+   "mode": "speech",
+   "text": "we read in Luke 24 where Jesus is like, hey, need to go and preach the gospel",
+   "expect": [
+    "LUK 24"
+   ]
+  },
+  {
+   "id": "sermon-14",
+   "mode": "speech",
+   "text": "And we would read in Acts 1 and 4 it says, \"And being assembled together with them",
+   "expect": [
+    "ACT 1:4"
+   ]
+  },
+  {
+   "id": "sermon-15",
+   "mode": "speech",
+   "text": "And we flip over to the next chapter in Acts chapter two. Amen. Read about the day of Pentecost.",
+   "expect": [
+    "ACT 2"
+   ]
+  },
+  {
+   "id": "sermon-16",
+   "mode": "speech",
+   "text": "for the future. 1 Samuel 14 and 6. And Jonathan said to the young man",
+   "expect": [
+    "1SA 14:6"
+   ]
+  },
+  {
+   "id": "sermon-17",
+   "mode": "speech",
+   "text": "And then in the book of Proverbs chapter 23 verse number seven, for as he thinketh in his heart",
+   "expect": [
+    "PRO 23:7"
+   ]
+  },
+  {
+   "id": "sermon-18",
+   "mode": "speech",
+   "text": "Amen. 1 Corinthians 12, nine and 10 that I didn't give the sound folks",
+   "expect": [
+    "1CO 12:9-10"
+   ]
+  },
+  {
+   "id": "sermon-19",
+   "mode": "speech",
+   "text": "I read the scripture in Matthew 13, verse 55 through 58. And I've always wondered",
+   "expect": [
+    "MAT 13:55-58"
+   ]
+  },
+  {
+   "id": "sermon-20",
+   "mode": "speech",
+   "text": "what Jesus felt like in Matthew 13, 55. \"is not this a carpenter's son",
+   "expect": [
+    "MAT 13:55"
+   ]
+  },
+  {
+   "id": "sermon-21",
+   "mode": "speech",
+   "text": "It was a false altar, ladies and gentlemen. 1 Kings 13 and 2, \"O altar, altar thus saith the Lord.\"",
+   "expect": [
+    "1KI 13:2"
+   ]
+  },
+  {
+   "id": "sermon-22",
+   "mode": "speech",
+   "text": "2 Kings 5 and 1 through 3 says, \"Now naming the captain of the host of Syria",
+   "expect": [
+    "2KI 5:1-3"
+   ]
+  },
+  {
+   "id": "sermon-23",
+   "mode": "speech",
+   "text": "He's a young child. 1 Samuel 2 and 18. Samuel was a young child.",
+   "expect": [
+    "1SA 2:18"
+   ]
+  },
+  {
+   "id": "sermon-24",
+   "mode": "speech",
+   "text": "the last child and we're all done. John chapter six verse number nine. It was a young child",
+   "expect": [
+    "JHN 6:9"
+   ]
+  },
+  {
+   "id": "sermon-25",
+   "mode": "speech",
+   "text": "John 6 and 9, there is a lad here. which have five barley loaves and two small fishes",
+   "expect": [
+    "JHN 6:9"
+   ]
+  },
+  {
+   "id": "sermon-26",
+   "mode": "speech",
+   "text": "There's many writers, there's one author, Genesis to Revelation, 66 books, 1,189 chapters, 31,102 verses.",
+   "expect": []
+  },
+  {
+   "id": "sermon-27",
+   "mode": "speech",
+   "text": "everything from Genesis to Revelation, all 1189 chapters and 31,000 some verses all point to the very exact thing",
+   "expect": []
+  },
+  {
+   "id": "sermon-28",
+   "mode": "speech",
+   "text": "Samuel anointed the first king Saul. Samuel anointed David, if you please. Ladies and gentlemen, children five, six, and seven can create",
+   "expect": []
+  },
+  {
+   "id": "sermon-29",
+   "mode": "speech",
+   "text": "Amen. I see it's 7/29. I don't know what time y'all got out.",
+   "expect": []
+  }
+ ]
+}

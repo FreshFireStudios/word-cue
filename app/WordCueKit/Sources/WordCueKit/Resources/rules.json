@@ -1,0 +1,29 @@
+{
+ "version": 1,
+ "chapterWords": ["chapter", "chapters", "chap"],
+ "docChapterWords": ["ch"],
+ "verseWords": ["verse", "verses"],
+ "docVerseWords": ["v", "vs", "vv"],
+ "verseNumberFillers": ["number", "numbers"],
+ "rangeWords": ["through", "thru", "to"],
+ "rangeSymbols": ["-", "–", "—"],
+ "andWords": ["and"],
+ "ofWords": ["of", "in", "from"],
+ "bookIntroWords": ["book", "gospel", "epistle", "letter"],
+ "nextWords": ["next", "following"],
+ "shortAbbrChapterOnly": ["ps"],
+ "limits": {"chapterGap": 6, "verseGap": 8, "contextTokens": 600, "dedupeTokens": 30},
+ "confidence": {
+  "explicitVerse": 0.95,
+  "impliedVerse": 0.85,
+  "chapterKeyword": 0.80,
+  "chapterBare": 0.60,
+  "followOn": 0.60,
+  "penaltyRiskyBare": 0.20,
+  "penaltyMishearing": 0.15,
+  "penaltyAssumedOrdinal": 0.25,
+  "penaltyGap": 0.10,
+  "penaltyDigitSplit": 0.15,
+  "penaltyVerseDropped": 0.10
+ }
+}
