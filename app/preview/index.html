@@ -9,337 +9,336 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: notes and controls on the left, the app window and the congregation's screen side by side on the right; one column on a phone. */
+/* Layout: notes and controls on the left; the 380-point sidebar and the congregation's screen side by side on the right; one column on a phone. */
 :root {
-  color-scheme: dark;
-  --char: #1C1C1A; --win: #242321; --panel: #201F1D; --line: rgba(255,255,255,.09); --card: rgba(255,255,255,.05);
-  --fg: #F2F0EC; --dim: #9E998F; --orange: #B85A1B; --amber: #F0A050; --green: #5BD27A; --yellow: #E8C35A; --screen: #0B0B0A;
+  --page: #F3F1ED; --fg: #1C1C1A; --dim: #6B665E; --line: rgba(0,0,0,.12); --win: #FFFFFF; --fill: rgba(0,0,0,.05);
+  --orange: #B85A1B; --accent: #C96A1E; --green: #1F9D4C; --yellow: #A87400; --red: #D23F36; --screen: #0B0B0A;
   --brand: "Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif;
   --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --verse: Georgia, "Times New Roman", serif;
 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #1C1C1A; --fg: #F2F0EC; --dim: #9E998F; --line: rgba(255,255,255,.12); --win: #262523; --fill: rgba(255,255,255,.07); --accent: #F0A050; --green: #5BD27A; --yellow: #E8C35A; --red: #F0685F; color-scheme: dark } }
+:root[data-theme="dark"] { --page: #1C1C1A; --fg: #F2F0EC; --dim: #9E998F; --line: rgba(255,255,255,.12); --win: #262523; --fill: rgba(255,255,255,.07); --accent: #F0A050; --green: #5BD27A; --yellow: #E8C35A; --red: #F0685F; color-scheme: dark }
 * { box-sizing: border-box; }
-body { background: var(--char); color: var(--fg); font-family: var(--brand); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-.wrap { max-width: 1120px; margin: 0 auto; padding-block: 36px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 32px; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); align-items: start; }
+body { background: var(--page); color: var(--fg); font-family: var(--brand); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-block: 36px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 32px; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); align-items: start; }
 h1 { font-size: 28px; line-height: 1.15; margin: 0; font-weight: 700; text-wrap: balance; }
 h2 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin: 0; }
 p { margin: 0; }
-.side { display: grid; gap: 22px; min-width: 0; }
-.lede { color: var(--dim); }
-.tag { display: inline-block; font-size: 12px; font-weight: 600; color: var(--yellow); border: 1px solid rgba(232,195,90,.35); border-radius: 999px; padding: 2px 10px; }
-.group { display: grid; gap: 10px; }
-.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.side, .group, .col { display: grid; gap: 10px; min-width: 0; }
+.side { gap: 22px; }
+.lede, .note, .cap { color: var(--dim); }
+.note, .cap { font-size: 13px; }
+.tag { justify-self: start; font-size: 12px; font-weight: 600; color: var(--yellow); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, .mac:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-.tab { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 14px; }
-.tab[aria-selected="true"] { background: var(--fg); color: var(--char); border-color: var(--fg); font-weight: 600; }
-.play { background: var(--orange); border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 600; color: #fff; }
-.play.ghost { background: transparent; border: 1px solid var(--line); color: var(--fg); font-weight: 500; }
-.row { display: flex; flex-wrap: wrap; gap: 8px; }
-.keys > kbd { justify-self: start; }
+button:focus-visible, .mac:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; font-size: 14px; }
+.chip[aria-pressed="true"], .chip[aria-selected="true"] { background: var(--fg); color: var(--page); border-color: var(--fg); font-weight: 600; }
+.play { background: var(--orange); border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 600; color: #fff; }
 .keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; color: var(--dim); align-items: baseline; }
-kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: rgba(255,255,255,.1); border-radius: 5px; padding: 2px 6px; color: var(--fg); white-space: nowrap; }
+.keys > kbd { justify-self: start; }
+kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--fill); border-radius: 5px; padding: 2px 6px; color: var(--fg); white-space: nowrap; }
 .log { font-size: 13px; color: var(--dim); min-height: 1.5em; }
-.stage { display: grid; gap: 24px; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); align-items: start; min-width: 0; }
-.col { display: grid; gap: 10px; min-width: 0; }
+.stage { display: grid; gap: 24px; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); align-items: start; min-width: 0; }
+.stage.wide { grid-template-columns: minmax(0, 1fr); }
 /* the app window */
-.mac { font-family: var(--ui); font-size: 13px; line-height: 1.4; background: var(--win); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
-.titlebar { display: flex; align-items: center; gap: 7px; padding: 9px 12px; background: var(--panel); border-bottom: 1px solid var(--line); }
-.dot { width: 11px; height: 11px; border-radius: 50%; background: #55524c; }
-.titlebar b { flex: 1; text-align: center; font-weight: 600; font-size: 12px; color: var(--dim); margin-right: 47px; }
-.hdr { display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--panel); }
-.status { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; background: none; border: 0; padding: 0; }
-.led { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); }
-.led.on { background: var(--green); }
-.meter { width: 54px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
-.meter i { display: block; height: 100%; width: 0; background: var(--amber); transition: width .2s; }
+.mac { font-family: var(--ui); font-size: 13px; line-height: 1.4; background: var(--win); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.22); min-width: 0; }
+.tb { display: flex; align-items: center; gap: 7px; padding: 10px 12px 8px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
+.wm { font-family: var(--brand); font-weight: 700; font-size: 15px; margin-left: 8px; flex: 1; }
+.icon { background: none; border: 0; padding: 2px 5px; color: var(--dim); font-size: 15px; }
+.status { display: flex; align-items: center; gap: 10px; padding: 0 14px 10px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--fill); }
+.pill i, .led { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; }
+.pill.green { color: var(--green); } .pill.green i { background: var(--green); }
+.pill.red { color: var(--red); } .pill.red i { background: var(--red); }
+.meter { width: 56px; height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--green); transition: width .2s; }
 .grow { flex: 1; }
-.icon { background: none; border: 0; padding: 2px 4px; color: var(--dim); font-size: 15px; }
-.banner { padding: 8px 14px; background: rgba(232,195,90,.08); color: var(--yellow); }
-.list { display: grid; gap: 8px; padding: 12px; min-height: 330px; align-content: start; max-height: 460px; overflow-y: auto; }
-.empty { display: grid; gap: 8px; justify-items: center; text-align: center; align-content: center; min-height: 306px; color: var(--dim); padding: 0 18px; }
-.empty b { color: var(--fg); font-size: 16px; }
-.sg { display: grid; gap: 7px; padding: 11px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); text-align: left; width: 100%; font-size: 13px; }
-.sg.sel { border: 1.5px solid var(--amber); }
-.sg.live { background: rgba(91,210,122,.10); }
-.sg.sent { opacity: .55; }
-.sg.prov { opacity: .6; }
-.sg-top { display: flex; align-items: baseline; gap: 8px; }
-.sg-ref { font-size: 17px; font-weight: 600; color: var(--amber); flex: 1; }
-.live .sg-ref { color: var(--green); }
-.badge { font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-.badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
-.badge .sure { background: var(--green); } .badge .likely { background: var(--yellow); }
-.live .badge { color: var(--green); font-weight: 600; }
-.sg-text { font-family: var(--verse); font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.sel .sg-text { -webkit-line-clamp: 8; }
-.sg-act { display: flex; gap: 8px; align-items: center; }
-.btn { border: 1px solid var(--line); background: rgba(255,255,255,.08); border-radius: 7px; padding: 4px 11px; font-size: 13px; }
-.btn.go { background: var(--amber); color: #1C1C1A; border-color: var(--amber); font-weight: 600; }
-.btn[disabled] { opacity: .5; cursor: default; }
-.heard { font-size: 11px; color: var(--dim); }
-.hearing { padding: 9px 14px; background: var(--panel); display: grid; gap: 3px; }
-.hearing small { font-size: 10px; font-weight: 600; letter-spacing: .06em; color: var(--dim); }
-.hearing p { min-height: 2.8em; font-size: 13px; }
-.hearing em { color: var(--dim); font-style: normal; }
-.foot { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 8px 14px; background: var(--char); font-size: 11px; color: var(--dim); align-items: center; }
-.auto { color: var(--amber); font-weight: 700; margin-left: auto; }
-.compact { padding: 12px; display: grid; gap: 8px; }
-.compact .sg-ref { font-size: 21px; }
-.form { padding: 14px; display: grid; gap: 14px; }
-.form fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 0; display: grid; gap: 9px; min-width: 0; }
-.form legend { font-size: 11px; color: var(--dim); font-weight: 600; padding: 0 4px; }
-.fr { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
-.fr label { min-width: 0; }
-.form input[type=text], .form select, .form textarea { font: inherit; color: var(--fg); background: rgba(255,255,255,.07); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; width: 150px; }
-.form textarea { width: 100%; height: 90px; resize: vertical; }
-.note { font-size: 11px; color: var(--dim); }
-.warn { font-size: 11px; color: var(--yellow); }
+.conn { color: var(--dim); display: flex; gap: 5px; align-items: center; }
+.ok { color: var(--green); font-weight: 700; } .bad { color: var(--red); font-weight: 700; }
+.banner { margin: 0 12px 8px; padding: 10px; border-radius: 10px; background: var(--red); color: #fff; display: flex; gap: 10px; align-items: flex-start; }
+.banner b { display: block; } .banner span { font-size: 12px; }
+.banner .btn { background: rgba(255,255,255,.22); border-color: transparent; color: #fff; white-space: nowrap; }
+.notice { margin: 0 12px 8px; padding: 9px 10px; border-radius: 10px; background: var(--fill); display: flex; gap: 8px; align-items: center; }
+.lm { padding: 14px; display: grid; gap: 8px; min-height: 250px; align-content: start; }
+.lm.empty { align-content: center; justify-items: center; text-align: center; color: var(--dim); }
+.eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .06em; color: var(--dim); display: flex; }
+.ref { font-size: 30px; font-weight: 700; line-height: 1.1; }
+.ref small { font-size: 14px; font-weight: 400; color: var(--dim); margin-left: 6px; }
+.heard { font-size: 12px; color: var(--dim); } .heard.wait { color: var(--yellow); font-weight: 600; }
+.vtext { font-family: var(--verse); font-size: 15px; line-height: 1.45; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn { border: 1px solid var(--line); background: var(--fill); border-radius: 7px; padding: 5px 11px; font-size: 13px; }
+.btn.big { padding: 9px; font-size: 14px; }
+.btn.go { background: var(--accent); color: #1C1C1A; border-color: var(--accent); font-weight: 600; }
+.btn[disabled] { opacity: .45; cursor: default; }
+.btn kbd { margin-left: 6px; }
+.hist { border-top: 1px solid var(--line); padding: 10px 14px; display: grid; gap: 8px; min-height: 150px; align-content: start; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row b { font-weight: 500; } .row small { display: block; color: var(--dim); font-size: 11px; }
+.live { color: var(--green); font-size: 10px; font-weight: 700; margin-left: 6px; }
+.tr { border-top: 1px solid var(--line); padding: 8px 14px; } .tr p { min-height: 2.8em; } .tr em { color: var(--dim); font-style: normal; }
+.foot { border-top: 1px solid var(--line); display: flex; gap: 8px; padding: 10px 14px; align-items: center; }
+.auto { color: var(--orange); font-weight: 700; font-size: 10px; }
+.compact { padding: 4px 12px 12px; display: grid; gap: 6px; max-width: 340px; }
+.compact .ref { font-size: 22px; }
+.one { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* settings + setup */
+.set { display: grid; grid-template-columns: 190px minmax(0, 1fr); min-height: 470px; }
+.nav { border-right: 1px solid var(--line); padding: 10px; display: grid; gap: 2px; align-content: start; }
+.nav input { font: inherit; width: 100%; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--fill); color: var(--fg); margin-bottom: 6px; }
+.nav h3 { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); margin: 8px 6px 2px; font-weight: 600; }
+.nav button { text-align: left; background: none; border: 0; border-radius: 6px; padding: 4px 8px; }
+.nav button[aria-selected="true"] { background: var(--accent); color: #1C1C1A; font-weight: 600; }
+.nav button small { display: block; color: var(--dim); font-size: 11px; }
+.pane { padding: 14px 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.pane h4 { margin: 0 0 6px; font-size: 17px; }
+.srow { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.srow span:last-child { color: var(--dim); text-align: right; }
+.setup { padding: 24px; display: grid; gap: 12px; min-height: 380px; align-content: start; }
+.setup h4 { margin: 0; font-size: 24px; font-family: var(--brand); }
+.pt { display: flex; gap: 12px; } .pt b { display: block; }
+.dots { display: flex; gap: 6px; justify-content: center; } .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); } .dots i.on { background: var(--accent); }
+.sfoot { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
 /* the congregation's screen */
 .out { aspect-ratio: 16 / 9; max-width: 100%; background: var(--screen); border: 1px solid var(--line); border-radius: 8px; display: grid; align-content: center; padding: 6% 8%; gap: 12px; }
 .out q { quotes: none; font-family: var(--verse); font-size: clamp(14px, 1.9vw, 21px); line-height: 1.45; color: #fff; }
 .out cite { font-family: var(--verse); font-style: normal; font-size: clamp(12px, 1.3vw, 15px); color: #D9D5CE; }
-.out .blank { color: #4a4843; font-family: var(--ui); font-size: 13px; text-align: center; }
-.cap { font-size: 13px; color: var(--dim); }
-ul.notes { margin: 0; padding-left: 18px; color: var(--dim); font-size: 14px; display: grid; gap: 6px; }
+.out .blank { color: #6a675f; font-family: var(--ui); font-size: 13px; text-align: center; }
 @media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 640px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { .stage { grid-template-columns: minmax(0, 1fr); } .set { grid-template-columns: minmax(0, 1fr); } .nav { border-right: 0; border-bottom: 1px solid var(--line); } }
 @media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
 </style>
 
 <div class="wrap">
   <div class="side">
     <div class="group">
-      <span class="tag" style="justify-self:start">Preview, not the real app</span>
+      <span class="tag">Preview, not the real app</span>
       <h1>Word Cue app screens</h1>
-      <p class="lede">Click through the screens before Xcode builds them. The sample service plays a short stretch of preaching so you can watch suggestions arrive.</p>
+      <p class="lede">Built from the User Guide. Click through the screens before Xcode builds them, and play the sample service to watch a verse arrive.</p>
     </div>
     <div class="group">
       <h2>Screen</h2>
-      <div class="tabs" role="tablist" aria-label="Screen">
-        <button class="tab" role="tab" id="tab-sidebar" data-screen="sidebar">Sidebar</button>
-        <button class="tab" role="tab" id="tab-compact" data-screen="compact">Compact</button>
-        <button class="tab" role="tab" id="tab-settings" data-screen="settings">Settings</button>
-        <button class="tab" role="tab" id="tab-report" data-screen="report">Report a problem</button>
+      <div class="chips" role="tablist" aria-label="Screen">
+        <button class="chip" role="tab" id="t-service" data-screen="service">Service View</button>
+        <button class="chip" role="tab" id="t-compact" data-screen="compact">Compact panel</button>
+        <button class="chip" role="tab" id="t-setup" data-screen="setup">First-run setup</button>
+        <button class="chip" role="tab" id="t-settings" data-screen="settings">Settings</button>
       </div>
     </div>
     <div class="group">
       <h2>Sample service</h2>
-      <div class="row">
+      <div class="chips">
         <button class="play" id="play">Play sample</button>
-        <button class="play ghost" id="reset">Start over</button>
-        <button class="play ghost" id="fail">ProPresenter offline</button>
+        <button class="chip" id="reset">Start over</button>
+      </div>
+      <div class="chips" aria-label="Situations">
+        <button class="chip" id="auto" aria-pressed="false">Auto-send</button>
+        <button class="chip" id="lost" aria-pressed="false">App lost connection</button>
+        <button class="chip" id="noaudio" aria-pressed="false">No audio</button>
+        <button class="chip" id="drop">Drop sermon notes</button>
       </div>
       <p class="log" id="log" aria-live="polite"></p>
     </div>
     <div class="group">
       <h2>Keyboard</h2>
       <div class="keys">
-        <kbd>Return</kbd><span>Send the selected verse to the screen</span>
-        <kbd>Delete</kbd><span>Dismiss it</span>
-        <kbd>↑</kbd><span>and <kbd>↓</kbd> move between suggestions</span>
-        <kbd>Esc</kbd><span>Clear the screen</span>
-        <kbd>L</kbd><span>Start or stop listening (⌘L in the app)</span>
-        <kbd>K</kbd><span>Compact mode (⌘K in the app)</span>
+        <kbd>Return</kbd><span>Send the verse</span>
+        <kbd>Esc</kbd><span>Skip it</span>
+        <kbd>Space</kbd><span>Pause or resume listening</span>
+        <kbd>B</kbd><span>Clear screen (⌘B in the app)</span>
+        <kbd>R</kbd><span>Resend last verse (⌘R)</span>
+        <kbd>\</kbd><span>Compact or full (⌘\)</span>
       </div>
-      <p class="note">In the app, the same actions also work with Control-Option held while ProPresenter is in front.</p>
-    </div>
-    <div class="group">
-      <h2>What to react to</h2>
-      <ul class="notes">
-        <li>Is the card the right amount of information at a glance?</li>
-        <li>Sure / Likely / Maybe, or show the percentage?</li>
-        <li>Should a sent verse stay in the list, faded, as it does here?</li>
-        <li>Is the "hearing" strip useful or a distraction?</li>
-      </ul>
+      <p class="note">With the presentation app in front, the app uses Control-Option with the same keys.</p>
     </div>
   </div>
 
-  <div class="stage">
+  <div class="stage" id="stage">
     <div class="col">
-      <h2>Word Cue</h2>
+      <h2 id="mactitle">Word Cue</h2>
       <div class="mac" id="mac" tabindex="0" aria-label="Word Cue window preview"></div>
     </div>
-    <div class="col">
+    <div class="col" id="outcol">
       <h2>What the congregation sees</h2>
       <div class="out" id="out"></div>
-      <p class="cap">ProPresenter's screen. Nothing appears here until the operator sends it, unless the church turns on auto-send in Settings.</p>
+      <p class="cap">Your presentation app's screen. Nothing appears here until the operator presses Send, unless the church turns on Auto-send.</p>
     </div>
   </div>
 </div>
 
 <script>
-const V = {"ACT 2:1": "And when the day of Pentecost was fully come, they were all with one accord in one place.", "ACT 2:38": "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost.", "ACT 2:39": "For the promise is unto you, and to your children, and to all that are afar off, even as many as the Lord our God shall call.", "JHN 3:5": "Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God.", "ACT 4:12": "Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved.", "COL 2:9": "For in him dwelleth all the fulness of the Godhead bodily."};
-// Each step: words heard, then what the detector does with them.
+const V = {"ACT 2:1": "And when the day of Pentecost was fully come, they were all with one accord in one place.", "ACT 2:38": "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost.", "JHN 3:5": "Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God.", "ACT 4:12": "Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved.", "COL 2:9": "For in him dwelleth all the fulness of the Godhead bodily.", "DEU 6:4": "Hear, O Israel: The LORD our God is one LORD :"};
 const SCRIPT = [
-  { say: "Turn with me in your Bibles to Acts chapter two", add: { key: "ACT 2:38", ref: "Acts 2", conf: 0.80, heard: "acts chapter two", text: V["ACT 2:1"], prov: true } },
-  { say: "and verse thirty eight.", update: { key: "ACT 2:38", ref: "Acts 2:38", conf: 0.95, heard: "acts chapter two and verse thirty eight", text: V["ACT 2:38"] } },
+  { say: "Turn with me in your Bibles to Acts chapter two", cue: { key: "ACT 2:38", ref: "Acts 2", conf: 80, text: V["ACT 2:1"], prov: true } },
+  { say: "and verse thirty eight.", cue: { key: "ACT 2:38", ref: "Acts 2:38", conf: 95, text: V["ACT 2:38"] } },
   { say: "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ." },
-  { say: "Now look at the next verse.", add: { key: "ACT 2:39", ref: "Acts 2:39", conf: 0.60, heard: "next verse", text: V["ACT 2:39"] } },
-  { say: "Jesus told Nicodemus in John 3 and 5", add: { key: "JHN 3:5", ref: "John 3:5", conf: 0.85, heard: "john 3 and 5", text: V["JHN 3:5"] } },
-  { say: "Mark my words, church, the numbers do not matter to God.", log: "“Mark” and “numbers” are book names, and Word Cue ignored them." },
-  { say: "Acts 4:12, neither is there salvation in any other.", add: { key: "ACT 4:12", ref: "Acts 4:12", conf: 0.95, heard: "acts 4:12", text: V["ACT 4:12"] } },
-  { say: "And Paul wrote in Colossians 2 and 9", add: { key: "COL 2:9", ref: "Colossians 2:9", conf: 0.85, heard: "colossians 2 and 9", text: V["COL 2:9"] } }
+  { say: "Jesus told Nicodemus in John 3 and 5", cue: { key: "JHN 3:5", ref: "John 3:5", conf: 85, text: V["JHN 3:5"] } },
+  { say: "Mark my words, church, the numbers do not matter to God.", log: "“Mark” and “numbers” are book names. With no chapter number after them, Word Cue ignored them." },
+  { say: "Acts 4:12, neither is there salvation in any other.", cue: { key: "ACT 4:12", ref: "Acts 4:12", conf: 95, text: V["ACT 4:12"] } },
+  { say: "For in him dwelleth all the fulness of the Godhead bodily.", cue: { key: "COL 2:9", ref: "Colossians 2:9", conf: 72, text: V["COL 2:9"] }, log: "No reference was said. Quoted-scripture matching (Beta) recognized the verse from its words." }
 ];
-const S = { screen: "sidebar", listening: false, step: 0, timer: null, items: [], sel: null, lines: [], vol: "", banner: "", offline: false, auto: false, threshold: 90, top: true, hearing: true, report: "" };
+const PANELS = [
+  ["Home", [["General", [["Cue mode", "Review first"], ["Auto-send at", "95%"], ["Start listening", "When app opens"], ["Launch at login", "On"], ["Show menu bar icon", "On"], ["Keep Mac awake", "On"], ["Confirm before quitting", "On"], ["Quick links", "Service Log · Practice Session · Help"]]]]],
+  ["Service", [["Audio Input", [["Enable live listening", "On"], ["Audio interface", "Set at setup"], ["Input channel", "Channel 1"], ["Input gain", "+6 dB"], ["Noise gate", "−45 dB"], ["Pause during music", "On"], ["Auto-pause after silence", "2 minutes"], ["Speech engine", "Enhanced"], ["Language", "English (US)"], ["Custom vocabulary", "Apostolic, Pentecost, Holy Ghost"], ["Keep transcripts for", "7 days"]]],
+    ["Scripture Detection", [["Enable detection", "On"], ["Bible translation", "KJV"], ["Show abbreviation", "On"], ["Verse ranges", "On"], ["Follow-up verses", "On"], ["Quoted scripture (Beta)", "Off"], ["Minimum confidence", "70%"], ["Detection speed", "Balanced"]]],
+    ["Verse Output", [["Presentation app", "ProPresenter"], ["Connection method", "Automatic"], ["Port", "Auto"], ["Reconnect automatically", "On"], ["When a verse is sent", "Go live"], ["Verses per slide", "1 verse"], ["Surrounding verses", "None"], ["Clear the screen after", "Never"], ["Sound when waiting", "Off"], ["Dismiss unsent after", "30 seconds"], ["Pair with app", "On"], ["Show when app opens", "On"], ["When the app quits", "Hide"]]]]],
+  ["Customization", [["Appearance", [["Appearance", "System"], ["Accent color", "Fresh Fire"], ["Panel position", "Top right"], ["Panel opacity", "95%"], ["Show confidence", "On"], ["Keep panel on top", "On"], ["Menu bar icon", "Flame"], ["Listening status", "On"], ["Waiting verse in menu bar", "Off"]]],
+    ["Shortcuts & Controls", [["Send", "↩   ⌃⌥↩"], ["Skip", "esc   ⌃⌥esc"], ["Pause or resume", "space   ⌃⌥space"], ["Clear screen", "⌘B   ⌃⌥B"], ["Resend last verse", "⌘R   ⌃⌥R"], ["Switch compact / full", "⌘\\"], ["Show or hide Word Cue", "⌥⌘W"], ["Undo a file drop", "⌘Z"]]],
+    ["Filters", [["Require a chapter number", "Mark, Job, Acts, Numbers, Judges, Revelation, Lamentations"], ["Ignored phrases", "None"], ["Ignored books", "None"], ["Duplicate cooldown", "60 s"]]]]],
+  ["System", [["Advanced", [["Buffer size", "Balanced"], ["On-device model", "Managed by macOS"], ["Debug logging", "Off"], ["Diagnostics report", "Export"], ["Connection override", "Host and port"], ["Reset all settings", ""]]],
+    ["Support", [["Permissions", "Microphone · Speech · Accessibility · Notifications"], ["Send Feedback", "Bug, Feature Request or Other"], ["Updates", "Stable channel"], ["Backup", "Export or import settings"]]]]]
+];
+const STEPS = [
+  ["Word Cue", "Scripture on screen the moment it’s preached.", [["Hears the sermon", "Listens to the pulpit mic through your soundboard, on this Mac only."], ["Finds the verses", "Recognizes references like “Acts 2:38” in real time."], ["Waits for you", "Nothing reaches the screen until the operator sends it."]]],
+  ["Allow access", "Word Cue asks macOS for two permissions. Nothing allowed here ever leaves the Mac.", [["Microphone", "To receive audio from the soundboard’s USB interface."], ["Speech Recognition", "To transcribe the sermon on this Mac."]]],
+  ["Choose your audio", "Pick the interface carrying the soundboard feed and the channel carrying the pulpit mic, then say a few words into it.", [["Audio interface", "Soundboard USB feed"], ["Input channel", "Channel 1"], ["Level", "A check mark appears when sound is detected."]]],
+  ["Connect your presentation app", "Pick the app your church uses. It runs on this same Mac.", [["ProPresenter · OpenLP · FreeShow", "Connect through the app’s own API."], ["EasyWorship · Other", "Word Cue types the reference for you."], ["Test", "Sends a signal without changing what’s on screen."]]],
+  ["You’re all set", "From now on Word Cue appears beside your presentation app automatically.", [["Launch Word Cue at login", "On"], ["Show Word Cue when your presentation app opens", "On"]]]
+];
+const S = { screen: "service", status: "ready", step: 0, timer: null, wait: null, since: 0, hist: [], onScreen: null, lines: [], auto: false, lost: false, noaudio: false, notice: "", undo: [], panel: "General", search: "", setup: 0, clock: null };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const word = c => c >= 0.85 ? "Sure" : c >= 0.6 ? "Likely" : "Maybe";
-const visible = () => S.items.filter(x => x.state !== "dismissed");
-const live = () => S.items.find(x => x.state === "live");
+const log = t => { $("log").textContent = t || ""; };
+const listening = () => S.status === "listening";
+const stamp = () => new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
-function log(t) { $("log").textContent = t || ""; }
-
-function send(key) {
-  const it = S.items.find(x => x.key === key); if (!it) return;
-  if (S.offline) { S.banner = "ProPresenter did not take it. “" + it.ref + "” is copied. Paste it into ProPresenter’s Bible search."; S.sel = key; return render(); }
-  S.items.forEach(x => { if (x.state === "live") x.state = "sent"; });
-  it.state = "live"; S.sel = key; S.banner = ""; render();
-}
-function dismiss() {
-  const it = S.items.find(x => x.key === S.sel); if (!it) return;
-  it.state = "dismissed"; S.sel = (visible()[0] || {}).key || null; render();
-}
-function clearScreen() { S.items.forEach(x => { if (x.state === "live") x.state = "sent"; }); render(); }
-function move(d) {
-  const v = visible(); if (!v.length) return;
-  const i = Math.max(0, v.findIndex(x => x.key === S.sel));
-  S.sel = v[Math.max(0, Math.min(v.length - 1, i + d))].key; render();
+function finish(item, outcome) { item.outcome = outcome; item.time = stamp(); S.hist = S.hist.filter(x => x !== item); S.hist.unshift(item); if (S.wait === item) S.wait = null; }
+function send(item, auto) { if (!item || item.prov || S.lost) return; finish(item, auto ? "Auto-sent" : ""); S.onScreen = item; render(); }
+function skip() { if (S.wait) { finish(S.wait, "Skipped"); render(); } }
+function clearScreen() { S.onScreen = null; render(); }
+function resendLast() { const last = S.hist.find(x => x.outcome === "" || x.outcome === "Auto-sent"); if (last) send(last, false); }
+function cue(c) {
+  if (S.wait && S.wait.key === c.key) { Object.assign(S.wait, c, { prov: !!c.prov }); }
+  else { if (S.wait && !S.wait.prov) finish(S.wait, "Not sent"); S.wait = Object.assign({ outcome: "waiting" }, c); S.since = 0; }
+  if (!c.prov && S.auto && c.conf >= 95) { const w = S.wait; send(w, true); log("Auto-send put " + c.ref + " on screen with nobody approving it."); }
 }
 function tick() {
   const st = SCRIPT[S.step];
-  if (!st) { S.vol = ""; S.timer = null; log("End of the sample. Send, dismiss, or start over."); return render(); }
-  S.lines.push(st.say); S.vol = "";
-  if (st.add) { S.items.unshift({ key: st.add.key, ref: st.add.ref, conf: st.add.conf, heard: st.add.heard, text: st.add.text, state: st.add.prov ? "prov" : "pending" }); if (!S.sel || !live()) S.sel = st.add.key; }
-  if (st.update) { const it = S.items.find(x => x.key === st.update.key); if (it && (it.state === "prov" || it.state === "pending")) Object.assign(it, st.update, { state: "pending" }); }
-  log(st.log || "");
-  const cur = st.add && !st.add.prov ? st.add : st.update;
-  if (cur && S.auto && cur.conf * 100 >= S.threshold) { send(cur.key); log("Auto-send put " + cur.ref + " on screen with nobody approving it."); }
+  if (!st) { S.timer = null; log("End of the sample. Send, skip, or start over."); return render(); }
+  S.lines.push(st.say); log(st.log || "");
+  if (st.cue && !S.noaudio) cue(st.cue);
   S.step++; render();
-  S.timer = setTimeout(tick, 2100);
+  S.timer = setTimeout(tick, 2600);
 }
 function play() {
   if (S.timer) return;
   if (S.step >= SCRIPT.length) reset();
-  S.listening = true; S.screen = S.screen === "compact" ? "compact" : "sidebar"; log(""); tick();
+  S.status = "listening"; if (S.screen !== "compact") S.screen = "service";
+  if (!S.clock) S.clock = setInterval(() => { if (S.wait && !S.wait.prov) { S.since++; const h = document.querySelector(".heard"); if (h) { h.textContent = heardText(); h.className = "heard" + (S.since >= 15 ? " wait" : ""); } } }, 1000);
+  tick();
 }
-function reset() {
-  clearTimeout(S.timer);
-  Object.assign(S, { listening: false, step: 0, timer: null, items: [], sel: null, lines: [], vol: "", banner: "" });
-  log(""); render();
-}
-function toggleListen() { if (S.listening) { clearTimeout(S.timer); S.timer = null; S.listening = false; render(); } else play(); }
+function reset() { clearTimeout(S.timer); Object.assign(S, { status: "ready", step: 0, timer: null, wait: null, hist: [], onScreen: null, lines: [], notice: "", undo: [] }); log(""); render(); }
+function togglePause() { if (listening()) { clearTimeout(S.timer); S.timer = null; S.status = "paused"; render(); } else play(); }
+function heardText() { return S.since >= 15 ? "Waiting for you · " + S.since + " seconds" : "Heard " + Math.max(S.since, 1) + " second" + (S.since <= 1 ? "" : "s") + " ago"; }
 
-function card(it) {
-  const sel = it.key === S.sel, isLive = it.state === "live";
-  const cls = ["sg", sel ? "sel" : "", isLive ? "live" : "", it.state === "sent" ? "sent" : "", it.state === "prov" ? "prov" : ""].join(" ");
-  const badge = isLive ? "On screen" : it.state === "sent" ? "Shown" : it.state === "prov" ? "Listening…"
-    : '<i class="' + word(it.conf).toLowerCase() + '"></i>' + word(it.conf);
-  let h = '<div class="' + cls + '" data-key="' + it.key + '"><div class="sg-top"><span class="sg-ref">' + esc(it.ref) + '</span><span class="badge">' + badge + '</span></div>'
-    + '<div class="sg-text">' + esc(it.text) + '</div>';
-  if (sel) h += '<div class="sg-act"><button class="btn go" data-act="send"' + (isLive ? " disabled" : "") + '>' + (isLive ? "On Screen" : "Send to Screen") + '</button><span class="grow"></span>'
-    + '<button class="btn" data-act="' + (isLive ? "clear" : "dismiss") + '">' + (isLive ? "Clear" : "Dismiss") + '</button></div>'
-    + '<div class="heard">Heard: “' + esc(it.heard) + '”</div>';
+function statusRow() {
+  const st = S.noaudio && S.status !== "ready" ? ["red", "No audio"] : listening() ? ["green", "Listening"] : S.status === "paused" ? ["", "Paused"] : ["", "Ready"];
+  return '<div class="status"><span class="pill ' + st[0] + '"><i></i>' + st[1] + '</span>' + (listening() ? '<span class="meter"><i style="width:' + (S.noaudio ? 0 : 30 + (S.step * 19) % 55) + '%"></i></span>' : "")
+    + '<span class="grow"></span><span class="conn">ProPresenter <span class="' + (S.lost ? "bad" : "ok") + '" aria-label="' + (S.lost ? "not connected" : "connected") + '">' + (S.lost ? "×" : "✓") + '</span></span></div>';
+}
+function banner() {
+  if (S.lost) return '<div class="banner"><div class="grow"><b>ProPresenter lost connection</b><span>Still listening. Verses stay in This Service and can be resent.</span></div><button class="btn" data-act="reconnect">Reconnect</button></div>';
+  if (S.noaudio && S.status !== "ready") return '<div class="banner"><div class="grow"><b>No audio</b><span>Check the USB cable and that the pulpit channel is up on the board.</span></div><button class="btn" data-act="settings">Audio Settings</button></div>';
+  return "";
+}
+function likely() {
+  const w = S.wait;
+  if (!w) return '<div class="lm empty"><span>' + (S.status === "ready" ? "Start listening to catch verses as they’re preached." : S.status === "paused" ? "Nothing is being detected until you resume." : "Listening for scripture…") + '</span></div>';
+  return '<div class="lm"><div class="eyebrow"><span class="grow">LIKELY MATCH</span><span>' + (w.prov ? "Listening…" : w.conf + "%") + '</span></div>'
+    + '<div class="ref">' + esc(w.ref) + '<small>KJV</small></div><div class="heard' + (S.since >= 15 ? " wait" : "") + '">' + heardText() + '</div>'
+    + '<div class="vtext">' + esc(w.text) + '</div>'
+    + '<div class="acts"><button class="btn big go" data-act="send"' + (w.prov || S.lost ? " disabled" : "") + '>Send<kbd>↩</kbd></button><button class="btn big" data-act="skip"' + (w.prov || S.lost ? " disabled" : "") + '>Skip<kbd>esc</kbd></button></div></div>';
+}
+function history() {
+  let h = '<div class="hist"><div class="eyebrow">THIS SERVICE</div>';
+  if (!S.hist.length) h += '<span class="note">Verses you send or skip are listed here.</span>';
+  S.hist.forEach((x, i) => { h += '<div class="row"><div class="grow"><b>' + esc(x.ref) + '</b>' + (S.onScreen === x ? '<span class="live">On screen</span>' : "") + '<small>' + x.time + (x.outcome ? " · " + x.outcome : "") + '</small></div><button class="btn" data-act="resend" data-i="' + i + '"' + (S.lost ? " disabled" : "") + '>' + (x.outcome === "" || x.outcome === "Auto-sent" ? "Resend" : "Send") + '</button></div>'; });
   return h + '</div>';
 }
-function header() {
-  return '<div class="hdr"><button class="status" data-act="listen"><span class="led' + (S.listening ? " on" : "") + '"></span>' + (S.listening ? "Listening" : "Not listening") + '</button>'
-    + '<span class="meter"><i style="width:' + (S.timer ? 35 + (S.step * 17) % 50 : 0) + '%"></i></span><span class="grow"></span>'
-    + '<button class="icon" data-act="compact" aria-label="Compact mode" title="Compact mode">⤓</button>'
-    + '<button class="icon" data-act="settings" aria-label="Settings" title="Settings">⚙</button></div>';
-}
-function sidebar() {
-  const v = visible();
-  let h = header();
-  if (S.banner) h += '<div class="banner">' + esc(S.banner) + '</div>';
-  h += '<div class="list">';
-  if (!v.length) h += S.listening
-    ? '<div class="empty"><b>Listening for scripture</b><span>References show up here as they are preached, like “Acts 2:38.”</span></div>'
-    : '<div class="empty"><b>Ready when you are</b><span>Press Command-L to start listening, or drop a PDF, image or text file here.</span><button class="btn go" data-act="listen">Start Listening</button></div>';
-  else h += v.map(card).join("");
-  h += '</div>';
-  if (S.hearing) h += '<div class="hearing"><small>HEARING</small><p>' + esc(S.lines.slice(-2).join(" ")) + ' <em>' + esc(S.vol) + '</em></p></div>';
-  h += '<div class="foot"><span><kbd>↩</kbd> Send</span><span><kbd>⌫</kbd> Dismiss</span><span><kbd>esc</kbd> Clear</span>' + (S.auto ? '<span class="auto">AUTO</span>' : "") + '</div>';
-  return h;
+function service() {
+  return '<div class="tb"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wm">Word Cue</span><button class="icon" data-act="compact" aria-label="Compact panel" title="Compact panel">⤓</button><button class="icon" data-act="settings" aria-label="Settings" title="Settings">⚙</button></div>'
+    + statusRow() + banner() + (S.notice ? '<div class="notice"><span class="ok">✓</span><span class="grow">' + esc(S.notice) + '</span>' + (S.undo.length ? '<button class="btn" data-act="undo">Undo</button>' : "") + '</div>' : "")
+    + likely() + history()
+    + '<div class="foot"><button class="btn" data-act="pause">' + (S.status === "ready" ? "Start Listening" : S.status === "paused" ? "Resume" : "Pause") + '<kbd>space</kbd></button><span class="grow"></span>' + (S.auto ? '<span class="auto">AUTO</span>' : "") + '<button class="btn" data-act="clear">Clear Screen<kbd>⌘B</kbd></button></div>';
 }
 function compact() {
-  const v = visible(), it = v.find(x => x.key === S.sel) || v[0];
-  let h = '<div class="compact"><div class="sg-top"><span class="led' + (S.listening ? " on" : "") + '"></span><span class="badge">' + (S.listening ? "Listening" : "Not listening") + '</span><span class="grow"></span>'
-    + '<span class="badge">' + v.filter(x => x.state === "pending").length + ' waiting</span><button class="icon" data-act="full" aria-label="Full sidebar" title="Full sidebar">⤒</button></div>';
-  if (it) h += '<div class="' + (it.state === "live" ? "live" : "") + '"><span class="sg-ref">' + esc(it.ref) + '</span></div><div class="sg-text">' + esc(it.text) + '</div>'
-    + '<div class="sg-act"><button class="btn go" data-act="send"' + (it.state === "live" ? " disabled" : "") + '>' + (it.state === "live" ? "On Screen" : "Send") + '</button><button class="btn" data-act="dismiss">Dismiss</button></div>';
-  else h += '<div class="empty" style="min-height:70px"><b>' + (S.listening ? "Listening for scripture" : "Press Command-L to start") + '</b></div>';
-  return h + '</div>';
+  const w = S.wait;
+  return '<div class="tb"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="grow"></span><button class="icon" data-act="full" aria-label="Full sidebar" title="Full sidebar">⤒</button></div><div class="compact">'
+    + '<div class="row"><span class="led" style="background:' + (listening() ? (w ? "var(--yellow)" : "var(--green)") : "var(--dim)") + '"></span><span class="note grow">' + (listening() ? "Listening" : S.status === "paused" ? "Paused" : "Ready") + '</span><span class="' + (S.lost ? "bad" : "ok") + '">' + (S.lost ? "×" : "✓") + '</span></div>'
+    + (w ? '<div class="ref">' + esc(w.ref) + '<small>' + (w.prov ? "" : w.conf + "%") + '</small></div><div class="vtext one">' + esc(w.text) + '</div>' : '<div class="note" style="padding:14px 0">' + (listening() ? "Listening for scripture…" : "Not listening") + '</div>')
+    + '<div class="row"><button class="btn go" data-act="send"' + (!w || w.prov || S.lost ? " disabled" : "") + '>Send</button><button class="btn" data-act="skip"' + (!w ? " disabled" : "") + '>Skip</button><span class="grow"></span><button class="btn" data-act="clear">Clear Screen</button></div></div>';
 }
 function settings() {
-  return '<div class="form">'
-    + '<fieldset><legend>Audio</legend><div class="fr"><label for="in">Input</label><select id="in"><option>Soundboard USB feed</option><option>System default</option><option>MacBook Pro Microphone</option></select></div><span class="note">Pick the audio interface that carries the soundboard feed.</span></fieldset>'
-    + '<fieldset><legend>ProPresenter</legend><div class="fr"><label for="host">Computer</label><input type="text" id="host" value="127.0.0.1"></div><div class="fr"><label for="port">Port</label><input type="text" id="port" value="50001"></div>'
-    + '<div class="sg-act"><button class="btn" data-act="test">Test Connection</button><button class="btn" data-act="setup">Set Up Message</button></div><span class="note" id="conn">In ProPresenter, open Settings &gt; Network and turn on Enable Network.</span></fieldset>'
-    + '<fieldset><legend>Suggestions</legend><div class="fr"><label for="auto">Send sure matches to the screen automatically</label><input type="checkbox" id="auto"' + (S.auto ? " checked" : "") + '></div>'
-    + (S.auto ? '<div class="fr"><label for="thr">Only when at least <b>' + S.threshold + '%</b></label><input type="range" id="thr" min="80" max="99" value="' + S.threshold + '"></div><span class="warn">With this on, a verse can reach the screen without anyone approving it.</span>' : '<span class="note">Off: nothing reaches the screen until the operator sends it.</span>')
-    + '</fieldset>'
-    + '<fieldset><legend>Window</legend><div class="fr"><label for="top">Keep Word Cue on top of other windows</label><input type="checkbox" id="top"' + (S.top ? " checked" : "") + '></div><div class="fr"><label for="hear">Show what Word Cue is hearing</label><input type="checkbox" id="hear"' + (S.hearing ? " checked" : "") + '></div></fieldset>'
-    + '<div class="sg-act"><span class="grow"></span><button class="btn go" data-act="full">Done</button></div></div>';
+  const q = S.search.trim().toLowerCase();
+  let nav = '<div class="nav"><input id="search" type="search" placeholder="Search settings" aria-label="Search settings" value="' + esc(S.search) + '">', pane = "";
+  PANELS.forEach(g => {
+    if (!q) nav += '<h3>' + g[0] + '</h3>';
+    g[1].forEach(p => {
+      if (!q) nav += '<button data-panel="' + p[0] + '" aria-selected="' + (p[0] === S.panel) + '">' + p[0] + '</button>';
+      else p[1].filter(r => r[0].toLowerCase().includes(q)).forEach(r => { nav += '<button data-panel="' + p[0] + '">' + esc(r[0]) + '<small>' + p[0] + '</small></button>'; });
+      if (p[0] === S.panel) pane = '<h4>' + p[0] + '</h4>' + p[1].map(r => '<div class="srow"><span>' + esc(r[0]) + '</span><span>' + esc(r[1]) + '</span></div>').join("");
+    });
+  });
+  return '<div class="tb"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wm" style="font-family:var(--ui);font-weight:600;font-size:13px;text-align:center">Word Cue Settings</span><button class="icon" data-act="full" aria-label="Close settings">✕</button></div><div class="set">' + nav + '</div><div class="pane">' + pane + '<p class="note" style="margin-top:10px">Shown with the User Guide’s defaults. In the app each row is a real control.</p></div></div>';
 }
-function report() {
-  return '<div class="form"><b style="font-size:17px">Report a Problem</b><span class="note" style="font-size:13px">What went wrong? For example: “It showed Acts 2:28 but he said Acts 2:38.”</span>'
-    + '<label for="rep" class="note">Your note</label><textarea id="rep">' + esc(S.report) + '</textarea>'
-    + '<div class="fr"><label for="inc">Include the last few lines Word Cue heard</label><input type="checkbox" id="inc"></div>'
-    + '<span class="note">The report lists this service’s suggestions and your note. No audio is ever included.</span><span class="note" id="repmsg"></span>'
-    + '<div class="sg-act"><span class="grow"></span><button class="btn" data-act="full">Close</button><button class="btn go" data-act="save">Save Report</button></div></div>';
+function setup() {
+  const st = STEPS[S.setup];
+  return '<div class="setup"><h4>' + st[0] + '</h4><p class="note" style="font-size:14px">' + st[1] + '</p>' + st[2].map(p => '<div class="pt"><span class="ok">●</span><div><b>' + p[0] + '</b><span class="note">' + p[1] + '</span></div></div>').join("") + '</div>'
+    + '<div class="sfoot">' + (S.setup ? '<button class="btn" data-act="back">Back</button>' : '<span style="width:52px"></span>') + '<span class="grow dots" aria-label="Step ' + (S.setup + 1) + ' of 5">' + STEPS.map((_, i) => '<i class="' + (i === S.setup ? "on" : "") + '"></i>').join("") + '</span><button class="btn go" data-act="next">' + (S.setup === 4 ? "Open Word Cue" : "Continue") + '</button></div>';
 }
 function render() {
-  const names = { sidebar: "Word Cue", compact: "Word Cue", settings: "Word Cue Settings", report: "Word Cue" };
-  $("mac").innerHTML = '<div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><b>' + names[S.screen] + '</b></div>' + ({ sidebar, compact, settings, report }[S.screen])();
-  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.screen === S.screen));
-  const l = live();
-  $("out").innerHTML = l ? '<q>' + esc(l.text) + '</q><cite>' + esc(l.ref) + ' KJV</cite>' : '<span class="blank">Nothing on screen</span>';
+  const keep = document.activeElement && document.activeElement.id === "search";
+  $("mac").innerHTML = ({ service, compact, settings, setup }[S.screen])();
+  const wide = S.screen === "settings" || S.screen === "setup";
+  $("stage").className = "stage" + (wide ? " wide" : ""); $("outcol").hidden = wide;
+  $("mactitle").textContent = { service: "Word Cue · full sidebar", compact: "Word Cue · compact panel", settings: "Settings", setup: "First-run setup" }[S.screen];
+  document.querySelectorAll("[data-screen]").forEach(t => t.setAttribute("aria-selected", t.dataset.screen === S.screen));
+  $("auto").setAttribute("aria-pressed", S.auto); $("lost").setAttribute("aria-pressed", S.lost); $("noaudio").setAttribute("aria-pressed", S.noaudio);
+  const o = S.onScreen;
+  $("out").innerHTML = o ? '<q>' + esc(o.text) + '</q><cite>' + esc(o.ref) + ' KJV</cite>' : '<span class="blank">Nothing on screen</span>';
   $("play").textContent = S.timer ? "Playing…" : (S.step >= SCRIPT.length ? "Play again" : "Play sample");
-  $("fail").textContent = S.offline ? "ProPresenter back online" : "ProPresenter offline";
+  if (keep) { const s = $("search"); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
 }
 $("mac").addEventListener("click", e => {
-  const b = e.target.closest("[data-act]"), c = e.target.closest(".sg[data-key]");
-  if (c) S.sel = c.dataset.key;
-  if (!b) { if (c) render(); return; }
+  const p = e.target.closest("[data-panel]"); if (p) { S.panel = p.dataset.panel; S.search = ""; return render(); }
+  const b = e.target.closest("[data-act]"); if (!b) return;
   const a = b.dataset.act;
-  if (a === "send") send(S.sel || (visible()[0] || {}).key);
-  else if (a === "dismiss") dismiss();
+  if (a === "send") send(S.wait, false);
+  else if (a === "skip") skip();
   else if (a === "clear") clearScreen();
-  else if (a === "listen") toggleListen();
-  else if (a === "compact") { S.screen = "compact"; render(); }
-  else if (a === "full") { S.screen = "sidebar"; render(); }
-  else if (a === "settings") { S.screen = "settings"; render(); }
-  else if (a === "test") $("conn").textContent = S.offline ? "Could not reach ProPresenter. Is it open, with Enable Network turned on?" : "Connected to ProPresenter. The Word Cue message is ready.";
-  else if (a === "setup") $("conn").textContent = S.offline ? "Could not reach ProPresenter." : "The Word Cue message is in ProPresenter. Pick a Theme for it there.";
-  else if (a === "save") $("repmsg").textContent = "Report saved on this Mac.";
+  else if (a === "pause") togglePause();
+  else if (a === "resend") send(S.hist[+b.dataset.i], false);
+  else if (a === "reconnect") { S.lost = false; render(); }
+  else if (a === "undo") { S.hist = S.hist.filter(x => !S.undo.includes(x)); S.undo = []; S.notice = "File drop undone."; render(); }
+  else if (a === "next") { if (S.setup === 4) { S.setup = 0; S.screen = "service"; } else S.setup++; render(); }
+  else if (a === "back") { S.setup--; render(); }
+  else { S.screen = { compact: "compact", full: "service", settings: "settings" }[a]; if (a === "settings" && S.noaudio) S.panel = "Audio Input"; render(); }
 });
-$("mac").addEventListener("change", e => {
-  const t = e.target;
-  if (t.id === "auto") { S.auto = t.checked; render(); }
-  else if (t.id === "top") S.top = t.checked;
-  else if (t.id === "hear") S.hearing = t.checked;
-});
-$("mac").addEventListener("input", e => {
-  if (e.target.id === "thr") { S.threshold = +e.target.value; e.target.previousElementSibling.querySelector("b").textContent = S.threshold + "%"; }
-  if (e.target.id === "rep") S.report = e.target.value;
-});
-document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { S.screen = t.dataset.screen; render(); }));
+$("mac").addEventListener("input", e => { if (e.target.id === "search") { S.search = e.target.value; render(); } });
+document.querySelectorAll("[data-screen]").forEach(t => t.addEventListener("click", () => { S.screen = t.dataset.screen; render(); }));
 $("play").addEventListener("click", play);
-document.querySelectorAll(".side button").forEach(b => b.addEventListener("click", () => { b.blur(); $("mac").focus({ preventScroll: true }); }));
 $("reset").addEventListener("click", reset);
-$("fail").addEventListener("click", () => { S.offline = !S.offline; if (!S.offline) S.banner = ""; log(S.offline ? "ProPresenter is now unreachable. Try sending a verse." : ""); render(); });
+$("auto").addEventListener("click", () => { S.auto = !S.auto; log(S.auto ? "Auto-send is on: verses at 95% or higher go straight to the screen." : ""); render(); });
+$("lost").addEventListener("click", () => { S.lost = !S.lost; log(S.lost ? "The presentation app is unreachable. Word Cue keeps listening; Send and Skip are dimmed." : ""); render(); });
+$("noaudio").addEventListener("click", () => { S.noaudio = !S.noaudio; if (S.noaudio && S.status === "ready") S.status = "listening"; log(S.noaudio ? "No sound is arriving from the soundboard." : ""); render(); });
+$("drop").addEventListener("click", () => {
+  const added = [["Deuteronomy 6:4", "DEU 6:4"], ["Acts 2:38", "ACT 2:38"], ["Acts 4:12", "ACT 4:12"]].map(r => ({ key: r[1], ref: r[0], conf: 95, text: V[r[1]], outcome: "From file", time: stamp() }));
+  S.hist = added.concat(S.hist); S.undo = added; S.notice = "3 verses added to This Service."; S.screen = "service"; log("Sermon notes dropped on the sidebar: every reference is loaded, in order."); render();
+});
+document.querySelectorAll(".side button").forEach(b => b.addEventListener("click", () => { b.blur(); $("mac").focus({ preventScroll: true }); }));
 document.addEventListener("keydown", e => {
   if (e.target.closest("input, textarea, select") || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.target.closest("button") && (e.key === "Enter" || e.key === " ")) return;
   const k = e.key;
-  if (k === "Enter") send(S.sel || (visible()[0] || {}).key);
-  else if (k === "Backspace" || k === "Delete") dismiss();
-  else if (k === "ArrowDown") move(1);
-  else if (k === "ArrowUp") move(-1);
-  else if (k === "Escape") clearScreen();
-  else if (k === "l" || k === "L") toggleListen();
-  else if (k === "k" || k === "K") { S.screen = S.screen === "compact" ? "sidebar" : "compact"; render(); }
+  if (k === "Enter") send(S.wait, false);
+  else if (k === "Escape") skip();
+  else if (k === " ") togglePause();
+  else if (k === "b" || k === "B") clearScreen();
+  else if (k === "r" || k === "R") resendLast();
+  else if (k === "\\") { S.screen = S.screen === "compact" ? "service" : "compact"; render(); }
   else return;
   e.preventDefault();
 });

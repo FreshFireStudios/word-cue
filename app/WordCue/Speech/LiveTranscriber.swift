@@ -125,13 +125,13 @@ final class LiveTranscriber: @unchecked Sendable {
         context.contextualStrings[.general] = vocabulary
         try await analyzer.setContext(context)
         let file = try AVAudioFile(forReading: url)
-        async let reading: Void = {
+        let reading = Task {
             for try await result in transcriber.results where result.isFinal {
                 onUpdate(.final(String(result.text.characters)))
             }
-        }()
+        }
         try await analyzer.start(inputAudioFile: file, finishAfterFile: true)
-        try await reading
+        try await reading.value
     }
 
     func stop() async {

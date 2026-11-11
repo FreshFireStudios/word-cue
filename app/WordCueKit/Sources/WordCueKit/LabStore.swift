@@ -151,7 +151,8 @@ public final class LabStore: @unchecked Sendable {
             }
         }
         return rows.keys.sorted().compactMap { k in
-            guard let (d, time) = rows[k], d.confidence >= minimumConfidence else { return nil }
+            guard let row = rows[k], row.0.confidence >= minimumConfidence else { return nil }
+            let d = row.0, time = row.1
             let key = "\(d.start)|\(d.key)"
             return LabFinding(detection: d, display: engine.display(d.reference), time: time, review: session.reviews[key], reviewKey: key)
         }

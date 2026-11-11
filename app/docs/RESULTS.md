@@ -52,7 +52,7 @@ It also made two **follow-on** suggestions that lean on the last reference, both
 
 ⋮
 
-3. **Scripture quoted without a reference was not detected in the first pass.** I have since added quoted-scripture matching (Beta, off by default). Turned on, it found 20 more verses in these three sermons and every one was a real verse being read or quoted, for example:
+3. **Scripture quoted without a reference was not detected in the first pass.** I have since added quoted-scripture matching (Beta, off by default). Turned on, it found 19 more verses in these three sermons and every one was a real verse being read or quoted, for example:
 
    | Sermon | Words heard | Matched |
    |---|---|---|

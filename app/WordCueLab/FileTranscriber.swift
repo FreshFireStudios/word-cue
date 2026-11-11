@@ -23,14 +23,14 @@ enum FileTranscriber {
         context.contextualStrings[.general] = vocabulary
         try await analyzer.setContext(context)
         let file = try AVAudioFile(forReading: url)
-        async let reading: Void = {
+        let reading = Task {
             for try await result in transcriber.results where result.isFinal {
                 let text = String(result.text.characters).trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !text.isEmpty else { continue }
                 onSegment(LabSegment(start: result.range.start.seconds, end: result.range.end.seconds, text: text))
             }
-        }()
+        }
         try await analyzer.start(inputAudioFile: file, finishAfterFile: true)
-        try await reading
+        try await reading.value
     }
 }

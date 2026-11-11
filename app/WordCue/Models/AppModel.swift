@@ -315,6 +315,8 @@ final class AppModel {
             return
         }
         if history.contains(where: { $0.detectionID == d.id }) { return }      // already handled
+        // An unsettled guess never pushes aside a verse that is really waiting.
+        if provisional, let w = waiting, !w.provisional { return }
         // The same verse will not appear again inside the cooldown.
         if let last = lastCued[d.key], now.timeIntervalSince(last) < Double(s.duplicateCooldownSeconds) { return }
         let verses = versesFor(d.reference)
