@@ -1,38 +1,20 @@
 // UNTESTED: written without Xcode.
-// System-wide shortcuts, so the operator can approve a verse while
-// ProPresenter is the front app. Uses the old-but-reliable Carbon hot key
-// API, which needs no special permission.
-//
-//   Control-Option-Return   send the selected suggestion
-//   Control-Option-Delete   dismiss it
-//   Control-Option-Up/Down  move the selection
-//   Control-Option-Right    next verse        Control-Option-Left  previous verse
-//   Control-Option-Period   clear the screen
+// "Anywhere" shortcuts: the keys that work while the presentation app is in
+// front (Control-Option plus the normal key). Uses the Carbon hot key API,
+// which needs no special permission.
 import Carbon.HIToolbox
 import AppKit
+import WordCueKit
 
 final class GlobalHotKeys {
-    enum Action: UInt32, CaseIterable {
-        case send = 1, dismiss, up, down, nextVerse, previousVerse, clear
-
-        var keyCode: Int {
-            switch self {
-            case .send: return kVK_Return
-            case .dismiss: return kVK_Delete
-            case .up: return kVK_UpArrow
-            case .down: return kVK_DownArrow
-            case .nextVerse: return kVK_RightArrow
-            case .previousVerse: return kVK_LeftArrow
-            case .clear: return kVK_ANSI_Period
-            }
-        }
-    }
-
     private var refs: [EventHotKeyRef?] = []
     private var handlerRef: EventHandlerRef?
-    fileprivate var onAction: ((Action) -> Void)?
+    private var actions: [UInt32: String] = [:]
+    fileprivate var onAction: ((String) -> Void)?
 
-    func register(_ onAction: @escaping (Action) -> Void) {
+    /// `keys`: action name -> the combo to register system-wide.
+    func register(_ keys: [String: KeyCombo], onAction: @escaping (String) -> Void) {
+        unregister()
         self.onAction = onAction
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         InstallEventHandler(GetApplicationEventTarget(), { _, event, userData in
@@ -41,25 +23,33 @@ final class GlobalHotKeys {
             GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
                               nil, MemoryLayout<EventHotKeyID>.size, nil, &hotKeyID)
             let me = Unmanaged<GlobalHotKeys>.fromOpaque(userData).takeUnretainedValue()
-            if let action = Action(rawValue: hotKeyID.id) {
+            if let action = me.actions[hotKeyID.id] {
                 DispatchQueue.main.async { me.onAction?(action) }
             }
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handlerRef)
 
-        let signature: OSType = 0x57435545   // "WCUE"
-        for action in Action.allCases {
+        var next: UInt32 = 1
+        for (action, combo) in keys.sorted(by: { $0.key < $1.key }) {
+            guard let code = combo.keyCode else { continue }
+            var modifiers = 0
+            if combo.command { modifiers |= cmdKey }
+            if combo.option { modifiers |= optionKey }
+            if combo.control { modifiers |= controlKey }
+            if combo.shift { modifiers |= shiftKey }
             var ref: EventHotKeyRef?
-            RegisterEventHotKey(UInt32(action.keyCode), UInt32(controlKey | optionKey),
-                                EventHotKeyID(signature: signature, id: action.rawValue),
+            RegisterEventHotKey(UInt32(code), UInt32(modifiers), EventHotKeyID(signature: 0x57435545, id: next),
                                 GetApplicationEventTarget(), 0, &ref)
+            actions[next] = action
             refs.append(ref)
+            next += 1
         }
     }
 
     func unregister() {
         refs.compactMap { $0 }.forEach { UnregisterEventHotKey($0) }
         refs = []
+        actions = [:]
         if let handlerRef { RemoveEventHandler(handlerRef) }
         handlerRef = nil
     }
