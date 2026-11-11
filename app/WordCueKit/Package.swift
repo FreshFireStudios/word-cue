@@ -7,12 +7,18 @@ let package = Package(
     name: "WordCueKit",
     platforms: [.macOS(.v14)],
     products: [
-        .library(name: "WordCueKit", targets: ["WordCueKit"])
+        .library(name: "WordCueKit", targets: ["WordCueKit"]),
+        // The Word Cue Lab connector for Claude (see docs/LAB.md).
+        .executable(name: "wordcue-lab-mcp", targets: ["wordcue-lab-mcp"])
     ],
     targets: [
         .target(
             name: "WordCueKit",
             resources: [.process("Resources")]
+        ),
+        .executableTarget(
+            name: "wordcue-lab-mcp",
+            dependencies: ["WordCueKit"]
         ),
         .testTarget(
             name: "WordCueKitTests",

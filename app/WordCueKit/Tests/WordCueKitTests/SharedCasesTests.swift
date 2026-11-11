@@ -83,4 +83,34 @@ final class SharedCasesTests: XCTestCase {
         XCTAssertEqual(Self.engine.display(Reference(book: "PSA", chapter: 23)), "Psalm 23")
         XCTAssertEqual(Self.engine.display(Reference(book: "MAT", chapter: 13, verse: 55, endVerse: 58)), "Matthew 13:55\u{2013}58")
     }
+
+    func testQuoteHashMatchesPython() {
+        // Engine.gram_hash(["for","god","so","loved"]) in Python
+        XCTAssertEqual(Engine.gramHash(["for", "god", "so", "loved"][...]), 0xdd9b2a1e8a78ae70)
+    }
+
+    func testKeyCombos() {
+        XCTAssertEqual(KeyCombo("cmd+b")?.symbol, "\u{2318}B")
+        XCTAssertEqual(KeyCombo("return")?.anywhere.text, "ctrl+opt+return")
+        XCTAssertEqual(KeyCombo("cmd+\\")?.keyCode, 42)
+        XCTAssertNil(KeyCombo("hyper+x"))
+    }
+
+    func testSettingsImportKeepsDefaultsForMissingKeys() throws {
+        let old = Data(#"{"minimumConfidence": 0.8, "somethingFromTheFuture": true}"#.utf8)
+        let s = try WordCueSettings.imported(old)
+        XCTAssertEqual(s.minimumConfidence, 0.8)
+        XCTAssertEqual(s.duplicateCooldownSeconds, 60)
+        XCTAssertEqual(try WordCueSettings.imported(try s.exported()), s)
+    }
+
+    func testLabTranscriptImportAndFindings() {
+        let segments = LabStore.segments(fromTranscript: Data("Turn to Acts chapter two\nand verse thirty eight".utf8))
+        XCTAssertEqual(segments.count, 2)
+        var session = LabSession(name: "test")
+        session.segments = segments
+        let found = LabStore.findings(in: session, engine: Self.engine, quotes: false)
+        XCTAssertEqual(found.map(\.detection.key), ["ACT 2:38"])
+        XCTAssertEqual(LabStore.key(for: "1 Kings 13:2", engine: Self.engine), "1KI 13:2")
+    }
 }
