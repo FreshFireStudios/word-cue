@@ -10,7 +10,7 @@ No Swift compiler here. Every Swift file starts with an UNTESTED line.
 
 ## Round 2 plan (Bryson, Nov 11: "build everything, both apps, connections and integrations")
 Work top to bottom. Commit + push after each item. Tick it here.
-- [~] A1 (Kit API adapters written in PresentationAdapters.swift: ProPresenter, FreeShow, OpenLP. Still to do: KeyboardAdapter + OutputRouter in the app target) Kit: `PresentationAdapter` protocol + adapters: ProPresenter (exists), OpenLP (Remote API :4316), FreeShow (API :5505), Keyboard (EasyWorship/Other via Accessibility keystrokes). Automatic = API first, then keyboard.
+- [x] A1 Kit: `PresentationAdapter` protocol + adapters: ProPresenter (exists), OpenLP (Remote API :4316), FreeShow (API :5505), Keyboard (EasyWorship/Other via Accessibility keystrokes). Automatic = API first, then keyboard.
 - [~] A2 (Kit part done, import is tolerant; AppSettings in the app still uses the old round-1 fields and must be switched to WordCueSettings) Kit: settings model matching manual section 08 (all 9 panels), Codable, export/import, defaults from the manual.
 - [x] A3 (done, pushed; Swift mirrored; 119 cases pass in Python) Engine: filters (ignored phrases, ignored books, editable require-chapter list), confidence re-tuned so manual's 70% minimum shows bare chapters and follow-ons; quoted-scripture matcher (Beta) in Python first, then Swift; add cases.
 - [x] A4 Kit: ServiceLog (history per service, transcripts retention, export).
@@ -41,3 +41,5 @@ Work top to bottom. Commit + push after each item. Tick it here.
 - docs/RESULTS.md and DECISIONS.md still describe round-1 scores (60% for bare chapter / follow-on, 50% hide level). Update: bare chapter 75%, follow-on 72%, hide below 70%, auto-send 95%.
 - Add a Swift test: Engine.gramHash(["for","god","so","loved"]) == 0xdd9b2a1e8a78ae70.
 - Sermon transcripts live only in the scratchpad (may be gone after a reset); Bryson will transcribe the rest himself and run_transcript.py now accepts plain .txt.
+- (later, same day) Services + AppModel rewritten and pushed: KeyboardAdapter, OutputRouter, AppWatcher, SystemIntegration, GlobalHotKeys(dictionary of KeyCombo), Updater stub, FeedbackReporter(kind/email/diagnostics), MusicDetector, AudioInput.Options, LiveTranscriber.transcribe(file:), AppSettings(holds WordCueSettings as `s`), CueItem, AppModel (waiting / history / onScreenID / status / problem / perform(action) / windowActions).
+- NEXT: rewrite ALL views to the new model (old RootView/SidebarView/SuggestionCard/CompactView/SettingsView/ReportView still reference the round-1 model and must be replaced), WordCueApp.swift (commands from settings.shortcuts, MenuBarExtra, Settings scene), window manager (380 px right-edge sidebar, compact floating panel in a corner), SetupView (5 steps), SettingsView (9 panels + search). Then C1/C2/D1.
