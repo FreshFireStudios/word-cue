@@ -9,107 +9,134 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: notes and controls on the left; the 380-point sidebar and the congregation's screen side by side on the right; one column on a phone. */
+/* Layout: controls on the left; the app window (dark, as in the User Guide figures) and the congregation's screen on the right; one column on a phone.
+   The app itself is a single dark look, matching the manual. */
 :root {
-  --page: #F3F1ED; --fg: #1C1C1A; --dim: #6B665E; --line: rgba(0,0,0,.12); --win: #FFFFFF; --fill: rgba(0,0,0,.05);
-  --orange: #B85A1B; --accent: #C96A1E; --green: #1F9D4C; --yellow: #A87400; --red: #D23F36; --screen: #0B0B0A;
+  color-scheme: dark;
+  --page: #EDEBE7; --ink: #1C1C1A; --ink-dim: #6B665E; --ink-line: rgba(0,0,0,.12);
+  --win: #232220; --raise: #2E2D2A; --raise2: #3A3936; --hair: rgba(255,255,255,.08);
+  --fg: #F4F2EE; --dim: #9A958C; --faint: #6F6B64;
+  --orange: #C2611F; --amber: #F0A050; --green: #4ADE80; --red: #F0685F; --redbg: #4A2320; --screen: #0B0B0A;
   --brand: "Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif;
-  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
-  --verse: Georgia, "Times New Roman", serif;
+  --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #1C1C1A; --fg: #F2F0EC; --dim: #9E998F; --line: rgba(255,255,255,.12); --win: #262523; --fill: rgba(255,255,255,.07); --accent: #F0A050; --green: #5BD27A; --yellow: #E8C35A; --red: #F0685F; color-scheme: dark } }
-:root[data-theme="dark"] { --page: #1C1C1A; --fg: #F2F0EC; --dim: #9E998F; --line: rgba(255,255,255,.12); --win: #262523; --fill: rgba(255,255,255,.07); --accent: #F0A050; --green: #5BD27A; --yellow: #E8C35A; --red: #F0685F; color-scheme: dark }
 * { box-sizing: border-box; }
-body { background: var(--page); color: var(--fg); font-family: var(--brand); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body { background: var(--page); color: var(--ink); font-family: var(--brand); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 .wrap { max-width: 1160px; margin: 0 auto; padding-block: 36px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 32px; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); align-items: start; }
 h1 { font-size: 28px; line-height: 1.15; margin: 0; font-weight: 700; text-wrap: balance; }
-h2 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin: 0; }
+h2 { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-dim); font-weight: 600; margin: 0; }
 p { margin: 0; }
 .side, .group, .col { display: grid; gap: 10px; min-width: 0; }
 .side { gap: 22px; }
-.lede, .note, .cap { color: var(--dim); }
+.lede, .note, .cap { color: var(--ink-dim); }
 .note, .cap { font-size: 13px; }
-.tag { justify-self: start; font-size: 12px; font-weight: 600; color: var(--yellow); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.tag { justify-self: start; font-size: 12px; font-weight: 600; color: var(--orange); border: 1px solid var(--ink-line); border-radius: 999px; padding: 2px 10px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, .mac:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.chip { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; font-size: 14px; }
-.chip[aria-pressed="true"], .chip[aria-selected="true"] { background: var(--fg); color: var(--page); border-color: var(--fg); font-weight: 600; }
-.play { background: var(--orange); border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 600; color: #fff; }
-.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; color: var(--dim); align-items: baseline; }
-.keys > kbd { justify-self: start; }
-kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--fill); border-radius: 5px; padding: 2px 6px; color: var(--fg); white-space: nowrap; }
-.log { font-size: 13px; color: var(--dim); min-height: 1.5em; }
-.stage { display: grid; gap: 24px; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); align-items: start; min-width: 0; }
+button:focus-visible, .mac:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.chip { background: transparent; border: 1px solid var(--ink-line); border-radius: 999px; padding: 5px 12px; font-size: 14px; color: var(--ink); }
+.chip[aria-pressed="true"], .chip[aria-selected="true"] { background: var(--ink); color: var(--page); border-color: var(--ink); font-weight: 600; }
+.play { background: var(--orange); border: 0; border-radius: 999px; padding: 9px 18px; font-weight: 600; color: #fff; }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; color: var(--ink-dim); align-items: baseline; }
+.keys > kbd { justify-self: start; background: rgba(0,0,0,.07); color: var(--ink); }
+kbd { font-family: var(--ui); font-size: 11px; border-radius: 5px; padding: 1px 5px; white-space: nowrap; }
+.log { font-size: 13px; color: var(--ink-dim); min-height: 1.5em; }
+.stage { display: grid; gap: 24px; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: start; min-width: 0; }
 .stage.wide { grid-template-columns: minmax(0, 1fr); }
-/* the app window */
-.mac { font-family: var(--ui); font-size: 13px; line-height: 1.4; background: var(--win); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.22); min-width: 0; }
-.tb { display: flex; align-items: center; gap: 7px; padding: 10px 12px 8px; }
-.dot { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
-.wm { font-family: var(--brand); font-weight: 700; font-size: 15px; margin-left: 8px; flex: 1; }
-.icon { background: none; border: 0; padding: 2px 5px; color: var(--dim); font-size: 15px; }
-.status { display: flex; align-items: center; gap: 10px; padding: 0 14px 10px; }
-.pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--fill); }
-.pill i, .led { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; }
-.pill.green { color: var(--green); } .pill.green i { background: var(--green); }
-.pill.red { color: var(--red); } .pill.red i { background: var(--red); }
-.meter { width: 56px; height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--green); transition: width .2s; }
+.frame { background: #E2DFDA; border-radius: 18px; padding: 16px; display: grid; justify-items: center; min-width: 0; }
+/* ---- the app window ---- */
+.mac { position: relative; width: 100%; max-width: 308px; font-family: var(--ui); font-size: 12px; line-height: 1.4; background: var(--win); color: var(--fg); border-radius: 14px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,.28); min-width: 0; }
+.mac.wide { max-width: 560px; } .mac.small { max-width: 300px; }
+.tb { display: flex; align-items: center; gap: 6px; padding: 12px 12px 8px; }
+.tl { width: 10px; height: 10px; border-radius: 50%; } .tl.r { background: #FF5F57; } .tl.y { background: #FEBC2E; } .tl.g { background: #28C840; }
+.wm { font-weight: 600; font-size: 12.5px; margin-left: 8px; flex: 1; display: flex; align-items: center; gap: 5px; }
+.wm svg { width: 11px; height: 11px; }
+.tools { display: flex; background: var(--raise); border-radius: 8px; padding: 2px; }
+.icon { background: none; border: 0; padding: 3px 6px; color: var(--dim); font-size: 12px; line-height: 1; border-radius: 6px; }
+.icon.round { background: var(--raise); border-radius: 50%; width: 24px; height: 24px; padding: 0; }
+.status { display: flex; align-items: center; gap: 8px; padding: 2px 12px 12px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 11px; padding: 3px 9px; border-radius: 999px; background: var(--raise); color: var(--dim); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.green { color: var(--green); background: rgba(74,222,128,.13); }
+.pill.red { color: var(--red); background: rgba(240,104,95,.16); }
+.bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.bars i { width: 2.5px; border-radius: 1px; background: var(--amber); transition: height .2s; }
+.bars i.off { background: var(--raise2); }
 .grow { flex: 1; }
-.conn { color: var(--dim); display: flex; gap: 5px; align-items: center; }
-.ok { color: var(--green); font-weight: 700; } .bad { color: var(--red); font-weight: 700; }
-.banner { margin: 0 12px 8px; padding: 10px; border-radius: 10px; background: var(--red); color: #fff; display: flex; gap: 10px; align-items: flex-start; }
-.banner b { display: block; } .banner span { font-size: 12px; }
-.banner .btn { background: rgba(255,255,255,.22); border-color: transparent; color: #fff; white-space: nowrap; }
-.notice { margin: 0 12px 8px; padding: 9px 10px; border-radius: 10px; background: var(--fill); display: flex; gap: 8px; align-items: center; }
-.lm { padding: 14px; display: grid; gap: 8px; min-height: 250px; align-content: start; }
-.lm.empty { align-content: center; justify-items: center; text-align: center; color: var(--dim); }
-.eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .06em; color: var(--dim); display: flex; }
-.ref { font-size: 30px; font-weight: 700; line-height: 1.1; }
-.ref small { font-size: 14px; font-weight: 400; color: var(--dim); margin-left: 6px; }
-.heard { font-size: 12px; color: var(--dim); } .heard.wait { color: var(--yellow); font-weight: 600; }
-.vtext { font-family: var(--verse); font-size: 15px; line-height: 1.45; }
-.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.btn { border: 1px solid var(--line); background: var(--fill); border-radius: 7px; padding: 5px 11px; font-size: 13px; }
-.btn.big { padding: 9px; font-size: 14px; }
-.btn.go { background: var(--accent); color: #1C1C1A; border-color: var(--accent); font-weight: 600; }
-.btn[disabled] { opacity: .45; cursor: default; }
-.btn kbd { margin-left: 6px; }
-.hist { border-top: 1px solid var(--line); padding: 10px 14px; display: grid; gap: 8px; min-height: 150px; align-content: start; }
-.row { display: flex; gap: 8px; align-items: center; }
-.row b { font-weight: 500; } .row small { display: block; color: var(--dim); font-size: 11px; }
-.live { color: var(--green); font-size: 10px; font-weight: 700; margin-left: 6px; }
-.tr { border-top: 1px solid var(--line); padding: 8px 14px; } .tr p { min-height: 2.8em; } .tr em { color: var(--dim); font-style: normal; }
-.foot { border-top: 1px solid var(--line); display: flex; gap: 8px; padding: 10px 14px; align-items: center; }
-.auto { color: var(--orange); font-weight: 700; font-size: 10px; }
-.compact { padding: 4px 12px 12px; display: grid; gap: 6px; max-width: 340px; }
-.compact .ref { font-size: 22px; }
-.one { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* settings + setup */
-.set { display: grid; grid-template-columns: 190px minmax(0, 1fr); min-height: 470px; }
-.nav { border-right: 1px solid var(--line); padding: 10px; display: grid; gap: 2px; align-content: start; }
-.nav input { font: inherit; width: 100%; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--fill); color: var(--fg); margin-bottom: 6px; }
-.nav h3 { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); margin: 8px 6px 2px; font-weight: 600; }
-.nav button { text-align: left; background: none; border: 0; border-radius: 6px; padding: 4px 8px; }
-.nav button[aria-selected="true"] { background: var(--accent); color: #1C1C1A; font-weight: 600; }
-.nav button small { display: block; color: var(--dim); font-size: 11px; }
-.pane { padding: 14px 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
-.pane h4 { margin: 0 0 6px; font-size: 17px; }
-.srow { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.conn { display: flex; gap: 5px; align-items: center; font-weight: 600; font-size: 11px; }
+.ck { width: 12px; height: 12px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 8px; font-weight: 800; color: #10210f; background: var(--green); }
+.ck.bad { background: var(--red); color: #2a0f0d; }
+.banner { margin: 0 12px 10px; padding: 9px 10px; border-radius: 10px; background: var(--redbg); display: flex; gap: 8px; align-items: flex-start; }
+.banner .tri { color: var(--red); } .banner b { display: block; color: #FFB3AC; font-size: 11.5px; } .banner span { font-size: 10.5px; color: #D9A6A0; }
+.sec { padding: 0 12px; }
+.label { display: flex; font-size: 10.5px; color: var(--dim); margin-bottom: 6px; }
+.hc { color: var(--green); display: inline-flex; align-items: center; gap: 4px; font-weight: 600; } .hc i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.hc.mid { color: var(--amber); } .hc.low { color: var(--dim); }
+.ref { font-size: 22px; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
+.ref small { font-size: 10px; font-weight: 700; color: var(--amber); margin-left: 5px; }
+.heard { font-size: 10.5px; color: var(--dim); margin: 2px 0 8px; }
+.heard.wait { color: var(--amber); font-weight: 600; } .heard.wait::before { content: "\25CF  "; font-size: 7px; vertical-align: middle; }
+.vtext { font-size: 11.5px; line-height: 1.5; color: #DDD9D2; margin-bottom: 12px; }
+.acts { display: flex; gap: 8px; margin-bottom: 14px; }
+.btn { border: 0; background: var(--raise2); color: var(--fg); border-radius: 999px; padding: 6px 14px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.btn kbd { color: var(--faint); font-weight: 500; margin-left: 4px; padding: 0; font-size: 10.5px; }
+.btn.go { background: var(--orange); color: #fff; } .btn.go kbd { color: rgba(255,255,255,.75); }
+.btn.send { flex: 2; padding: 8px; } .btn.skip { flex: 1; padding: 8px; }
+.btn.clr { background: rgba(240,104,95,.14); color: var(--red); } .btn.clr kbd { color: rgba(240,104,95,.6); }
+.btn[disabled] { opacity: .4; cursor: default; }
+.emptyrow { display: flex; gap: 9px; align-items: center; color: var(--dim); font-size: 11px; padding-bottom: 14px; }
+.tile { width: 24px; height: 24px; border-radius: 7px; background: var(--raise); display: grid; place-items: center; flex: none; font-size: 12px; color: var(--dim); }
+.hist { border-top: 1px solid var(--hair); margin: 0 12px; padding-top: 10px; min-height: 236px; }
+.row { display: flex; gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--hair); font-size: 11.5px; }
+.row b { font-weight: 600; } .row.dimmed b { color: var(--faint); }
+.row .t { color: var(--faint); font-size: 10.5px; font-variant-numeric: tabular-nums; } .row .tg { color: var(--faint); font-size: 10px; } .row .tg.auto { color: var(--amber); font-weight: 600; } .row .tg.live { color: var(--green); font-weight: 600; }
+.rs { background: none; border: 0; color: var(--dim); padding: 0 2px; font-size: 12px; }
+.lt { display: flex; align-items: center; gap: 6px; margin: 0 12px; padding: 10px 0; border-top: 1px solid var(--hair); font-weight: 600; font-size: 11px; }
+.lt p { font-weight: 400; color: var(--dim); flex-basis: 100%; }
+.sw { width: 24px; height: 14px; border-radius: 999px; background: var(--raise2); border: 0; padding: 0; position: relative; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #fff; transition: left .15s; }
+.sw[aria-checked="true"] { background: var(--orange); } .sw[aria-checked="true"]::after { left: 12px; }
+.foot { display: flex; gap: 8px; padding: 2px 12px 12px; } .foot .btn { flex: 1; padding: 8px; }
+.drop { position: absolute; inset: 8px; border: 1.5px dashed var(--orange); border-radius: 10px; background: rgba(35,34,32,.86); display: grid; place-content: center; justify-items: center; gap: 6px; text-align: center; padding: 20px; }
+.drop .tile { background: var(--orange); color: #fff; width: 30px; height: 30px; } .drop b { font-size: 12px; } .drop span { color: var(--dim); font-size: 10.5px; }
+.toast { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); background: var(--raise); border-radius: 12px; padding: 14px 18px; display: grid; justify-items: center; gap: 5px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,.5); width: 190px; }
+.toast .ck { width: 22px; height: 22px; font-size: 13px; } .toast b { font-size: 11.5px; } .toast span { color: var(--dim); font-size: 10px; }
+.compact { padding: 12px; display: grid; gap: 7px; }
+.compact .ref { font-size: 17px; } .one { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+/* setup */
+.setup { padding: 6px 28px 14px; display: grid; gap: 10px; justify-items: center; text-align: center; min-height: 330px; align-content: start; }
+.setup .big { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font-size: 16px; }
+.t-or { background: rgba(194,97,31,.22); color: var(--amber); } .t-gr { background: rgba(74,222,128,.16); color: var(--green); } .t-bl { background: rgba(90,150,255,.18); color: #8DB4FF; }
+.setup h4 { margin: 0; font-size: 15px; } .setup .sub { color: var(--dim); font-size: 11px; max-width: 320px; }
+.card { width: 100%; max-width: 400px; background: var(--raise); border-radius: 10px; text-align: left; }
+.crow { display: flex; gap: 9px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--hair); font-size: 11px; } .crow:last-child { border-bottom: 0; }
+.crow .tile { width: 20px; height: 20px; border-radius: 6px; font-size: 10px; } .crow b { display: block; font-size: 11px; } .crow small { color: var(--dim); font-size: 10px; }
+.sel { background: var(--raise2); border-radius: 6px; padding: 2px 8px; color: var(--fg); font-size: 10.5px; }
+.okdot { color: var(--green); font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+.lvl { height: 3px; border-radius: 2px; background: var(--raise2); margin-top: 5px; } .lvl i { display: block; height: 100%; width: 62%; background: var(--orange); border-radius: 2px; }
+.sfoot { display: flex; align-items: center; gap: 8px; padding: 10px 14px 14px; }
+.dots { display: flex; gap: 4px; } .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--raise2); } .dots i.on { background: var(--orange); }
+/* settings (round-2 layout, restyled; figures not yet matched) */
+.set { display: grid; grid-template-columns: 170px minmax(0, 1fr); min-height: 420px; }
+.nav { border-right: 1px solid var(--hair); padding: 10px; display: grid; gap: 2px; align-content: start; }
+.nav input { font: inherit; width: 100%; padding: 4px 8px; border-radius: 6px; border: 0; background: var(--raise); color: var(--fg); margin-bottom: 6px; }
+.nav h3 { font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); margin: 8px 6px 2px; font-weight: 600; }
+.nav button { text-align: left; background: none; border: 0; border-radius: 6px; padding: 4px 8px; color: var(--fg); }
+.nav button[aria-selected="true"] { background: var(--orange); color: #fff; font-weight: 600; }
+.nav button small { display: block; color: var(--dim); font-size: 10px; }
+.pane { padding: 14px 16px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.pane h4 { margin: 0 0 6px; font-size: 15px; }
+.srow { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--hair); }
 .srow span:last-child { color: var(--dim); text-align: right; }
-.setup { padding: 24px; display: grid; gap: 12px; min-height: 380px; align-content: start; }
-.setup h4 { margin: 0; font-size: 24px; font-family: var(--brand); }
-.pt { display: flex; gap: 12px; } .pt b { display: block; }
-.dots { display: flex; gap: 6px; justify-content: center; } .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); } .dots i.on { background: var(--accent); }
-.sfoot { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.pane .pnote { color: var(--dim); font-size: 10.5px; margin-top: 10px; }
 /* the congregation's screen */
-.out { aspect-ratio: 16 / 9; max-width: 100%; background: var(--screen); border: 1px solid var(--line); border-radius: 8px; display: grid; align-content: center; padding: 6% 8%; gap: 12px; }
-.out q { quotes: none; font-family: var(--verse); font-size: clamp(14px, 1.9vw, 21px); line-height: 1.45; color: #fff; }
-.out cite { font-family: var(--verse); font-style: normal; font-size: clamp(12px, 1.3vw, 15px); color: #D9D5CE; }
+.out { aspect-ratio: 16 / 9; max-width: 100%; background: var(--screen); border-radius: 8px; display: grid; align-content: center; padding: 6% 8%; gap: 12px; }
+.out q { quotes: none; font-family: Georgia, "Times New Roman", serif; font-size: clamp(14px, 1.9vw, 21px); line-height: 1.45; color: #fff; }
+.out cite { font-family: Georgia, serif; font-style: normal; font-size: clamp(12px, 1.3vw, 15px); color: #D9D5CE; }
 .out .blank { color: #6a675f; font-family: var(--ui); font-size: 13px; text-align: center; }
 @media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 640px) { .stage { grid-template-columns: minmax(0, 1fr); } .set { grid-template-columns: minmax(0, 1fr); } .nav { border-right: 0; border-bottom: 1px solid var(--line); } }
-@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+@media (max-width: 640px) { .stage { grid-template-columns: minmax(0, 1fr); } .set { grid-template-columns: minmax(0, 1fr); } .nav { border-right: 0; border-bottom: 1px solid var(--hair); } }
+@media (prefers-reduced-motion: reduce) { .bars i, .sw::after { transition: none; } }
 </style>
 
 <div class="wrap">
@@ -117,7 +144,7 @@ kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; b
     <div class="group">
       <span class="tag">Preview, not the real app</span>
       <h1>Word Cue app screens</h1>
-      <p class="lede">Built from the User Guide. Click through the screens before Xcode builds them, and play the sample service to watch a verse arrive.</p>
+      <p class="lede">Rebuilt from the figures in the User Guide. Click through the screens, and play the sample service to watch a verse arrive. Settings has not been matched to its figures yet.</p>
     </div>
     <div class="group">
       <h2>Screen</h2>
@@ -159,7 +186,7 @@ kbd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; b
   <div class="stage" id="stage">
     <div class="col">
       <h2 id="mactitle">Word Cue</h2>
-      <div class="mac" id="mac" tabindex="0" aria-label="Word Cue window preview"></div>
+      <div class="frame"><div class="mac" id="mac" tabindex="0" aria-label="Word Cue window preview"></div></div>
     </div>
     <div class="col" id="outcol">
       <h2>What the congregation sees</h2>
@@ -198,12 +225,12 @@ const STEPS = [
   ["Connect your presentation app", "Pick the app your church uses. It runs on this same Mac.", [["ProPresenter · OpenLP · FreeShow", "Connect through the app’s own API."], ["EasyWorship · Other", "Word Cue types the reference for you."], ["Test", "Sends a signal without changing what’s on screen."]]],
   ["You’re all set", "From now on Word Cue appears beside your presentation app automatically.", [["Launch Word Cue at login", "On"], ["Show Word Cue when your presentation app opens", "On"]]]
 ];
-const S = { screen: "service", status: "ready", step: 0, timer: null, wait: null, since: 0, hist: [], onScreen: null, lines: [], auto: false, lost: false, noaudio: false, notice: "", undo: [], panel: "General", search: "", setup: 0, clock: null };
+const S = { screen: "service", status: "ready", step: 0, timer: null, wait: null, since: 0, hist: [], onScreen: null, lines: [], auto: false, lost: false, noaudio: false, notice: "", undo: [], panel: "General", search: "", setup: 0, clock: null, showTr: false, dragging: false, toast: "" };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const log = t => { $("log").textContent = t || ""; };
 const listening = () => S.status === "listening";
-const stamp = () => new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+const stamp = () => new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?[AP]M/i, "");
 
 function finish(item, outcome) { item.outcome = outcome; item.time = stamp(); S.hist = S.hist.filter(x => x !== item); S.hist.unshift(item); if (S.wait === item) S.wait = null; }
 function send(item, auto) { if (!item || item.prov || S.lost) return; finish(item, auto ? "Auto-sent" : ""); S.onScreen = item; render(); }
@@ -230,46 +257,59 @@ function play() {
   if (!S.clock) S.clock = setInterval(() => { if (S.wait && !S.wait.prov) { S.since++; const h = document.querySelector(".heard"); if (h) { h.textContent = heardText(); h.className = "heard" + (S.since >= 15 ? " wait" : ""); } } }, 1000);
   tick();
 }
-function reset() { clearTimeout(S.timer); Object.assign(S, { status: "ready", step: 0, timer: null, wait: null, hist: [], onScreen: null, lines: [], notice: "", undo: [] }); log(""); render(); }
+function reset() { clearTimeout(S.timer); Object.assign(S, { status: "ready", step: 0, timer: null, wait: null, hist: [], onScreen: null, lines: [], notice: "", undo: [], toast: "", dragging: false }); log(""); render(); }
 function togglePause() { if (listening()) { clearTimeout(S.timer); S.timer = null; S.status = "paused"; render(); } else play(); }
 function heardText() { return S.since >= 15 ? "Waiting for you · " + S.since + " seconds" : "Heard " + Math.max(S.since, 1) + " second" + (S.since <= 1 ? "" : "s") + " ago"; }
 
-function statusRow() {
+const FLAME = '<svg viewBox="0 0 12 14" aria-hidden="true"><path fill="#F0A050" d="M6 0c.4 2.2 3.6 3.6 3.6 7.4A3.9 3.9 0 0 1 6 11.4 3.9 3.9 0 0 1 2.4 7.4c0-1.3.6-2.3 1.4-3 .1 1 .5 1.7 1.2 2C5 4.300 5.300 1.800 6 0z"/></svg>';
+function conf(c) { return c >= 85 ? ["", "High confidence"] : c >= 72 ? ["mid", "Likely"] : ["low", "Possible"]; }
+function bars() { let h = '<span class="bars" aria-hidden="true">'; [5, 9, 12, 8, 4, 3].forEach((v, i) => { const on = !S.noaudio && i < 4; h += '<i class="' + (on ? "" : "off") + '" style="height:' + (on ? 3 + (v + S.step * (i + 2)) % 10 : 3) + 'px"></i>'; }); return h + '</span>'; }
+function appBadge() { return '<span class="conn"><span class="ck' + (S.lost ? " bad" : "") + '">' + (S.lost ? "×" : "✓") + '</span>ProPresenter</span>'; }
+function statusPill() {
   const st = S.noaudio && S.status !== "ready" ? ["red", "No audio"] : listening() ? ["green", "Listening"] : S.status === "paused" ? ["", "Paused"] : ["", "Ready"];
-  return '<div class="status"><span class="pill ' + st[0] + '"><i></i>' + st[1] + '</span>' + (listening() ? '<span class="meter"><i style="width:' + (S.noaudio ? 0 : 30 + (S.step * 19) % 55) + '%"></i></span>' : "")
-    + '<span class="grow"></span><span class="conn">ProPresenter <span class="' + (S.lost ? "bad" : "ok") + '" aria-label="' + (S.lost ? "not connected" : "connected") + '">' + (S.lost ? "×" : "✓") + '</span></span></div>';
+  return '<span class="pill ' + st[0] + '"><i></i>' + st[1] + '</span>' + (listening() && !S.noaudio ? bars() : "");
 }
+function statusRow() { return '<div class="status">' + statusPill() + '<span class="grow"></span>' + appBadge() + '</div>'; }
 function banner() {
-  if (S.lost) return '<div class="banner"><div class="grow"><b>ProPresenter lost connection</b><span>Still listening. Verses stay in This Service and can be resent.</span></div><button class="btn" data-act="reconnect">Reconnect</button></div>';
-  if (S.noaudio && S.status !== "ready") return '<div class="banner"><div class="grow"><b>No audio</b><span>Check the USB cable and that the pulpit channel is up on the board.</span></div><button class="btn" data-act="settings">Audio Settings</button></div>';
+  if (S.lost) return '<div class="banner"><span class="tri">⚠</span><div class="grow"><b>ProPresenter lost connection</b><span>Verses can’t be sent until it’s back. Word Cue is still listening.</span></div><button class="btn" data-act="reconnect">Reconnect</button></div>';
+  if (S.noaudio && S.status !== "ready") return '<div class="banner"><span class="tri">⚠</span><div class="grow"><b>No audio from Soundboard Interface</b><span>Check the USB cable and that the pulpit channel is up on the board.</span></div><button class="btn" data-act="settings">Audio Settings</button></div>';
   return "";
 }
 function likely() {
   const w = S.wait;
-  if (!w) return '<div class="lm empty"><span>' + (S.status === "ready" ? "Start listening to catch verses as they’re preached." : S.status === "paused" ? "Nothing is being detected until you resume." : "Listening for scripture…") + '</span></div>';
-  return '<div class="lm"><div class="eyebrow"><span class="grow">LIKELY MATCH</span><span>' + (w.prov ? "Listening…" : w.conf + "%") + '</span></div>'
+  if (!w) return '<div class="sec"><div class="label">Likely Match</div><div class="emptyrow"><span class="tile">✦</span><span>' + (S.noaudio && S.status !== "ready" ? "Waiting for audio from the soundboard" : S.status === "ready" ? "Start listening to catch verses as they’re preached." : S.status === "paused" ? "Paused. Nothing is being detected until you resume." : "Listening for scripture…") + '</span></div></div>';
+  const c = conf(w.conf);
+  return '<div class="sec"><div class="label"><span class="grow">Likely Match</span>' + (w.prov ? '<span>Listening…</span>' : '<span class="hc ' + c[0] + '"><i></i>' + c[1] + '</span>') + '</div>'
     + '<div class="ref">' + esc(w.ref) + '<small>KJV</small></div><div class="heard' + (S.since >= 15 ? " wait" : "") + '">' + heardText() + '</div>'
     + '<div class="vtext">' + esc(w.text) + '</div>'
-    + '<div class="acts"><button class="btn big go" data-act="send"' + (w.prov || S.lost ? " disabled" : "") + '>Send<kbd>↩</kbd></button><button class="btn big" data-act="skip"' + (w.prov || S.lost ? " disabled" : "") + '>Skip<kbd>esc</kbd></button></div></div>';
+    + '<div class="acts"><button class="btn go send" data-act="send"' + (w.prov || S.lost ? " disabled" : "") + '>Send <kbd>↩</kbd></button><button class="btn skip" data-act="skip"' + (w.prov || S.lost ? " disabled" : "") + '>Skip <kbd>esc</kbd></button></div></div>';
 }
 function history() {
-  let h = '<div class="hist"><div class="eyebrow">THIS SERVICE</div>';
-  if (!S.hist.length) h += '<span class="note">Verses you send or skip are listed here.</span>';
-  S.hist.forEach((x, i) => { h += '<div class="row"><div class="grow"><b>' + esc(x.ref) + '</b>' + (S.onScreen === x ? '<span class="live">On screen</span>' : "") + '<small>' + x.time + (x.outcome ? " · " + x.outcome : "") + '</small></div><button class="btn" data-act="resend" data-i="' + i + '"' + (S.lost ? " disabled" : "") + '>' + (x.outcome === "" || x.outcome === "Auto-sent" ? "Resend" : "Send") + '</button></div>'; });
+  let h = '<div class="hist"><div class="label"><span class="grow">This Service</span><span>' + S.hist.length + '</span></div>';
+  if (!S.hist.length) h += '<span style="color:var(--faint);font-size:11px">Verses appear here as they’re sent.</span>';
+  S.hist.forEach((x, i) => {
+    const dim = x.outcome === "Skipped" || x.outcome === "Not sent";
+    h += '<div class="row' + (dim ? " dimmed" : "") + '"><b class="grow">' + esc(x.ref) + '</b>' + (S.onScreen === x ? '<span class="tg live">On screen</span>' : x.outcome ? '<span class="tg' + (x.outcome === "Auto-sent" ? " auto" : "") + '">' + x.outcome + '</span>' : "")
+      + '<span class="t">' + x.time + '</span><button class="rs" data-act="resend" data-i="' + i + '"' + (S.lost ? " disabled" : "") + ' aria-label="Send ' + esc(x.ref) + '" title="Send to screen">⟳</button></div>';
+  });
   return h + '</div>';
 }
 function service() {
-  return '<div class="tb"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wm">Word Cue</span><button class="icon" data-act="compact" aria-label="Compact panel" title="Compact panel">⤓</button><button class="icon" data-act="settings" aria-label="Settings" title="Settings">⚙</button></div>'
-    + statusRow() + banner() + (S.notice ? '<div class="notice"><span class="ok">✓</span><span class="grow">' + esc(S.notice) + '</span>' + (S.undo.length ? '<button class="btn" data-act="undo">Undo</button>' : "") + '</div>' : "")
-    + likely() + history()
-    + '<div class="foot"><button class="btn" data-act="pause">' + (S.status === "ready" ? "Start Listening" : S.status === "paused" ? "Resume" : "Pause") + '<kbd>space</kbd></button><span class="grow"></span>' + (S.auto ? '<span class="auto">AUTO</span>' : "") + '<button class="btn" data-act="clear">Clear Screen<kbd>⌘B</kbd></button></div>';
+  const primary = S.status === "ready" ? ["Start Listening", " go"] : S.status === "paused" ? ["Resume", " go"] : ["Pause", ""];
+  return '<div class="tb"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="wm">' + FLAME + 'Word Cue</span><span class="tools"><button class="icon" data-act="compact" aria-label="Compact panel" title="Compact panel">⤡</button><button class="icon" data-act="settings" aria-label="Settings" title="Settings">⚙</button></span></div>'
+    + statusRow() + banner() + likely() + history()
+    + '<div class="lt"><span>›</span><span class="grow">Live Transcript</span><button class="sw" role="switch" aria-checked="' + S.showTr + '" aria-label="Live Transcript" data-act="transcript"></button>' + (S.showTr ? '<p>' + esc(S.lines.slice(-2).join(" ") || "Nothing heard yet.") + '</p>' : "") + '</div>'
+    + '<div class="foot"><button class="btn' + primary[1] + '" data-act="pause">' + primary[0] + ' <kbd>space</kbd></button><button class="btn clr" data-act="clear">Clear Screen <kbd>⌘B</kbd></button></div>'
+    + (S.dragging ? '<div class="drop"><span class="tile">⤓</span><b>Drop to add verses</b><span>Every reference is added to Word Cue, in order.</span><span>PDF · Image · Text</span></div>' : "")
+    + (S.toast ? '<div class="toast"><span class="ck">✓</span><b>' + esc(S.toast) + '</b><span>From sermon-notes.pdf</span>' + (S.undo.length ? '<button class="btn" data-act="undo">Undo <kbd>⌘Z</kbd></button>' : "") + '</div>' : "");
 }
 function compact() {
-  const w = S.wait;
-  return '<div class="tb"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="grow"></span><button class="icon" data-act="full" aria-label="Full sidebar" title="Full sidebar">⤒</button></div><div class="compact">'
-    + '<div class="row"><span class="led" style="background:' + (listening() ? (w ? "var(--yellow)" : "var(--green)") : "var(--dim)") + '"></span><span class="note grow">' + (listening() ? "Listening" : S.status === "paused" ? "Paused" : "Ready") + '</span><span class="' + (S.lost ? "bad" : "ok") + '">' + (S.lost ? "×" : "✓") + '</span></div>'
-    + (w ? '<div class="ref">' + esc(w.ref) + '<small>' + (w.prov ? "" : w.conf + "%") + '</small></div><div class="vtext one">' + esc(w.text) + '</div>' : '<div class="note" style="padding:14px 0">' + (listening() ? "Listening for scripture…" : "Not listening") + '</div>')
-    + '<div class="row"><button class="btn go" data-act="send"' + (!w || w.prov || S.lost ? " disabled" : "") + '>Send</button><button class="btn" data-act="skip"' + (!w ? " disabled" : "") + '>Skip</button><span class="grow"></span><button class="btn" data-act="clear">Clear Screen</button></div></div>';
+  const w = S.wait, c = w ? conf(w.conf) : null;
+  return '<div class="compact"><div class="status" style="padding:0">' + (S.lost ? "" : statusPill()) + '<span class="grow"></span>' + appBadge() + '<button class="icon round" data-act="full" aria-label="Full sidebar" title="Full sidebar">⤢</button></div>'
+    + (S.lost ? '<div class="banner" style="margin:0"><span class="tri">⚠</span><div class="grow"><b>ProPresenter lost connection</b></div><button class="btn" data-act="reconnect">Reconnect</button></div>' : "")
+    + (w ? '<div class="label" style="margin:0;align-items:baseline"><span class="ref grow">' + esc(w.ref) + '<small>KJV</small></span>' + (w.prov ? "" : '<span class="hc ' + c[0] + '"><i></i>' + c[1] + '</span>') + '</div><div class="vtext one">' + esc(w.text) + '</div>'
+         : '<div class="emptyrow" style="padding:6px 0"><span class="tile">✦</span><span>' + (listening() ? "Listening for scripture…" : "Not listening") + '</span></div>')
+    + '<div class="acts" style="margin:0"><button class="btn go send" data-act="send"' + (!w || w.prov || S.lost ? " disabled" : "") + '>Send <kbd>↩</kbd></button><button class="btn skip" data-act="skip"' + (!w ? " disabled" : "") + '>Skip <kbd>esc</kbd></button><button class="icon round" data-act="clear" aria-label="Clear Screen" title="Clear Screen" style="color:var(--red)">⌧</button></div></div>';
 }
 function settings() {
   const q = S.search.trim().toLowerCase();
@@ -285,13 +325,29 @@ function settings() {
   return '<div class="tb"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="wm" style="font-family:var(--ui);font-weight:600;font-size:13px;text-align:center">Word Cue Settings</span><button class="icon" data-act="full" aria-label="Close settings">✕</button></div><div class="set">' + nav + '</div><div class="pane">' + pane + '<p class="note" style="margin-top:10px">Shown with the User Guide’s defaults. In the app each row is a real control.</p></div></div>';
 }
 function setup() {
-  const st = STEPS[S.setup];
-  return '<div class="setup"><h4>' + st[0] + '</h4><p class="note" style="font-size:14px">' + st[1] + '</p>' + st[2].map(p => '<div class="pt"><span class="ok">●</span><div><b>' + p[0] + '</b><span class="note">' + p[1] + '</span></div></div>').join("") + '</div>'
-    + '<div class="sfoot">' + (S.setup ? '<button class="btn" data-act="back">Back</button>' : '<span style="width:52px"></span>') + '<span class="grow dots" aria-label="Step ' + (S.setup + 1) + ' of 5">' + STEPS.map((_, i) => '<i class="' + (i === S.setup ? "on" : "") + '"></i>').join("") + '</span><button class="btn go" data-act="next">' + (S.setup === 4 ? "Open Word Cue" : "Continue") + '</button></div>';
+  const T = (cls, g) => '<span class="tile ' + cls + '">' + g + '</span>';
+  const row = (tile, t, sub, right) => '<div class="crow">' + tile + '<div class="grow"><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : "") + '</div>' + (right || "") + '</div>';
+  const ok = t => '<span class="okdot">● ' + t + '</span>', sel = t => '<span class="sel">' + t + ' ⌄</span>', sw = '<span class="sw" aria-hidden="true" style="background:var(--orange)"></span>';
+  const P = [
+    ["t-or", "☀", "Welcome to Word Cue", "Word Cue listens to the sermon and puts scripture on screen with one key. Setup takes about five minutes.",
+      row(T("t-or", "♪"), "Hears the sermon", "From your soundboard, transcribed on this Mac.") + row(T("t-or", "☷"), "Finds the verses", "Spoken and written references, in real time.") + row(T("t-or", "↩"), "You send them", "Every verse waits for you by default."), ""],
+    ["t-gr", "✓", "Allow access", "Word Cue needs two permissions. Nothing you allow ever leaves this Mac.",
+      row(T("t-gr", "♪"), "Microphone", "To receive audio from your soundboard’s USB interface.", ok("Allowed")) + row(T("", "≡"), "Speech Recognition", "To transcribe the sermon on this Mac.", '<button class="btn go" style="padding:3px 12px">Allow</button>'),
+      "Accessibility is only requested later, if Word Cue needs it."],
+    ["t-or", "♪", "Choose your audio", "Pick the input carrying the pulpit mic, then say a few words into it.",
+      row(T("t-or", "⌁"), "Audio interface", "", sel("Soundboard USB interface")) + row(T("t-bl", "≡"), "Input channel", "", sel("Channel 1 — Pulpit")) + '<div class="crow"><div class="grow"><b>Live level</b><div class="lvl"><i></i></div></div>' + ok("Speech detected") + '</div>', ""],
+    ["t-bl", "▭", "Connect your presentation app", "Word Cue sends verses to the app you already use on Sunday.",
+      row(T("t-or", "▤"), "Presentation app", "", sel("ProPresenter")) + row(T("t-or", "1"), "Open ProPresenter on this Mac.", "") + row(T("t-or", "2"), "In ProPresenter’s Network settings, turn on Enable Network.", "") + row(T("t-or", "3"), "Come back here. Word Cue connects automatically.", "") + row(T("t-gr", "✓"), "Connected to ProPresenter", "Using ProPresenter’s API", '<button class="btn" style="padding:3px 12px">Test</button>'), ""],
+    ["t-gr", "✓", "You’re all set", "Word Cue will appear beside ProPresenter whenever it opens.",
+      row(T("t-gr", "♪"), "Audio", "Soundboard interface · Channel 1", ok("Ready")) + row(T("t-gr", "≡"), "Speech recognition", "", ok("Ready")) + row(T("t-gr", "▭"), "ProPresenter", "Connected · API", ok("Ready")) + row(T("", "⏻"), "Launch Word Cue at login", "", sw.replace('class="sw"', 'class="sw" aria-checked="true"')) + row(T("", "▣"), "Show Word Cue when ProPresenter opens", "", sw.replace('class="sw"', 'class="sw" aria-checked="true"')), ""]
+  ][S.setup];
+  return '<div class="tb"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span></div><div class="setup"><span class="big ' + P[0] + '">' + P[1] + '</span><h4>' + P[2] + '</h4><p class="sub">' + P[3] + '</p><div class="card">' + P[4] + '</div>' + (P[5] ? '<p class="sub" style="font-size:10px">' + P[5] + '</p>' : "") + '</div>'
+    + '<div class="sfoot"><span class="dots" aria-label="Step ' + (S.setup + 1) + ' of 5">' + [0, 1, 2, 3, 4].map(i => '<i class="' + (i === S.setup ? "on" : "") + '"></i>').join("") + '</span><span class="grow"></span>' + (S.setup ? '<button class="btn" data-act="back">Back</button>' : "") + '<button class="btn go" data-act="next">' + (S.setup === 4 ? "Start Using Word Cue" : "Continue") + '</button></div>';
 }
 function render() {
   const keep = document.activeElement && document.activeElement.id === "search";
   $("mac").innerHTML = ({ service, compact, settings, setup }[S.screen])();
+  $("mac").className = "mac" + (S.screen === "settings" || S.screen === "setup" ? " wide" : S.screen === "compact" ? " small" : "");
   const wide = S.screen === "settings" || S.screen === "setup";
   $("stage").className = "stage" + (wide ? " wide" : ""); $("outcol").hidden = wide;
   $("mactitle").textContent = { service: "Word Cue · full sidebar", compact: "Word Cue · compact panel", settings: "Settings", setup: "First-run setup" }[S.screen];
@@ -312,7 +368,8 @@ $("mac").addEventListener("click", e => {
   else if (a === "pause") togglePause();
   else if (a === "resend") send(S.hist[+b.dataset.i], false);
   else if (a === "reconnect") { S.lost = false; render(); }
-  else if (a === "undo") { S.hist = S.hist.filter(x => !S.undo.includes(x)); S.undo = []; S.notice = "File drop undone."; render(); }
+  else if (a === "undo") { S.hist = S.hist.filter(x => !S.undo.includes(x)); S.undo = []; S.toast = ""; log("File drop undone."); render(); }
+  else if (a === "transcript") { S.showTr = !S.showTr; render(); }
   else if (a === "next") { if (S.setup === 4) { S.setup = 0; S.screen = "service"; } else S.setup++; render(); }
   else if (a === "back") { S.setup--; render(); }
   else { S.screen = { compact: "compact", full: "service", settings: "settings" }[a]; if (a === "settings" && S.noaudio) S.panel = "Audio Input"; render(); }
@@ -325,8 +382,12 @@ $("auto").addEventListener("click", () => { S.auto = !S.auto; log(S.auto ? "Auto
 $("lost").addEventListener("click", () => { S.lost = !S.lost; log(S.lost ? "The presentation app is unreachable. Word Cue keeps listening; Send and Skip are dimmed." : ""); render(); });
 $("noaudio").addEventListener("click", () => { S.noaudio = !S.noaudio; if (S.noaudio && S.status === "ready") S.status = "listening"; log(S.noaudio ? "No sound is arriving from the soundboard." : ""); render(); });
 $("drop").addEventListener("click", () => {
-  const added = [["Deuteronomy 6:4", "DEU 6:4"], ["Acts 2:38", "ACT 2:38"], ["Acts 4:12", "ACT 4:12"]].map(r => ({ key: r[1], ref: r[0], conf: 95, text: V[r[1]], outcome: "From file", time: stamp() }));
-  S.hist = added.concat(S.hist); S.undo = added; S.notice = "3 verses added to This Service."; S.screen = "service"; log("Sermon notes dropped on the sidebar: every reference is loaded, in order."); render();
+  S.screen = "service"; S.dragging = true; S.toast = ""; log("Dragging sermon notes over the sidebar\u2026"); render();
+  setTimeout(() => {
+    const added = [["Deuteronomy 6:4", "DEU 6:4"], ["Acts 2:38", "ACT 2:38"], ["Acts 4:12", "ACT 4:12"]].map(r => ({ key: r[1], ref: r[0], conf: 95, text: V[r[1]], outcome: "From file", time: stamp() }));
+    S.dragging = false; S.hist = added.concat(S.hist); S.undo = added; S.toast = "3 verses added"; log("Every reference in the file is now in This Service, in order. Press the arrow on any of them to go live."); render();
+    setTimeout(() => { if (S.toast) { S.toast = ""; render(); } }, 6000);
+  }, 1400);
 });
 document.querySelectorAll(".side button").forEach(b => b.addEventListener("click", () => { b.blur(); $("mac").focus({ preventScroll: true }); }));
 document.addEventListener("keydown", e => {

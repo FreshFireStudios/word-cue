@@ -70,3 +70,9 @@ Bottom bar: 5 tiny progress dots at bottom-LEFT (current one orange); at bottom-
 
 ### Not yet seen: page 3 (Figure 1, sidebar beside presentation app), page 16 (settings search), pages 17, 19, 21, 23, 25, 27, 29, 30, 32 (one Settings panel figure each). Read these next, note them, then build Settings to match.
 ### Preview rebuild status: Service View / compact / states / drop / setup being rebuilt dark from these notes (see git log). Settings still the round-2 generic version until its figures are read.
+
+### STATE at stop (about 12:50 pm Mountain, Nov 11)
+- R1 PARTLY DONE: preview Service View, states, compact panel, file drop (overlay + toast) and setup are rebuilt dark from Figures 2-11 and published (artifact version 3) + committed in preview/index.html. Checked by screenshot against Figure 7: close match.
+- R1 LEFT: read pages 3, 16, 17, 19, 21, 23, 25, 27, 29, 30, 32 as images; note each; rebuild the preview's Settings screen to match (it is still the generic round-2 list, restyled dark). The preview page's source "body" lives only in preview/index.html now (strip the 7-line HTML wrapper to get the artifact body; verses are already inlined).
+- R2 NOT STARTED: SwiftUI views still look like round 2 (system light/dark, percent confidence, text Resend buttons, horizontal meter). Rebuild WordCue/Views/ServiceView.swift, CompactPanelView, SetupView, Theme.swift to the figure notes above: dark-first, pill buttons, orange Send, amber bar meter, "High confidence" words (>=85 High confidence, >=72 Likely, else Possible: my wording for the lower two, manual only shows High), icon resend, empty-state row with icon tile, Live Transcript row with toggle, orange Start Listening/Resume, red-tinted Clear Screen, drop overlay + toast with Undo.
+- Then R5 onward in order.
