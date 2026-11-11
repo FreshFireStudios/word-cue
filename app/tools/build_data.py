@@ -46,7 +46,7 @@ B = [
  ("SNG","Song of Solomon",None,["song of solomon","song of songs","songs of solomon"],["song","sos","sng"],{}),
  ("ISA","Isaiah",None,["isaiah"],["isa","is"],{"mishearings":["isiah"]}),
  ("JER","Jeremiah",None,["jeremiah"],["jer","je"],{}),
- ("LAM","Lamentations",None,["lamentations"],["lam","la"],{}),
+ ("LAM","Lamentations",None,["lamentations"],["lam","la"],{"risky":True}),
  ("EZK","Ezekiel",None,["ezekiel"],["ezek","eze","ezk"],{}),
  ("DAN","Daniel",None,["daniel"],["dan","da","dn"],{}),
  ("HOS","Hosea",None,["hosea"],["hos","ho"],{}),
@@ -87,7 +87,7 @@ B = [
  ("2JN","2 John",2,["john"],["jn","jhn"],{}),
  ("3JN","3 John",3,["john"],["jn","jhn"],{}),
  ("JUD","Jude",None,["jude"],["jud"],{}),
- ("REV","Revelation",None,["revelation","revelations"],["rev","re"],{}),
+ ("REV","Revelation",None,["revelation","revelations"],["rev","re"],{"risky":True}),
 ]
 
 def main(src):

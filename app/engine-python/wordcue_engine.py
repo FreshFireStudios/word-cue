@@ -91,6 +91,10 @@ class Engine:
         self.short_ok = set(r["shortAbbrChapterOnly"])
         self.limits = r["limits"]
         self.conf = r["confidence"]
+        self.quote_rules = r["quotes"]
+        self.ignored_books = set()      # book ids the church never wants suggested (Settings > Filters)
+        self.ignored_phrases = []       # token lists; a match touching one of these is dropped
+        self._quote_index = None        # built the first time quoted-scripture matching is used
         # name index: first word -> list of (words, family, kind)
         # A "family" is the list of books sharing a name: "john" -> JHN, 1JN, 2JN, 3JN.
         families = {}
@@ -463,8 +467,32 @@ class Engine:
                 return (book, ctx.chapter, ctx.verse + 1, None, i + 2, base, ["followOn"])
         return None
 
-    def detect_tokens(self, t, mode="speech", ctx=None):
-        """Scans a token list. Returns (detections, final_context)."""
+    def set_filters(self, ignored_books=(), ignored_phrases=()):
+        self.ignored_books = set(ignored_books)
+        self.ignored_phrases = [tokenize(p) for p in ignored_phrases if tokenize(p)]
+
+    def ignored_spans(self, t):
+        """Token ranges covered by an ignored phrase."""
+        spans = []
+        for phrase in self.ignored_phrases:
+            k = len(phrase)
+            for i in range(0, len(t) - k + 1):
+                if t[i] == phrase[0] and t[i:i + k] == phrase:
+                    spans.append((i, i + k))
+        return spans
+
+    def detect_tokens(self, t, mode="speech", ctx=None, quotes=False):
+        """Scans a token list. Returns (detections, final_context).
+        quotes=True also matches spoken verse text with no reference (Beta)."""
+        dets, ctx = self._detect_references(t, mode, ctx)
+        if quotes and mode == "speech":
+            dets = self.merge_quotes(dets, self.detect_quotes(t, dets))
+        spans = self.ignored_spans(t) if self.ignored_phrases else []
+        dets = [d for d in dets if d.book not in self.ignored_books
+                and not any(d.start < e and s < d.end for s, e in spans)]
+        return dets, ctx
+
+    def _detect_references(self, t, mode="speech", ctx=None):
         ctx = ctx or Context()
         out = []
         recent = {}  # key -> token index where it was last emitted (for de-duplication)
@@ -506,8 +534,101 @@ class Engine:
             i = end
         return out, ctx
 
-    def detect(self, text, mode="speech"):
-        return self.detect_tokens(tokenize(text), mode)[0]
+    def detect(self, text, mode="speech", quotes=False):
+        return self.detect_tokens(tokenize(text), mode, quotes=quotes)[0]
+
+    # ------------------------------------------------- quoted scripture (Beta)
+
+    @staticmethod
+    def gram_hash(words):
+        """64-bit FNV-1a hash of the words joined by spaces. Same in Swift."""
+        h = 0xcbf29ce484222325
+        for b in " ".join(words).encode("utf-8"):
+            h = ((h ^ b) * 0x100000001b3) & 0xFFFFFFFFFFFFFFFF
+        return h
+
+    def quote_index(self):
+        """Every run of 4 words in the KJV -> the verses containing it."""
+        if self._quote_index is None:
+            g = self.quote_rules["gram"]
+            kjv = json.load(open(os.path.join(RESOURCES, "kjv.json"), encoding="utf-8"))
+            index, refs = {}, []
+            for b in self.books:
+                for ci, chapter in enumerate(kjv[b["id"]]):
+                    for vi, text in enumerate(chapter):
+                        words = [w for w in tokenize(text) if w not in PUNCT]
+                        n = len(refs)
+                        refs.append((b["id"], ci + 1, vi + 1))
+                        for i in range(len(words) - g + 1):
+                            index.setdefault(self.gram_hash(words[i:i + g]), []).append(n)
+            self._quote_index = (index, refs)
+        return self._quote_index
+
+    def detect_quotes(self, t, dets):
+        """Finds verse text spoken with no reference: at least `minHits` different
+        4-word runs from one verse inside a `window`-word stretch."""
+        q = self.quote_rules
+        g, window, need = q["gram"], q["window"], q["minHits"]
+        index, refs = self.quote_index()
+        pos = [i for i, w in enumerate(t) if w not in PUNCT]     # word positions (punctuation skipped)
+        words = [t[i] for i in pos]
+        hits = []                                                # (word index, set of verse numbers)
+        for i in range(len(words) - g + 1):
+            v = index.get(self.gram_hash(words[i:i + g]))
+            if v:
+                hits.append((i, set(v)))
+        out, i, last_end = [], 0, {}
+        while i < len(hits):
+            start = hits[i][0]
+            counts, j = {}, i
+            while j < len(hits) and hits[j][0] - start < window:
+                for v in hits[j][1]:
+                    counts[v] = counts.get(v, 0) + 1
+                j += 1
+            best = max(counts.values())
+            if best < need:
+                i += 1
+                continue
+            top = sorted(v for v, c in counts.items() if c == best)
+            # the reference heard most recently before this point, if any
+            near = None
+            for d in dets:
+                if d.end <= pos[start]:
+                    near = d
+            in_ctx = [v for v in top if near and refs[v][0] == near.book and refs[v][1] == near.chapter]
+            cands = in_ctx or top
+            if len(cands) > 1:
+                i += 1          # the same words are in several verses and nothing says which one
+                continue
+            v = cands[0]
+            book, chapter, verse = refs[v]
+            last_word = max(h[0] for h in hits[i:j] if v in h[1]) + g - 1
+            s_tok, e_tok = pos[start], pos[last_word] + 1
+            conf = self.conf["quoteInContext"] if in_ctx else self.conf["quote"]
+            out.append(Detection(book, chapter, verse, None, s_tok, e_tok, conf, "quote", ["quote"], join_tokens(t[s_tok:e_tok])))
+            # move past this verse's words
+            while i < len(hits) and hits[i][0] <= last_word - g + 1:
+                i += 1
+        return out
+
+    def merge_quotes(self, dets, quotes):
+        """Adds quote matches that are not already covered by a spoken reference."""
+        gap = self.quote_rules["dedupeTokens"]
+        kept = list(dets)
+        for qd in quotes:
+            clash = False
+            for d in kept:
+                same = d.book == qd.book and d.chapter == qd.chapter and (
+                    d.verse is None or d.verse <= qd.verse <= (d.end_verse or d.verse))
+                overlap = qd.start < d.end and d.start < qd.end
+                if overlap or (same and abs(qd.start - d.end) <= gap and d.kind != "quote") \
+                        or (d.kind == "quote" and d.key == qd.key and qd.start - d.end <= gap):
+                    clash = True
+                    break
+            if not clash:
+                kept.append(qd)
+        kept.sort(key=lambda d: d.start)
+        return kept
 
     # ---------------------------------------------------------------- display
 
@@ -547,10 +668,12 @@ class Session:
         self.base = 0           # absolute index of tokens[0]
         self.ctx0 = Context()   # context at tokens[0] (positions relative to tokens[0])
         self.seen = {}          # absolute start index -> key last reported
+        self.quotes = False     # set True to also match quoted scripture (Beta)
 
     def _scan(self, tokens):
         dets, _ = self.engine.detect_tokens(tokens, self.mode,
-                                            Context(self.ctx0.book, self.ctx0.chapter, self.ctx0.verse, self.ctx0.pos))
+                                            Context(self.ctx0.book, self.ctx0.chapter, self.ctx0.verse, self.ctx0.pos),
+                                            quotes=self.quotes)
         for d in dets:
             d.start += self.base
             d.end += self.base

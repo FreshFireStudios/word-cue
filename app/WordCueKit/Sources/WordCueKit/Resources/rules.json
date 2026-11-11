@@ -17,13 +17,16 @@
   "explicitVerse": 0.95,
   "impliedVerse": 0.85,
   "chapterKeyword": 0.80,
-  "chapterBare": 0.60,
-  "followOn": 0.60,
-  "penaltyRiskyBare": 0.20,
+  "chapterBare": 0.75,
+  "followOn": 0.72,
+  "penaltyRiskyBare": 0.05,
   "penaltyMishearing": 0.15,
   "penaltyAssumedOrdinal": 0.25,
   "penaltyGap": 0.10,
   "penaltyDigitSplit": 0.15,
-  "penaltyVerseDropped": 0.10
- }
+  "penaltyVerseDropped": 0.10,
+  "quote": 0.72,
+  "quoteInContext": 0.80
+ },
+ "quotes": {"gram": 4, "window": 14, "minHits": 5, "dedupeTokens": 60}
 }

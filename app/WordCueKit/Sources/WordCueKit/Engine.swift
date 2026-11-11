@@ -36,6 +36,12 @@ public final class Engine: @unchecked Sendable {
     let limits: [String: Int]
     let conf: [String: Double]
     var nameIndex: [String: [NameEntry]] = [:]
+    let quoteRules: [String: Int]
+    /// Book ids the church never wants suggested (Settings > Filters).
+    public var ignoredBooks: Set<String> = []
+    private var ignoredPhraseTokens: [[String]] = []
+    private var quoteIndexStorage: (index: [UInt64: [Int32]], refs: [(book: String, chapter: Int, verse: Int)])?
+    private let quoteLock = NSLock()
 
     public init() {
         books = Resources.load("books", as: [Book].self)
@@ -63,6 +69,7 @@ public final class Engine: @unchecked Sendable {
         shortOK = Set(r.shortAbbrChapterOnly)
         limits = r.limits
         conf = r.confidence
+        quoteRules = r.quotes
 
         // Name index: first word -> entries. A "family" is the list of books
         // sharing a name: "john" -> JHN, 1JN, 2JN, 3JN.
@@ -508,8 +515,40 @@ public final class Engine: @unchecked Sendable {
         return nil
     }
 
+    /// Phrases that must never trigger a verse (Settings > Filters).
+    public func setIgnoredPhrases(_ phrases: [String]) {
+        ignoredPhraseTokens = phrases.map { Tokenizer.tokenize($0) }.filter { !$0.isEmpty }
+    }
+
+    /// Token ranges covered by an ignored phrase.
+    func ignoredSpans(_ t: [String]) -> [(Int, Int)] {
+        var spans: [(Int, Int)] = []
+        for phrase in ignoredPhraseTokens {
+            let k = phrase.count
+            guard t.count >= k else { continue }
+            for i in 0...(t.count - k) where t[i] == phrase[0] && Array(t[i..<(i + k)]) == phrase {
+                spans.append((i, i + k))
+            }
+        }
+        return spans
+    }
+
     /// Scans a token list. Returns the detections and the context at the end.
-    func detectTokens(_ t: [String], mode: DetectionMode, context: Context = Context()) -> (detections: [Detection], context: Context) {
+    /// `quotes: true` also matches spoken verse text with no reference (Beta).
+    func detectTokens(_ t: [String], mode: DetectionMode, context: Context = Context(),
+                      quotes: Bool = false) -> (detections: [Detection], context: Context) {
+        var (dets, ctx) = detectReferences(t, mode: mode, context: context)
+        if quotes && mode == .speech {
+            dets = mergeQuotes(dets, detectQuotes(t, dets))
+        }
+        let spans = ignoredPhraseTokens.isEmpty ? [] : ignoredSpans(t)
+        dets = dets.filter { d in
+            !ignoredBooks.contains(d.reference.book) && !spans.contains { d.start < $0.1 && $0.0 < d.end }
+        }
+        return (dets, ctx)
+    }
+
+    func detectReferences(_ t: [String], mode: DetectionMode, context: Context = Context()) -> (detections: [Detection], context: Context) {
         var ctx = context
         var out: [Detection] = []
         var recent: [String: Int] = [:]   // key -> token index where it was last seen (de-duplication)
@@ -562,8 +601,123 @@ public final class Engine: @unchecked Sendable {
     }
 
     /// Finds every reference in a piece of text.
-    public func detect(_ text: String, mode: DetectionMode = .speech) -> [Detection] {
-        detectTokens(Tokenizer.tokenize(text), mode: mode).detections
+    public func detect(_ text: String, mode: DetectionMode = .speech, quotes: Bool = false) -> [Detection] {
+        detectTokens(Tokenizer.tokenize(text), mode: mode, quotes: quotes).detections
+    }
+
+    // MARK: - Quoted scripture (Beta)
+
+    /// 64-bit FNV-1a hash of the words joined by spaces. Same as gram_hash in Python.
+    static func gramHash(_ words: ArraySlice<String>) -> UInt64 {
+        var h: UInt64 = 0xcbf29ce484222325
+        var first = true
+        for w in words {
+            if !first { h = (h ^ 0x20) &* 0x100000001b3 }
+            first = false
+            for b in w.utf8 { h = (h ^ UInt64(b)) &* 0x100000001b3 }
+        }
+        return h
+    }
+
+    /// Every run of 4 words in the KJV -> the verses containing it.
+    /// Built once, the first time quote matching is used (about a second).
+    func quoteIndex() -> (index: [UInt64: [Int32]], refs: [(book: String, chapter: Int, verse: Int)]) {
+        quoteLock.lock()
+        defer { quoteLock.unlock() }
+        if let built = quoteIndexStorage { return built }
+        let g = quoteRules["gram"]!
+        let kjv = Resources.load("kjv", as: [String: [[String]]].self)
+        var index: [UInt64: [Int32]] = [:]
+        var refs: [(book: String, chapter: Int, verse: Int)] = []
+        for b in books {
+            for (ci, chapter) in (kjv[b.id] ?? []).enumerated() {
+                for (vi, text) in chapter.enumerated() {
+                    let words = Tokenizer.tokenize(text).filter { !isPunct($0) }
+                    let n = Int32(refs.count)
+                    refs.append((b.id, ci + 1, vi + 1))
+                    if words.count >= g {
+                        for i in 0...(words.count - g) {
+                            index[Engine.gramHash(words[i..<(i + g)]), default: []].append(n)
+                        }
+                    }
+                }
+            }
+        }
+        quoteIndexStorage = (index, refs)
+        return (index, refs)
+    }
+
+    /// Finds verse text spoken with no reference: at least `minHits` different
+    /// 4-word runs from one verse inside a `window`-word stretch.
+    func detectQuotes(_ t: [String], _ dets: [Detection]) -> [Detection] {
+        let g = quoteRules["gram"]!, window = quoteRules["window"]!, need = quoteRules["minHits"]!
+        let (index, refs) = quoteIndex()
+        let pos = t.indices.filter { !isPunct(t[$0]) }      // word positions (punctuation skipped)
+        let words = pos.map { t[$0] }
+        var hits: [(at: Int, verses: Set<Int32>)] = []
+        if words.count >= g {
+            for i in 0...(words.count - g) {
+                if let v = index[Engine.gramHash(words[i..<(i + g)])] { hits.append((i, Set(v))) }
+            }
+        }
+        var out: [Detection] = []
+        var i = 0
+        while i < hits.count {
+            let start = hits[i].at
+            var counts: [Int32: Int] = [:]
+            var j = i
+            while j < hits.count && hits[j].at - start < window {
+                for v in hits[j].verses { counts[v, default: 0] += 1 }
+                j += 1
+            }
+            let best = counts.values.max() ?? 0
+            if best < need {
+                i += 1
+                continue
+            }
+            let top = counts.filter { $0.value == best }.keys.sorted()
+            // the reference heard most recently before this point, if any
+            let near = dets.last { $0.end <= pos[start] }
+            let inContext = top.filter { v in
+                guard let near else { return false }
+                return refs[Int(v)].book == near.reference.book && refs[Int(v)].chapter == near.reference.chapter
+            }
+            let candidates = inContext.isEmpty ? top : inContext
+            if candidates.count > 1 {
+                i += 1      // the same words are in several verses and nothing says which one
+                continue
+            }
+            let v = candidates[0]
+            let ref = refs[Int(v)]
+            let lastWord = hits[i..<j].filter { $0.verses.contains(v) }.map { $0.at }.max()! + g - 1
+            let s = pos[start], e = pos[lastWord] + 1
+            let confidence = inContext.isEmpty ? conf["quote"]! : conf["quoteInContext"]!
+            out.append(Detection(reference: Reference(book: ref.book, chapter: ref.chapter, verse: ref.verse),
+                                 start: s, end: e, confidence: confidence, kind: .quote, flags: ["quote"],
+                                 text: Tokenizer.join(t[s..<e])))
+            // move past this verse's words
+            while i < hits.count && hits[i].at <= lastWord - g + 1 { i += 1 }
+        }
+        return out
+    }
+
+    /// Adds quote matches that are not already covered by a spoken reference.
+    func mergeQuotes(_ dets: [Detection], _ quotes: [Detection]) -> [Detection] {
+        let gap = quoteRules["dedupeTokens"]!
+        var kept = dets
+        for q in quotes {
+            let qv = q.reference.verse ?? 0
+            let clash = kept.contains { d in
+                let r = d.reference
+                let same = r.book == q.reference.book && r.chapter == q.reference.chapter
+                    && (r.verse == nil || (r.verse! <= qv && qv <= (r.endVerse ?? r.verse!)))
+                let overlap = q.start < d.end && d.start < q.end
+                return overlap || (same && abs(q.start - d.end) <= gap && d.kind != .quote)
+                    || (d.kind == .quote && d.key == q.key && q.start - d.end <= gap)
+            }
+            if !clash { kept.append(q) }
+        }
+        return kept.sorted { $0.start < $1.start }
     }
 
     // MARK: - Display

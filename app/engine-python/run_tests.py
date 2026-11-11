@@ -14,8 +14,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CASES = os.path.join(HERE, "..", "WordCueKit", "Tests", "WordCueKitTests", "Resources", "cases.json")
 
 
-def stream_keys(engine, text, mode, small=False):
+def stream_keys(engine, text, mode, small=False, quotes=False):
     s = Session(engine, mode)
+    s.quotes = quotes
     if small:
         s.MAX_TOKENS, s.KEEP_TOKENS = 40, 10
     latest = {}
@@ -33,14 +34,18 @@ def main():
     cases = json.load(open(CASES, encoding="utf-8"))["cases"]
     failed = 0
     for c in cases:
-        got = [d.key for d in engine.detect(c["text"], c["mode"])]
-        streamed = stream_keys(engine, c["text"], c["mode"])
+        quotes = c.get("quotes", False)
+        engine.set_filters(c.get("ignoredBooks", ()), c.get("ignoredPhrases", ()))
+        got = [d.key for d in engine.detect(c["text"], c["mode"], quotes=quotes)]
+        streamed = stream_keys(engine, c["text"], c["mode"], quotes=quotes)
+        engine.set_filters()
         ok = got == c["expect"] and streamed == c["expect"]
         if not ok:
             failed += 1
             print("FAIL %s\n  text:     %s\n  expected: %s\n  got:      %s\n  streamed: %s" % (c["id"], c["text"], c["expect"], got, streamed))
     # long-run check: all speech cases as one stream, with a tiny buffer so trimming is exercised
-    speech = [c for c in cases if c["mode"] == "speech"]
+    speech = [c for c in cases if c["mode"] == "speech" and len(c) <= 5 and not c.get("quotes")
+              and "ignoredBooks" not in c and "ignoredPhrases" not in c]
     joined = " . ".join(c["text"] for c in speech)
     whole = [d.key for d in engine.detect(joined)]
     trimmed = stream_keys(engine, joined, "speech", small=True)

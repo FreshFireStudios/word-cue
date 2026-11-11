@@ -1,5 +1,5 @@
 {
- "about": "Shared test cases. The Python reference engine and the Swift engine must both pass every case. expect uses book ids from books.json: 'ACT 2:38', 'ACT 2' (whole chapter), 'ACT 2:38-39' (range).",
+ "about": "Shared test cases. The Python reference engine and the Swift engine must both pass every case. expect uses book ids from books.json: 'ACT 2:38', 'ACT 2' (whole chapter), 'ACT 2:38-39' (range). Optional per case: quotes (true turns on quoted-scripture matching), ignoredPhrases, ignoredBooks.",
  "cases": [
   {
    "id": "basic-01",
@@ -862,6 +862,88 @@
    "mode": "speech",
    "text": "Amen. I see it's 7/29. I don't know what time y'all got out.",
    "expect": []
+  },
+  {
+   "id": "quote-01",
+   "mode": "speech",
+   "text": "and he said ye shall receive power after that the Holy Ghost is come upon you",
+   "expect": [
+    "ACT 1:8"
+   ],
+   "quotes": true,
+   "note": "quoted with no reference (Beta)"
+  },
+  {
+   "id": "quote-02",
+   "mode": "speech",
+   "text": "the Bible says for God so loved the world that he gave his only begotten Son",
+   "expect": [
+    "JHN 3:16"
+   ],
+   "quotes": true
+  },
+  {
+   "id": "quote-03",
+   "mode": "speech",
+   "text": "Acts 2:38. Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ",
+   "expect": [
+    "ACT 2:38"
+   ],
+   "quotes": true,
+   "note": "reading the verse just cited does not suggest it twice"
+  },
+  {
+   "id": "quote-04",
+   "mode": "speech",
+   "text": "Acts 2:38. Then Peter said repent. For the promise is unto you, and to your children, and to all that are afar off",
+   "expect": [
+    "ACT 2:38",
+    "ACT 2:39"
+   ],
+   "quotes": true,
+   "note": "reading on into the next verse suggests it"
+  },
+  {
+   "id": "quote-05",
+   "mode": "speech",
+   "text": "woe unto you scribes and Pharisees, hypocrites, for you are like something",
+   "expect": [],
+   "quotes": true,
+   "note": "words found in several verses: no guess"
+  },
+  {
+   "id": "quote-06",
+   "mode": "speech",
+   "text": "and he said ye shall receive power after that the Holy Ghost is come upon you",
+   "expect": [],
+   "note": "quote matching is off unless asked for"
+  },
+  {
+   "id": "quote-07",
+   "mode": "speech",
+   "text": "in the name of Jesus Christ we thank you Lord for the Holy Ghost",
+   "expect": [],
+   "quotes": true
+  },
+  {
+   "id": "filter-01",
+   "mode": "speech",
+   "text": "Mark 5 and John 3:16 are on the list",
+   "expect": [
+    "JHN 3:16"
+   ],
+   "ignoredBooks": [
+    "MRK"
+   ]
+  },
+  {
+   "id": "filter-02",
+   "mode": "speech",
+   "text": "you can call our prayer line at John 3 16 ministries tonight",
+   "expect": [],
+   "ignoredPhrases": [
+    "john 3 16 ministries"
+   ]
   }
  ]
 }

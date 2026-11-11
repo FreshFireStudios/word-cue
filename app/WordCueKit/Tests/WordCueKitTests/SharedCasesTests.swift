@@ -11,6 +11,10 @@ final class SharedCasesTests: XCTestCase {
         let mode: String
         let text: String
         let expect: [String]
+        let quotes: Bool?
+        let ignoredPhrases: [String]?
+        let ignoredBooks: [String]?
+        var isPlain: Bool { quotes != true && ignoredPhrases == nil && ignoredBooks == nil }
     }
 
     static let engine = Engine()
@@ -21,8 +25,9 @@ final class SharedCasesTests: XCTestCase {
     }
 
     /// Feeds text one word at a time, the way live speech arrives.
-    func streamKeys(_ text: String, mode: DetectionMode, small: Bool = false) -> [String] {
+    func streamKeys(_ text: String, mode: DetectionMode, small: Bool = false, quotes: Bool = false) -> [String] {
         let session = DetectionSession(engine: Self.engine, mode: mode)
+        session.quotes = quotes
         if small {
             session.maxTokens = 40
             session.keepTokens = 10
@@ -42,14 +47,19 @@ final class SharedCasesTests: XCTestCase {
     func testEverySharedCase() throws {
         for c in try loadCases() {
             let mode = DetectionMode(rawValue: c.mode) ?? .speech
-            let got = Self.engine.detect(c.text, mode: mode).map(\.key)
+            let quotes = c.quotes ?? false
+            Self.engine.ignoredBooks = Set(c.ignoredBooks ?? [])
+            Self.engine.setIgnoredPhrases(c.ignoredPhrases ?? [])
+            let got = Self.engine.detect(c.text, mode: mode, quotes: quotes).map(\.key)
             XCTAssertEqual(got, c.expect, "\(c.id): \(c.text)")
-            XCTAssertEqual(streamKeys(c.text, mode: mode), c.expect, "\(c.id) (word by word): \(c.text)")
+            XCTAssertEqual(streamKeys(c.text, mode: mode, quotes: quotes), c.expect, "\(c.id) (word by word): \(c.text)")
+            Self.engine.ignoredBooks = []
+            Self.engine.setIgnoredPhrases([])
         }
     }
 
     func testLongStreamWithTrimmingMatchesWholeText() throws {
-        let joined = try loadCases().filter { $0.mode == "speech" }.map(\.text).joined(separator: " . ")
+        let joined = try loadCases().filter { $0.mode == "speech" && $0.isPlain }.map(\.text).joined(separator: " . ")
         let whole = Self.engine.detect(joined).map(\.key)
         XCTAssertEqual(streamKeys(joined, mode: .speech, small: true), whole)
     }

@@ -23,7 +23,7 @@
  {"id": "SNG", "name": "Song of Solomon", "ordinal": null, "names": ["song of solomon", "song of songs", "songs of solomon"], "abbr": ["song", "sos", "sng"], "chapters": 8, "risky": false, "mishearings": []},
  {"id": "ISA", "name": "Isaiah", "ordinal": null, "names": ["isaiah"], "abbr": ["isa", "is"], "chapters": 66, "risky": false, "mishearings": ["isiah"]},
  {"id": "JER", "name": "Jeremiah", "ordinal": null, "names": ["jeremiah"], "abbr": ["jer", "je"], "chapters": 52, "risky": false, "mishearings": []},
- {"id": "LAM", "name": "Lamentations", "ordinal": null, "names": ["lamentations"], "abbr": ["lam", "la"], "chapters": 5, "risky": false, "mishearings": []},
+ {"id": "LAM", "name": "Lamentations", "ordinal": null, "names": ["lamentations"], "abbr": ["lam", "la"], "chapters": 5, "risky": true, "mishearings": []},
  {"id": "EZK", "name": "Ezekiel", "ordinal": null, "names": ["ezekiel"], "abbr": ["ezek", "eze", "ezk"], "chapters": 48, "risky": false, "mishearings": []},
  {"id": "DAN", "name": "Daniel", "ordinal": null, "names": ["daniel"], "abbr": ["dan", "da", "dn"], "chapters": 12, "risky": false, "mishearings": []},
  {"id": "HOS", "name": "Hosea", "ordinal": null, "names": ["hosea"], "abbr": ["hos", "ho"], "chapters": 14, "risky": false, "mishearings": []},
@@ -64,5 +64,5 @@
  {"id": "2JN", "name": "2 John", "ordinal": 2, "names": ["john"], "abbr": ["jn", "jhn"], "chapters": 1, "risky": false, "mishearings": []},
  {"id": "3JN", "name": "3 John", "ordinal": 3, "names": ["john"], "abbr": ["jn", "jhn"], "chapters": 1, "risky": false, "mishearings": []},
  {"id": "JUD", "name": "Jude", "ordinal": null, "names": ["jude"], "abbr": ["jud"], "chapters": 1, "risky": false, "mishearings": []},
- {"id": "REV", "name": "Revelation", "ordinal": null, "names": ["revelation", "revelations"], "abbr": ["rev", "re"], "chapters": 22, "risky": false, "mishearings": []}
+ {"id": "REV", "name": "Revelation", "ordinal": null, "names": ["revelation", "revelations"], "abbr": ["rev", "re"], "chapters": 22, "risky": true, "mishearings": []}
 ]

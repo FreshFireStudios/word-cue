@@ -17,6 +17,8 @@ public final class DetectionSession {
 
     var maxTokens = 3000    // when the buffer grows past this...
     var keepTokens = 300    // ...keep roughly this many and remember the context
+    /// Also match quoted scripture with no reference (Beta, off by default).
+    public var quotes = false
 
     private let engine: Engine
     private let mode: DetectionMode
@@ -31,7 +33,7 @@ public final class DetectionSession {
     }
 
     private func scan(_ tokens: [String]) -> [Detection] {
-        engine.detectTokens(tokens, mode: mode, context: context0).detections.map { d in
+        engine.detectTokens(tokens, mode: mode, context: context0, quotes: quotes).detections.map { d in
             var d = d
             d.start += base
             d.end += base

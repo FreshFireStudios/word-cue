@@ -28,7 +28,7 @@ public struct Reference: Hashable, Codable, Sendable {
 
 /// One reference the engine found in the transcript.
 public struct Detection: Identifiable, Hashable, Sendable {
-    public enum Kind: String, Sendable { case explicit, followOn }
+    public enum Kind: String, Sendable { case explicit, followOn, quote }
 
     public var reference: Reference
     public var start: Int          // index of the first matched token

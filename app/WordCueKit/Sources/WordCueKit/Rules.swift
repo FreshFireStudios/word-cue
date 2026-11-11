@@ -39,6 +39,7 @@ struct DetectionRules: Codable {
     let shortAbbrChapterOnly: [String]
     let limits: [String: Int]
     let confidence: [String: Double]
+    let quotes: [String: Int]
 }
 
 enum Resources {
