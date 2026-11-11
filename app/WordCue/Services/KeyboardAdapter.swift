@@ -12,10 +12,18 @@ struct KeyboardAdapter: PresentationAdapter {
     /// Keystroke that opens the app's Bible search, e.g. "cmd+b". Empty = just type.
     let openSearch: String
 
+    /// Key that sends the found verse live after the search, if the app needs one.
+    /// EasyWorship: Page Down is its documented "Go Live" key (help.easyworship.com, Helpful Shortcut Keys).
+    let goLive: String
+    /// Key that takes text off the screen. EasyWorship: Control-C toggles text on the live output.
+    let clearKey: String
+
     init(settings: WordCueSettings) {
         appName = settings.presentationApp.displayName
         bundleIDs = settings.presentationApp.bundleIdentifiers
         openSearch = settings.keyboardOpenSearch
+        goLive = settings.presentationApp == .easyWorship ? "pagedown" : ""
+        clearKey = settings.presentationApp == .easyWorship ? "ctrl+c" : ""
     }
 
     static var hasPermission: Bool { AXIsProcessTrusted() }
@@ -52,6 +60,10 @@ struct KeyboardAdapter: PresentationAdapter {
         Self.type(item.title)
         try await Task.sleep(for: .milliseconds(80))
         Self.press(36, nil)                                 // Return
+        if let combo = KeyCombo(goLive), let code = combo.keyCode {
+            try await Task.sleep(for: .milliseconds(300))   // let the search finish
+            Self.press(CGKeyCode(code), combo)
+        }
     }
 
     func addToServiceList(_ item: VerseItem) async throws {
@@ -59,6 +71,13 @@ struct KeyboardAdapter: PresentationAdapter {
     }
 
     func clear() async throws {
+        if let combo = KeyCombo(clearKey), let code = combo.keyCode {
+            _ = try await test()
+            await MainActor.run { _ = runningApp()?.activate() }
+            try await Task.sleep(for: .milliseconds(250))
+            Self.press(CGKeyCode(code), combo)
+            return
+        }
         throw AdapterError.notSupported("Keyboard mode cannot clear \(appName)'s screen. Use \(appName)'s own clear key.")
     }
 

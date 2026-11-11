@@ -66,7 +66,7 @@
 39. **Duplicate cooldown is by time** (60 seconds, in the app) on top of the engine's own 30-word rule.
 40. **OpenLP is written from memory.** Its documentation site blocked me. Every OpenLP call is marked VERIFY. ProPresenter and FreeShow come from their official API pages.
 41. **FreeShow port is 5506** (its HTTP API), not 5505 (its WebSocket). FreeShow looks the verse up in its own Bible.
-42. **EasyWorship and "Other" work by typing.** Word Cue brings the app forward and types the reference, then Return. A setting holds the key that opens that app's Bible search; I do not know EasyWorship's, so it starts empty. Note that EasyWorship is a Windows program; confirm it is really a target on the Mac.
+42. **EasyWorship and "Other" work by typing.** Word Cue brings the app forward and types the reference, then Return. A setting holds the key that opens that app's Bible search; I do not know EasyWorship's, so it starts empty.
 43. **"Add to the service list" works only where the app allows it:** OpenLP (unverified) and FreeShow (as a new show). ProPresenter's API cannot, so dropped files land in This Service and are sent from there.
 44. **Undo for a file drop** removes the verses from Word Cue.
 45. **Not built from the guide:** Snap app beside Word Cue, ProPresenter port auto-discovery, the Spanish language model check, re-download/reset of the speech model (macOS manages it), and Sparkle itself (the hook is in `Updater.swift`).
@@ -85,3 +85,4 @@
 ## Round 3 (November 11, afternoon)
 
 54. **Dropped-file verses stay in Word Cue** (Bryson's call). They are listed in This Service in file order, each with a Send button that puts it live. Nothing is pushed into the presentation app's own service list. This is the same for every app. Section 06 of the User Guide still says the verses go into the presentation app and needs rewording.
+55. **EasyWorship 8 is a Mac target** (Bryson confirmed; my earlier "Windows program" note was wrong). From EasyWorship's own shortcut page: Page Down is Go Live and Control-C toggles text on the live output, so Word Cue presses Page Down after typing the reference and uses Control-C for Clear Screen. That page lists no key that jumps to the scripture search box and no Mac-specific keys, so the operator must leave EasyWorship's scripture search selected, and the Mac keys need checking on a real copy. Its app identifier is still a guess.

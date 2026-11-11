@@ -48,7 +48,7 @@ public struct KeyCombo: Equatable, Sendable {
 
     /// macOS virtual key codes for the keys Word Cue uses (US layout positions).
     public var keyCode: Int? {
-        let special = ["return": 36, "escape": 53, "space": 49, "delete": 51, "left": 123, "right": 124, "down": 125, "up": 126,
+        let special = ["return": 36, "escape": 53, "space": 49, "delete": 51, "left": 123, "right": 124, "down": 125, "up": 126, "pagedown": 121, "pageup": 116,
                        "\\": 42, ".": 47, ",": 43, "/": 44, ";": 41, "'": 39, "[": 33, "]": 30, "-": 27, "=": 24, "`": 50]
         if let c = special[key] { return c }
         let letters: [Character: Int] = ["a": 0, "s": 1, "d": 2, "f": 3, "h": 4, "g": 5, "z": 6, "x": 7, "c": 8, "v": 9, "b": 11,
