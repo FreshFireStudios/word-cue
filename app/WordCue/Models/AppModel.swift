@@ -504,23 +504,18 @@ final class AppModel {
                 notice = "No Bible references were found in that file."
                 return
             }
-            // Try the presentation app's own service list first; either way the verses are in This Service.
-            var inApp = 0
-            for item in added {
-                if let verse = item.verseItem(perSlide: 0, bookName: bookName(item.reference.book), translation: s.translation),
-                   case .sent = await router.addToServiceList(verse, settings: s) { inApp += 1 }
-            }
+            // The verses stay in Word Cue, in file order, each with its own Send button.
+            // Nothing is pushed into the presentation app's service list: one press here puts a verse live.
             history.insert(contentsOf: added.reversed(), at: 0)      // first reference in the file ends up on top
             lastDrop = added.map(\.id)
             canUndoDrop = true
             let n = added.count
-            notice = "\(n) verse\(n == 1 ? "" : "s") added" + (inApp == n ? " to \(s.presentationApp.displayName)." : " to This Service.")
+            notice = "\(n) verse\(n == 1 ? "" : "s") added. Press Send on any of them to go live."
             saveLog()
         }
     }
 
-    /// Takes the dropped verses back out of Word Cue. Verses already added to
-    /// the presentation app's own list have to be removed there.
+    /// Takes the dropped verses back out of Word Cue.
     func undoDrop() {
         guard canUndoDrop else { return }
         history.removeAll { lastDrop.contains($0.id) }
