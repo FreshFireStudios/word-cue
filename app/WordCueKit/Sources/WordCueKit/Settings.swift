@@ -42,6 +42,17 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
         }
     }
 
+    /// The numbered steps on the Connect screen of first-run setup; they change with the app picked.
+    public var setupSteps: [String] {
+        switch self {
+        case .proPresenter: return ["Open ProPresenter on this Mac.", "In ProPresenter\u{2019}s Settings > Network, turn on Enable Network.", "Come back here. Word Cue connects automatically."]
+        case .openLP: return ["Open OpenLP on this Mac.", "In OpenLP\u{2019}s settings, turn on Remote.", "Come back here. Word Cue connects automatically."]
+        case .freeShow: return ["Open FreeShow on this Mac.", "In FreeShow\u{2019}s Settings > Connections, turn on the API.", "Come back here. Word Cue connects automatically."]
+        case .easyWorship: return ["Open EasyWorship on this Mac.", "Leave its Scriptures search selected.", "Allow Accessibility when macOS asks, so Word Cue can type for you."]
+        case .other: return ["Open your presentation app on this Mac.", "Leave its Bible search selected.", "Allow Accessibility when macOS asks, so Word Cue can type for you."]
+        }
+    }
+
     /// The one-line setup shown in Word Cue for each app (User Guide section 02).
     public var setupHint: String {
         switch self {
