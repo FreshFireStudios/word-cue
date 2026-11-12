@@ -102,6 +102,9 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
     public var translation = "KJV"
     public var secondTranslation = ""
     public var showAbbreviation = true
+    public var recognizeWritten = true                // "Acts 2:38"
+    public var recognizeSpoken = true                 // "Acts chapter two, verse thirty eight"
+    public var recognizeBookVariations = true         // "First John", "1st John", "Song of Songs"
     public var recognizeFollowUps = true
     public var recognizeRanges = true
     public var recognizeQuotedScripture = false       // Beta
@@ -148,6 +151,7 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
     public var shortcuts: [String: String] = WordCueSettings.defaultShortcuts
 
     // Filters
+    public var requireChapterEnabled = true
     public var requireChapterBooks: [String] = ["MRK", "JOB", "ACT", "NUM", "JDG", "REV", "LAM"]
     public var ignoredPhrases: [String] = []
     public var ignoredBooks: [String] = []
@@ -155,10 +159,12 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
 
     // Advanced
     public var bufferSize: BufferSize = .balanced
+    public var useCustomConnection = false            // Advanced > Connection Override; host/port below only apply when on
     public var debugLogging = false
 
     // Support
     public var updateChannel: UpdateChannel = .stable
+    public var automaticUpdates = true
     public var feedbackEmail = ""
 
     public init() {}
