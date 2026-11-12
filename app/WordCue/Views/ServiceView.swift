@@ -1,7 +1,7 @@
 // UNTESTED: written without Xcode.
-// The Service View (User Guide sections 04 and 05): where the operator works
-// during a service. Top to bottom: title bar, status row, problem banner,
-// Likely Match with Send / Skip, This Service, Live Transcript, footer.
+// The Service View, built to Figures 7 to 11 of the User Guide.
+// Top to bottom: title bar, status row, problem banner, Likely Match with
+// Send / Skip, This Service, Live Transcript switch, footer.
 import SwiftUI
 import UniformTypeIdentifiers
 import WordCueKit
@@ -14,31 +14,16 @@ struct ServiceView: View {
         VStack(spacing: 0) {
             TitleBar()
             StatusRow()
-            if let problem = model.problem { ProblemBanner(problem: problem) }
-            if let notice = model.notice { NoticeBar(text: notice) }
-            LikelyMatchArea()
-            Divider()
+            if let problem = model.problem { ProblemBanner(problem: problem).padding(.horizontal, 12).padding(.bottom, 10) }
+            LikelyMatchArea().padding(.horizontal, 12)
             ThisServiceList()
-            if model.s.showLiveTranscript { LiveTranscript() }
-            Divider()
+            LiveTranscriptRow()
             Footer()
         }
-        .background(.background)
-        .overlay {
-            if dropTargeted {
-                RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(Theme.orange, style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
-                    .background(Theme.orange.opacity(0.10), in: RoundedRectangle(cornerRadius: 14))
-                    .overlay {
-                        VStack(spacing: 6) {
-                            Image(systemName: "doc.text").font(.largeTitle)
-                            Text("Drop to add its verses").font(.headline)
-                            Text("PDF, image or text").font(.caption).foregroundStyle(.secondary)
-                        }
-                    }
-                    .padding(8)
-            }
-        }
+        .foregroundStyle(Theme.text)
+        .background(Theme.window)
+        .overlay { if dropTargeted { DropZone() } }
+        .overlay { if let notice = model.notice { DropToast(title: notice) } }
         .dropDestination(for: URL.self) { urls, _ in
             model.importFiles(urls)
             return !urls.isEmpty
@@ -50,19 +35,27 @@ struct TitleBar: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text("Word Cue").font(Theme.wordmark(15))
+        HStack(spacing: 5) {
+            Flame()
+            Text("Word Cue").font(Theme.wordmark(12.5))
             Spacer()
-            Button { model.perform("compact") } label: { Image(systemName: "rectangle.compress.vertical") }
-                .help("Compact panel")
-                .accessibilityLabel("Compact panel")
-            SettingsLink { Image(systemName: "gearshape") }
-                .accessibilityLabel("Settings")
+            HStack(spacing: 0) {
+                Button { model.perform("compact") } label: { Image(systemName: "arrow.down.right.and.arrow.up.left") }
+                    .help("Compact panel (Command-\\)")
+                    .accessibilityLabel("Compact panel")
+                SettingsLink { Image(systemName: "gearshape") }
+                    .accessibilityLabel("Settings")
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 11))
+            .foregroundStyle(Theme.dim)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 4)
+            .background(Theme.raise, in: RoundedRectangle(cornerRadius: 8))
         }
-        .buttonStyle(.plain)
-        .padding(.leading, 76)      // clear of the window's close/minimize buttons
-        .padding(.trailing, 14)
-        .frame(height: 38)
+        .padding(.leading, 70)      // clear of the window's traffic lights
+        .padding(.trailing, 12)
+        .frame(height: 36)
     }
 }
 
@@ -70,66 +63,28 @@ struct StatusRow: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Circle().fill(color).frame(width: 8, height: 8)
-                Text(label).font(.callout.weight(.semibold))
+        HStack(spacing: 8) {
+            switch model.status {
+            case .ready: StatusPill(text: "Ready")
+            case .paused: StatusPill(text: "Paused")
+            case .preparing: StatusPill(text: "Getting ready", color: Theme.green)
+            case .listening: StatusPill(text: "Listening", color: Theme.green)
+            case .noAudio: StatusPill(text: "No audio", color: Theme.red)
             }
-            .padding(.horizontal, 9)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.14), in: Capsule())
-            if model.isListening {
-                LevelMeter(level: model.level).frame(width: 56, height: 6)
+            if model.status == .listening {
+                MicBars(level: model.level)
                 if model.musicPlaying {
-                    Image(systemName: "music.note").foregroundStyle(.secondary).help("Music is playing, so detection is paused.")
+                    Image(systemName: "music.note").font(.system(size: 10)).foregroundStyle(Theme.dim)
+                        .help("Music is playing, so detection is paused.")
                 }
             }
             Spacer()
-            HStack(spacing: 4) {
-                Text(model.s.presentationApp.displayName).font(.callout).foregroundStyle(.secondary)
-                switch model.appConnected {
-                case .some(true): Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.green)
-                case .some(false): Image(systemName: "xmark.circle.fill").foregroundStyle(Theme.red)
-                case .none: ProgressView().controlSize(.mini)
-                }
-            }
-            .help(model.connectionNote)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("\(model.s.presentationApp.displayName) \(model.appConnected == true ? "connected" : "not connected")")
+            AppBadge(name: model.s.presentationApp.displayName, connected: model.appConnected)
+                .help(model.connectionNote)
         }
-        .padding(.horizontal, 14)
-        .padding(.bottom, 10)
-    }
-
-    private var label: String {
-        switch model.status {
-        case .ready: return "Ready"
-        case .preparing: return "Getting ready"
-        case .listening: return "Listening"
-        case .paused: return "Paused"
-        case .noAudio: return "No audio"
-        }
-    }
-
-    private var color: Color {
-        switch model.status {
-        case .ready, .paused: return .gray
-        case .preparing, .listening: return Theme.green
-        case .noAudio: return Theme.red
-        }
-    }
-}
-
-struct LevelMeter: View {
-    let level: Float
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(.quaternary)
-                Capsule().fill(Theme.green).frame(width: geo.size.width * CGFloat(level))
-            }
-        }
-        .accessibilityHidden(true)
+        .padding(.horizontal, 12)
+        .padding(.top, 2)
+        .padding(.bottom, 12)
     }
 }
 
@@ -137,65 +92,43 @@ struct LevelMeter: View {
 struct ProblemBanner: View {
     @Environment(AppModel.self) private var model
     let problem: AppModel.Problem
+    var compact = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "exclamationmark.triangle.fill")
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.callout.weight(.semibold))
-                Text(detail).font(.caption).fixedSize(horizontal: false, vertical: true)
+            Image(systemName: "exclamationmark.triangle").foregroundStyle(Theme.red).font(.system(size: 11))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Theme.red)
+                if !compact {
+                    Text(detail).font(.system(size: 10.5)).foregroundStyle(Theme.red.opacity(0.8)).fixedSize(horizontal: false, vertical: true)
+                }
             }
-            Spacer()
+            Spacer(minLength: 4)
             switch problem {
-            case .appLost: Button("Reconnect") { model.reconnect() }
-            case .noAudio: SettingsLink { Text("Audio Settings") }
-            case .other: Button("Dismiss") { model.problem = nil }
+            case .appLost: Button("Reconnect") { model.reconnect() }.buttonStyle(PillButtonStyle())
+            case .noAudio: SettingsLink { Text("Audio Settings") }.buttonStyle(PillButtonStyle())
+            case .other: Button("Dismiss") { model.problem = nil }.buttonStyle(PillButtonStyle())
             }
         }
-        .controlSize(.small)
-        .foregroundStyle(.white)
-        .padding(10)
-        .background(Theme.red, in: RoundedRectangle(cornerRadius: 10))
-        .padding(.horizontal, 12)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+        .background(Theme.redFill, in: RoundedRectangle(cornerRadius: 10))
     }
 
     private var title: String {
         switch problem {
         case .appLost: return "\(model.s.presentationApp.displayName) lost connection"
-        case .noAudio: return "No audio"
+        case .noAudio: return "No audio from the soundboard interface"
         case .other: return "Something needs attention"
         }
     }
 
     private var detail: String {
         switch problem {
-        case .appLost(let why): return "Still listening. Verses stay in This Service and can be resent. \(why)"
+        case .appLost: return "Verses can\u{2019}t be sent until it\u{2019}s back. Word Cue is still listening."
         case .noAudio: return "Check the USB cable and that the pulpit channel is up on the board."
         case .other(let message): return message
         }
-    }
-}
-
-struct NoticeBar: View {
-    @Environment(AppModel.self) private var model
-    let text: String
-
-    var body: some View {
-        HStack {
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.green)
-            Text(text).font(.callout)
-            Spacer()
-            if model.canUndoDrop { Button("Undo") { model.undoDrop() } }
-            Button { model.notice = nil } label: { Image(systemName: "xmark") }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Dismiss")
-        }
-        .controlSize(.small)
-        .padding(10)
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-        .padding(.horizontal, 12)
-        .padding(.bottom, 8)
     }
 }
 
@@ -205,151 +138,196 @@ struct LikelyMatchArea: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text("Likely Match").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
+                Spacer()
+                if let w = model.waiting {
+                    if w.provisional {
+                        Text("Listening\u{2026}").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
+                    } else {
+                        ConfidenceLabel(value: w.confidence)
+                    }
+                }
+            }
+            .padding(.bottom, 6)
             if let w = model.waiting {
                 match(w)
             } else {
-                Text(emptyText)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 120)
-                    .multilineTextAlignment(.center)
+                HStack(spacing: 9) {
+                    IconTile(symbol: "sparkle", tint: .neutral, size: 24)
+                    Text(emptyText).font(.system(size: 11)).foregroundStyle(Theme.dim).fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.bottom, 14)
             }
         }
-        .padding(14)
     }
 
     private var emptyText: String {
+        if let progress = model.practiceProgress, !model.isListening { return progress }
         switch model.status {
         case .ready: return "Start listening to catch verses as they\u{2019}re preached."
-        case .paused: return "Nothing is being detected until you resume."
-        default: return model.practiceProgress ?? "Listening for scripture\u{2026}"
+        case .paused: return "Paused. Nothing is being detected until you resume."
+        case .noAudio: return "Waiting for audio from the soundboard"
+        default: return "Listening for scripture\u{2026}"
         }
     }
 
     @ViewBuilder
     private func match(_ w: CueItem) -> some View {
         let age = Int(model.now.timeIntervalSince(w.time))
-        let overdue = age >= 15
         let slides = w.slides(perSlide: model.s.versesPerSlide)
-        HStack {
-            Text("LIKELY MATCH").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-            Spacer()
-            if w.provisional {
-                Text("Listening\u{2026}").font(.caption).foregroundStyle(.secondary)
-            } else {
-                Text("\(Int(w.confidence * 100))%").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-                    .accessibilityLabel("Confidence \(Int(w.confidence * 100)) percent")
+        HStack(alignment: .firstTextBaseline, spacing: 5) {
+            Text(w.title).font(.system(size: 22, weight: .bold))
+            if model.s.showAbbreviation {
+                Text(model.s.translation).font(.system(size: 10, weight: .bold)).foregroundStyle(Theme.amber)
             }
         }
-        HStack(alignment: .firstTextBaseline) {
-            Text(w.title).font(.system(size: 30, weight: .bold))
-            if model.s.showAbbreviation { Text(model.s.translation).font(.callout).foregroundStyle(.secondary) }
+        if age >= 15 && !w.provisional {
+            HStack(spacing: 4) {
+                Circle().fill(Theme.amber).frame(width: 5, height: 5)
+                Text("Waiting for you \u{00B7} \(age) seconds").font(.system(size: 10.5, weight: .semibold)).foregroundStyle(Theme.amber)
+            }
+            .padding(.top, 2).padding(.bottom, 8)
+        } else {
+            Text("Heard \(max(age, 1)) second\(age <= 1 ? "" : "s") ago").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
+                .padding(.top, 2).padding(.bottom, 8)
         }
-        Text(overdue ? "Waiting for you \u{00B7} \(age) seconds" : "Heard \(max(age, 1)) second\(age <= 1 ? "" : "s") ago")
-            .font(.caption.weight(overdue ? .semibold : .regular))
-            .foregroundStyle(overdue ? Theme.yellow : .secondary)
         if slides.indices.contains(w.slide) {
             ScrollView {
                 Text(slides[w.slide].map(\.text).joined(separator: " "))
-                    .font(.system(.body, design: .serif))
+                    .font(.system(size: 11.5))
+                    .lineSpacing(3)
+                    .foregroundStyle(Theme.verse)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxHeight: 130)
+            .frame(maxHeight: 110)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.bottom, slides.count > 1 ? 6 : 12)
         }
         if slides.count > 1 {
-            HStack {
+            HStack(spacing: 6) {
                 Button { model.stepSlide(-1) } label: { Image(systemName: "chevron.left") }.accessibilityLabel("Previous slide")
-                Text("Slide \(w.slide + 1) of \(slides.count)").font(.caption).foregroundStyle(.secondary)
+                Text("Slide \(w.slide + 1) of \(slides.count)").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
                 Button { model.stepSlide(1) } label: { Image(systemName: "chevron.right") }.accessibilityLabel("Next slide")
             }
-            .controlSize(.small)
+            .buttonStyle(.plain)
+            .padding(.bottom, 10)
         }
         HStack(spacing: 8) {
             Button { model.sendWaiting() } label: {
-                HStack { Text("Send"); KeyCap(text: "\u{21A9}") }.frame(maxWidth: .infinity)
+                HStack(spacing: 6) { Text("Send"); KeyHint(text: "\u{21A9}", onPrimary: true) }
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(PillButtonStyle(kind: .primary, wide: true))
+            .layoutPriority(2)
             Button { model.skipWaiting() } label: {
-                HStack { Text("Skip"); KeyCap(text: "esc") }.frame(maxWidth: .infinity)
+                HStack(spacing: 5) { Text("Skip"); KeyHint(text: "esc") }
             }
+            .buttonStyle(PillButtonStyle(wide: true))
+            .frame(maxWidth: 96)
         }
-        .controlSize(.large)
         .disabled(w.provisional || model.problemBlocksSending)
-        .opacity(w.provisional ? 0.6 : 1)
+        .padding(.bottom, 14)
     }
 }
 
-/// Every verse handled, newest first, with time, tags and Resend.
+/// Every verse handled, newest first, with time, tags and a resend button.
 struct ThisServiceList: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("THIS SERVICE").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-                .padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 4)
+            Rectangle().fill(Theme.hair).frame(height: 1)
+            HStack {
+                Text("This Service").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
+                Spacer()
+                Text("\(model.history.count)").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
+            }
+            .padding(.top, 10).padding(.bottom, 4)
             if model.history.isEmpty {
-                Text("Verses you send or skip are listed here.")
-                    .font(.callout).foregroundStyle(.tertiary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Text("Verses appear here as they\u{2019}re sent.").font(.system(size: 11)).foregroundStyle(Theme.faint).padding(.top, 2)
+                Spacer(minLength: 0)
             } else {
-                List(model.history) { item in
-                    HStack(spacing: 8) {
-                        VStack(alignment: .leading, spacing: 1) {
-                            HStack(spacing: 6) {
-                                Text(item.title).font(.callout.weight(.medium))
-                                if item.id == model.onScreenID {
-                                    Text("On screen").font(.caption2.weight(.semibold)).foregroundStyle(Theme.green)
-                                }
-                            }
-                            HStack(spacing: 6) {
-                                Text(item.time.formatted(date: .omitted, time: .shortened))
-                                if let tag = tag(item) { Text(tag) }
-                                if item.correctedKey != nil { Text("Marked wrong") }
-                            }
-                            .font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Button(item.outcome == .sent || item.outcome == .autoSent ? "Resend" : "Send") { model.resend(item.id) }
-                            .controlSize(.small)
-                            .disabled(model.problemBlocksSending)
-                    }
-                    .contextMenu {
-                        Button("Mark as Wrong Verse") { model.markWrong(item.id) }
-                        Text("Heard: \(item.heard)")
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(model.history) { item in row(item) }
                     }
                 }
-                .listStyle(.plain)
             }
         }
-        .frame(maxHeight: .infinity)
+        .padding(.horizontal, 12)
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
-    private func tag(_ item: CueItem) -> String? {
+    private func row(_ item: CueItem) -> some View {
+        let muted = item.outcome == .skipped || item.outcome == .expired
+        return VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                Text(item.title).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(muted ? Theme.faint : Theme.text)
+                Spacer()
+                if item.id == model.onScreenID {
+                    Text("On screen").font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.green)
+                } else if let tag = tag(item) {
+                    Text(tag.0).font(.system(size: 10, weight: tag.1 ? .semibold : .regular)).foregroundStyle(tag.1 ? Theme.amber : Theme.faint)
+                }
+                Text(item.time.formatted(date: .omitted, time: .shortened).replacingOccurrences(of: " AM", with: "").replacingOccurrences(of: " PM", with: ""))
+                    .font(.system(size: 10.5).monospacedDigit()).foregroundStyle(Theme.faint)
+                Button { model.resend(item.id) } label: { Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 10)) }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.dim)
+                    .disabled(model.problemBlocksSending)
+                    .help(item.outcome == .sent || item.outcome == .autoSent ? "Resend to the screen" : "Send to the screen")
+                    .accessibilityLabel("Send \(item.title) to the screen")
+            }
+            .padding(.vertical, 8)
+            Rectangle().fill(Theme.hair).frame(height: 1)
+        }
+        .contextMenu {
+            Button("Send to Screen") { model.resend(item.id) }
+            Button("Mark as Wrong Verse") { model.markWrong(item.id) }
+            Text("Heard: \(item.heard)")
+        }
+    }
+
+    /// (text, highlighted)
+    private func tag(_ item: CueItem) -> (String, Bool)? {
+        if item.correctedKey != nil { return ("Marked wrong", false) }
         switch item.outcome {
-        case .skipped: return "Skipped"
-        case .autoSent: return "Auto-sent"
-        case .expired: return "Not sent"
-        case .added: return "From file"
+        case .skipped: return ("Skipped", false)
+        case .autoSent: return ("Auto-sent", true)
+        case .expired: return ("Not sent", false)
+        case .added: return ("From file", false)
         default: return nil
         }
     }
 }
 
-struct LiveTranscript: View {
+/// "› Live Transcript" with its switch; off by default.
+struct LiveTranscriptRow: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Divider()
-            Text("LIVE TRANSCRIPT").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-            (Text(model.transcript.suffix(2).joined(separator: " ") + " ")
-                + Text(model.volatileText).foregroundStyle(.secondary))
-                .font(.callout)
-                .lineLimit(3, reservesSpace: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        @Bindable var settings = model.settings
+        VStack(alignment: .leading, spacing: 6) {
+            Rectangle().fill(Theme.hair).frame(height: 1)
+            HStack(spacing: 6) {
+                Image(systemName: settings.s.showLiveTranscript ? "chevron.down" : "chevron.right").font(.system(size: 8, weight: .bold))
+                Text("Live Transcript").font(.system(size: 11, weight: .semibold))
+                Spacer()
+                Toggle("Live Transcript", isOn: $settings.s.showLiveTranscript)
+                    .toggleStyle(.switch).controlSize(.mini).labelsHidden().tint(Theme.orange)
+            }
+            .padding(.top, 4)
+            if settings.s.showLiveTranscript {
+                (Text(model.transcript.suffix(2).joined(separator: " ") + " ") + Text(model.volatileText).foregroundStyle(Theme.faint))
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.dim)
+                    .lineLimit(3, reservesSpace: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
-        .padding(.horizontal, 14)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 10)
     }
 }
 
@@ -357,22 +335,31 @@ struct Footer: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Button { model.togglePause() } label: {
-                HStack { Text(label); KeyCap(text: "space") }
+                HStack(spacing: 5) { Text(label); KeyHint(text: "space", onPrimary: isPrimary) }
             }
-            Spacer()
-            if model.s.cueMode == .autoSend {
-                Text("AUTO").font(.caption2.weight(.bold)).foregroundStyle(Theme.orange)
-                    .help("Auto-send is on: verses at \(Int(model.s.autoSendAt * 100))% or higher go straight to the screen.")
-            }
+            .buttonStyle(PillButtonStyle(kind: isPrimary ? .primary : .secondary, wide: true))
             Button { model.clearScreen() } label: {
-                HStack { Text("Clear Screen"); KeyCap(text: "\u{2318}B") }
+                HStack(spacing: 5) {
+                    Text("Clear Screen")
+                    Text("\u{2318}B").font(.system(size: 10.5)).foregroundStyle(Theme.red.opacity(0.6))
+                }
+            }
+            .buttonStyle(PillButtonStyle(kind: .danger, wide: true))
+        }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 12)
+        .overlay(alignment: .top) {
+            if model.s.cueMode == .autoSend {
+                Text("AUTO-SEND ON").font(.system(size: 8.5, weight: .bold)).foregroundStyle(Theme.amber).offset(y: -11)
+                    .help("Verses at \(Int(model.s.autoSendAt * 100))% or higher go straight to the screen.")
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
     }
+
+    /// Start Listening and Resume are orange; Pause is grey.
+    private var isPrimary: Bool { model.status == .ready || model.status == .paused }
 
     private var label: String {
         switch model.status {
@@ -383,60 +370,120 @@ struct Footer: View {
     }
 }
 
-/// The compact floating panel: status, the reference with confidence, the
-/// first line of the verse, and Send, Skip and Clear Screen.
+/// The orange dashed zone shown while a file is dragged over the sidebar (Figure 11, left).
+struct DropZone: View {
+    var body: some View {
+        ZStack {
+            Theme.window.opacity(0.88)
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(Theme.orange, style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+                .padding(8)
+            VStack(spacing: 6) {
+                Image(systemName: "arrow.down.to.line")
+                    .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                    .frame(width: 30, height: 30)
+                    .background(Theme.orange, in: RoundedRectangle(cornerRadius: 9))
+                Text("Drop to add verses").font(.system(size: 12, weight: .semibold))
+                Text("Every reference is added to Word Cue, in order.").font(.system(size: 10.5)).foregroundStyle(Theme.dim)
+                Text("PDF \u{00B7} Image \u{00B7} Text").font(.system(size: 9.5)).foregroundStyle(Theme.faint)
+            }
+            .multilineTextAlignment(.center)
+            .padding(24)
+        }
+    }
+}
+
+/// The confirmation card after a drop (Figure 11, right), with Undo.
+struct DropToast: View {
+    @Environment(AppModel.self) private var model
+    let title: String
+
+    var body: some View {
+        VStack(spacing: 5) {
+            Image(systemName: model.canUndoDrop ? "checkmark.circle.fill" : "questionmark.circle.fill")
+                .font(.system(size: 22)).foregroundStyle(model.canUndoDrop ? Theme.green : Theme.dim)
+            Text(title).font(.system(size: 11.5, weight: .semibold))
+            Text(model.noticeDetail).font(.system(size: 10)).foregroundStyle(Theme.dim).multilineTextAlignment(.center)
+            if model.canUndoDrop {
+                Button { model.undoDrop() } label: { HStack(spacing: 5) { Text("Undo"); KeyHint(text: "\u{2318}Z") } }
+                    .buttonStyle(PillButtonStyle())
+                    .padding(.top, 2)
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .frame(width: 200)
+        .background(Theme.raise, in: RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.5), radius: 16, y: 8)
+        .onTapGesture { model.notice = nil }
+    }
+}
+
+/// The compact floating panel (Figure 8): status, the reference with
+/// confidence, the first line of the verse, and Send, Skip and Clear Screen.
 struct CompactPanelView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Circle().fill(dot).frame(width: 8, height: 8)
-                Text(model.status == .listening ? "Listening" : (model.status == .paused ? "Paused" : (model.status == .noAudio ? "No audio" : "Ready")))
-                    .font(.caption).foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 8) {
+                if !model.problemBlocksSending {
+                    switch model.status {
+                    case .listening, .preparing: StatusPill(text: "Listening", color: Theme.green)
+                    case .noAudio: StatusPill(text: "No audio", color: Theme.red)
+                    case .paused: StatusPill(text: "Paused")
+                    case .ready: StatusPill(text: "Ready")
+                    }
+                    if model.status == .listening { MicBars(level: model.level) }
+                }
                 Spacer()
-                Image(systemName: model.appConnected == true ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .foregroundStyle(model.appConnected == true ? Theme.green : Theme.red)
-                    .accessibilityLabel(model.appConnected == true ? "Connected" : "Not connected")
-                Button { model.perform("compact") } label: { Image(systemName: "rectangle.expand.vertical") }
-                    .buttonStyle(.plain)
-                    .help("Full sidebar")
-                    .accessibilityLabel("Full sidebar")
+                AppBadge(name: model.s.presentationApp.displayName, connected: model.appConnected)
+                Button { model.perform("compact") } label: {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right").font(.system(size: 9, weight: .semibold))
+                        .frame(width: 22, height: 22).background(Theme.raise, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .help("Full sidebar (Command-\\)")
+                .accessibilityLabel("Full sidebar")
+            }
+            if let problem = model.problem, model.problemBlocksSending {
+                ProblemBanner(problem: problem, compact: true)
             }
             if let w = model.waiting {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(w.title).font(.title2.weight(.bold))
-                    if model.s.showConfidence && !w.provisional {
-                        Text("\(Int(w.confidence * 100))%").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-                    }
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Text(w.title).font(.system(size: 17, weight: .bold))
+                    if model.s.showAbbreviation { Text(model.s.translation).font(.system(size: 9.5, weight: .bold)).foregroundStyle(Theme.amber) }
+                    Spacer()
+                    if model.s.showConfidence && !w.provisional { ConfidenceLabel(value: w.confidence) }
                 }
-                Text(w.verses.first?.text ?? "").font(.system(.callout, design: .serif)).lineLimit(1)
+                Text(w.verses.first?.text ?? "").font(.system(size: 11.5)).foregroundStyle(Theme.verse).lineLimit(1)
             } else {
-                Text(model.isListening ? "Listening for scripture\u{2026}" : "Not listening")
-                    .font(.headline).foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                HStack(spacing: 9) {
+                    IconTile(symbol: "sparkle", tint: .neutral, size: 22)
+                    Text(model.isListening ? "Listening for scripture\u{2026}" : "Not listening").font(.system(size: 11)).foregroundStyle(Theme.dim)
+                }
+                .frame(maxHeight: .infinity)
             }
             Spacer(minLength: 0)
-            HStack {
-                Button("Send") { model.sendWaiting() }.buttonStyle(.borderedProminent)
-                Button("Skip") { model.skipWaiting() }
-                Spacer()
-                Button("Clear Screen") { model.clearScreen() }
+            HStack(spacing: 8) {
+                Button { model.sendWaiting() } label: { HStack(spacing: 6) { Text("Send"); KeyHint(text: "\u{21A9}", onPrimary: true) } }
+                    .buttonStyle(PillButtonStyle(kind: .primary, wide: true))
+                    .disabled(model.waiting == nil || model.waiting?.provisional == true || model.problemBlocksSending)
+                Button { model.skipWaiting() } label: { HStack(spacing: 5) { Text("Skip"); KeyHint(text: "esc") } }
+                    .buttonStyle(PillButtonStyle(wide: true))
+                    .frame(maxWidth: 84)
+                    .disabled(model.waiting == nil)
+                Button { model.clearScreen() } label: {
+                    Image(systemName: "xmark.rectangle").font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.red)
+                        .frame(width: 26, height: 26).background(Theme.raise, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .help("Clear Screen (Command-B)")
+                .accessibilityLabel("Clear Screen")
             }
-            .controlSize(.small)
-            .disabled(model.problemBlocksSending)
         }
-        .padding(.horizontal, 12)
-        .padding(.bottom, 10)
-        .padding(.top, 30)
-        .background(.regularMaterial)
-    }
-
-    private var dot: Color {
-        switch model.status {
-        case .listening, .preparing: return model.waiting != nil ? Theme.yellow : Theme.green
-        case .noAudio: return Theme.red
-        default: return .gray
-        }
+        .padding(12)
+        .foregroundStyle(Theme.text)
+        .background(Theme.window)
     }
 }

@@ -32,6 +32,7 @@ final class AppModel {
     var appConnected: Bool?                 // nil = not checked yet
     var connectionNote = ""
     var notice: String?                     // short confirmation, e.g. "6 verses added."
+    var noticeDetail = ""                   // second line of the confirmation card, e.g. "From sermon-notes.pdf"
     var canUndoDrop = false
     var now = Date()                        // ticks once a second so "Heard 4 seconds ago" stays fresh
     var inputDevices: [AudioDevice] = []
@@ -501,7 +502,10 @@ final class AppModel {
                 }
             }
             guard !added.isEmpty else {
-                notice = "No Bible references were found in that file."
+                notice = "No verses found"
+                noticeDetail = "That file has no Bible references Word Cue could read."
+                canUndoDrop = false
+                dismissNoticeSoon()
                 return
             }
             // The verses stay in Word Cue, in file order, each with its own Send button.
@@ -510,8 +514,19 @@ final class AppModel {
             lastDrop = added.map(\.id)
             canUndoDrop = true
             let n = added.count
-            notice = "\(n) verse\(n == 1 ? "" : "s") added. Press Send on any of them to go live."
+            notice = "\(n) verse\(n == 1 ? "" : "s") added"
+            noticeDetail = "From " + (urls.count == 1 ? urls[0].lastPathComponent : "\(urls.count) files")
+            dismissNoticeSoon()
             saveLog()
+        }
+    }
+
+    /// The confirmation card goes away by itself; Undo stays available from the Service menu.
+    private func dismissNoticeSoon() {
+        let shown = notice
+        Task {
+            try? await Task.sleep(for: .seconds(8))
+            if notice == shown { notice = nil }
         }
     }
 
@@ -521,7 +536,7 @@ final class AppModel {
         history.removeAll { lastDrop.contains($0.id) }
         lastDrop = []
         canUndoDrop = false
-        notice = "File drop undone."
+        notice = nil
         saveLog()
     }
 
