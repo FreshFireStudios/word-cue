@@ -45,7 +45,7 @@ enum SettingsPanel: String, CaseIterable, Identifiable {
         case .general: return [("Cue mode", "Cue Mode"), ("Auto-send at", "Cue Mode"), ("Start listening", "Startup"), ("Launch Word Cue at login", "Application Basics"), ("Show menu bar icon", "Application Basics"), ("Keep Mac awake while listening", "Application Basics"), ("Confirm before quitting while listening", "Application Basics"), ("Open Service Log", "Quick Links"), ("Run a Practice Session", "Quick Links")]
         case .audio: return [("Enable live listening", "Audio Input"), ("Audio interface", "Input Source"), ("Input channel", "Input Source"), ("Input gain", "Input Source"), ("Noise gate", "Input Source"), ("Pause detection during music", "Listening Behavior"), ("Auto-pause after silence", "Listening Behavior"), ("Speech engine", "Transcription"), ("Language", "Transcription"), ("Custom vocabulary", "Transcription"), ("Keep transcripts for", "Privacy")]
         case .detection: return [("Enable scripture detection", "Scripture Detection"), ("Bible translation", "Bible"), ("Second translation", "Bible"), ("Show translation abbreviation on slides", "Bible"), ("Written-style references", "Recognize"), ("Spoken references", "Recognize"), ("Verse ranges", "Recognize"), ("Follow-up verses", "Recognize"), ("Book name variations", "Recognize"), ("Quoted scripture without a reference", "Recognize"), ("Minimum confidence to show", "Accuracy"), ("Detection speed", "Accuracy")]
-        case .output: return [("Presentation app", "Connection"), ("Connection method", "Connection"), ("Port", "Connection"), ("Test Connection", "Connection"), ("Reconnect automatically", "Connection"), ("When a verse is sent", "Sending"), ("Verses per slide", "Sending"), ("Include surrounding verses", "Sending"), ("Clear the screen after", "Sending"), ("Play a sound when a verse is waiting", "Waiting Verses"), ("Dismiss unsent verses after", "Waiting Verses"), ("Pair with app", "Window"), ("Show Word Cue when app opens", "Window"), ("Open app when Word Cue starts", "Window"), ("When the app quits", "Window"), ("Snap app beside Word Cue", "Window")]
+        case .output: return [("Presentation app", "Connection"), ("Connection method", "Connection"), ("Port", "Connection"), ("Test Connection", "Connection"), ("Reconnect automatically", "Connection"), ("When a verse is sent", "Sending"), ("Verses per slide", "Sending"), ("Include surrounding verses", "Sending"), ("Clear the screen after", "Sending"), ("Play a sound when a verse is waiting", "Waiting Verses"), ("Dismiss unsent verses after", "Waiting Verses"), ("Pair with app", "Window"), ("Show Word Cue when app opens", "Window"), ("Open app when Word Cue starts", "Window"), ("When the app quits", "Window"), ("Snap app beside Word Cue", "Window"), ("Word Cue\u{2019}s screen", "Window")]
         case .appearance: return [("Appearance", "General Appearance"), ("Accent color", "General Appearance"), ("Position", "Compact Panel"), ("Opacity", "Compact Panel"), ("Show confidence level", "Compact Panel"), ("Keep compact panel above other windows", "Compact Panel"), ("Menu bar icon", "Menu Bar"), ("Show listening status in the menu bar", "Menu Bar"), ("Show the waiting verse in the menu bar", "Menu Bar")]
         case .shortcuts: return [("Send", "Service Shortcuts"), ("Skip", "Service Shortcuts"), ("Pause or resume listening", "Service Shortcuts"), ("Clear screen", "Service Shortcuts"), ("Resend last verse", "Service Shortcuts"), ("Switch compact / full", "Service Shortcuts"), ("Show or hide Word Cue", "Service Shortcuts"), ("Shortcuts work while your app is in front", "Anywhere Shortcuts")]
         case .filters: return [("Require a chapter number", "Book Names That Are Common Words"), ("Ignored phrases", "Ignored Phrases"), ("Ignored books", "Ignored Books"), ("Duplicate cooldown", "Repeats")]
@@ -84,9 +84,12 @@ struct SettingsView: View {
             }
         }
         .padding(6)
-        .frame(minWidth: 680, minHeight: 620)
+        .frame(width: 700, height: 680)
         .foregroundStyle(Theme.text)
         .background(Theme.window)
+        .ignoresSafeArea(.container, edges: .top)          // sidebar runs under the traffic lights, as in Figure 13
+        .toolbar(removing: .title)                          // VERIFY on macOS 27
+        .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
         .onAppear { model.refreshPermissions() }
     }
 
@@ -727,6 +730,10 @@ struct OutputPanel: View {
             }
             SRow("Snap \(app) beside Word Cue", "Resizes \(app) to fill the rest of the screen. Requires Accessibility permission. Not built yet.",
                  symbol: "rectangle.split.2x1", tint: .neutral) { sw($settings.s.snapAppBeside).disabled(true) }
+            SRow("Word Cue\u{2019}s screen", "Where the sidebar lives. Automatic picks this Mac\u{2019}s own display and never the projector.",
+                 symbol: "display.2", tint: .blue) {
+                SelectPill(selection: $settings.s.operatorScreen, options: [("", "Automatic")] + WindowManager.screenNames.map { ($0, $0) })
+            }
             note("Tip: Stage Manager can also group the two apps so they stay together.").padding(.vertical, 8)
         }
     }

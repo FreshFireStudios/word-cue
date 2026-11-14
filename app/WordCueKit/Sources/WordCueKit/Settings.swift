@@ -141,6 +141,9 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
     public var openAppWithWordCue = false
     public var whenAppQuits: WhenAppQuits = .hide
     public var snapAppBeside = false
+    /// The screen Word Cue lives on. "" = automatic (built-in display, else the one with the menu bar),
+    /// which keeps it off the projector output.
+    public var operatorScreen = ""
     /// Keyboard mode: the keystroke that opens the app's Bible search, e.g. "cmd+b". Empty = just type.
     public var keyboardOpenSearch = ""
 

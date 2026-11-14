@@ -41,6 +41,7 @@ struct WordCueApp: App {
                 .preferredColorScheme(Theme.scheme(model.s.appearance))
                 .tint(Theme.accent(model.s.accentHex))
         }
+        .windowResizability(.contentSize)
 
         MenuBarExtra(isInserted: Binding(get: { model.s.showMenuBarIcon }, set: { model.settings.s.showMenuBarIcon = $0 })) {
             MenuBarView().environment(model)
@@ -122,14 +123,16 @@ struct RootView: View {
             if model.s.compact {
                 CompactPanelView()
                     .frame(width: WindowManager.compactSize.width, height: WindowManager.compactSize.height)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
                 ServiceView()
                     .frame(width: WindowManager.sidebarWidth)
                     .frame(minHeight: 480, maxHeight: .infinity)
+                    .ignoresSafeArea(.container, edges: .top)      // the title row sits beside the traffic lights
             }
         }
         .background(WindowManager(compact: model.s.compact, corner: model.s.panelCorner, opacity: model.s.panelOpacity,
-                                  onTop: model.s.keepPanelOnTop) { w in
+                                  onTop: model.s.keepPanelOnTop, screenName: model.s.operatorScreen) { w in
             guard window !== w else { return }
             window = w
             model.windowActions = (
