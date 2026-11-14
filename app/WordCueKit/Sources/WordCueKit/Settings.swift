@@ -76,6 +76,9 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
 public enum CueMode: String, Codable, CaseIterable, Sendable { case reviewFirst, autoSend }
 /// Where the verse text on the slide comes from. Word Cue ships only the KJV;
 /// "presentationApp" lets a church use any translation it already owns there.
+/// How references are found. The rules always run; Apple's on-device model can
+/// add a second opinion on the uncertain ones. (A trained Create ML tagger is a later option.)
+public enum DetectionMethod: String, Codable, CaseIterable, Sendable { case rules, rulesPlusApple }
 public enum VerseSource: String, Codable, CaseIterable, Sendable { case wordCue, presentationApp }
 public enum ConnectionMethod: String, Codable, CaseIterable, Sendable { case automatic, apiOnly, keyboardOnly }
 public enum SendBehavior: String, Codable, CaseIterable, Sendable { case goLive, addToServiceList }
@@ -133,6 +136,7 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
     public var recognizeQuotedScripture = false       // Beta
     public var minimumConfidence: Double = 0.70
     public var detectionSpeed: DetectionSpeed = .balanced
+    public var detectionMethod: DetectionMethod = .rules
 
     // Verse Output
     public var presentationApp: PresentationApp = .proPresenter

@@ -49,6 +49,7 @@ final class AppModel {
     @ObservationIgnored private let transcriber = LiveTranscriber()
     @ObservationIgnored private let music = MusicDetector()
     @ObservationIgnored private let router = OutputRouter()
+    @ObservationIgnored private let modelChecker = AppleModelChecker()
     @ObservationIgnored private let hotKeys = GlobalHotKeys()
     @ObservationIgnored private let watcher = AppWatcher()
     @ObservationIgnored private let log = ServiceLog()
@@ -349,11 +350,34 @@ final class AppModel {
     /// The recogniser has settled on this verse: start the cooldown, then auto-send or alert.
     private func settled(_ item: CueItem) {
         lastCued[item.reference.key] = now
+        secondOpinion(item)
         DebugLog.write("Likely Match \(item.reference.key) \(item.confidence) heard: \(item.heard)")
         if s.cueMode == .autoSend, item.reference.verse != nil, item.confidence >= s.autoSendAt {
             send(item, auto: true)
         } else {
             if s.soundWhenWaiting { SystemIntegration.playWaitingSound() }
+        }
+    }
+
+    /// "Rules + Apple Intelligence": ask the on-device model about uncertain matches.
+    /// The card is already showing; only its confidence changes when the answer arrives.
+    private func secondOpinion(_ item: CueItem) {
+        guard s.detectionMethod == .rulesPlusApple, item.source != .file,
+              item.confidence < 0.85 || item.source == .quote else { return }
+        let sentence = (transcript.suffix(2).joined(separator: " ") + " " + volatileText).trimmingCharacters(in: .whitespaces)
+        let text = item.verses.first?.text ?? ""
+        let id = item.id
+        Task {
+            guard let updated = await modelChecker.check(sentence: sentence.isEmpty ? item.heard : sentence,
+                                                         reference: item.title, verseText: text, confidence: item.confidence),
+                  var w = waiting, w.id == id else { return }
+            w.confidence = updated
+            if updated < s.minimumConfidence {
+                waiting = nil       // the model says it isn't a reference: take it away quietly
+                DebugLog.write("Apple Intelligence removed \(w.reference.key)")
+            } else {
+                waiting = w
+            }
         }
     }
 
