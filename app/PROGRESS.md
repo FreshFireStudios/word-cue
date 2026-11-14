@@ -24,6 +24,9 @@ ROOT CAUSE: rounds 1-2 used only `pdftotext` of ../manual/Word-Cue-User-Guide.pd
 ## Answers already given to Bryson (do not re-argue)
 - Rules vs Foundation Model: 31/31 on 3 sermons, 0 false alarms, 2 wrong verse from speech-to-text, 1 dropped under 70% (correctly), 19 quote matches. I am biased (wrote the rules, tuned on the same sermons, never ran the model). Plan: rules stay the engine, model as second opinion, compare on the Mac.
 
+## START HERE (Xcode session)
+1. Build the WordCue scheme; fix errors in batches; Python engine is the answer key. 2. Run the WordCueKit tests until they pass. 3. Build WordCueLab. 4. Then the iPhone/iPad companion (R10) and docs (R11).
+
 ## Where things are
 - Figure notes moved to docs/DESIGN-NOTES.md (read only the screen you are changing).
 - Mac session plan: when Bryson links his Mac, clone FreshFireStudios/word-cue (branch app-build) into the connected folder, then: `cd app/WordCueKit && swift test` first (engine), then `xcodebuild -project app/WordCue.xcodeproj -scheme WordCue -configuration Debug CODE_SIGN_IDENTITY=- build`, fix errors, repeat; then WordCueLab scheme. Explain every Terminal command to Bryson before running it.

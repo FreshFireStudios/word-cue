@@ -31,3 +31,11 @@ Read `README.md`, `DECISIONS.md` and `docs/` before changing anything. The desig
 - Before he runs any Terminal command, explain in depth what the command and each part does.
 - Ask for pasted raw text when troubleshooting, not screenshots.
 - No profanity.
+
+## Working on Bryson's Mac (Claude Agent in Xcode)
+
+- Stay inside this repository folder. Never read, list or search anything outside it, even if a tool would allow it. If something outside seems needed, stop and ask Bryson, and say exactly what and why.
+- Before any command other than building, testing, or git (status, diff, add, commit, pull, push), ask first and explain in plain words what it does.
+- Never use sudo, never change system settings, never install anything.
+- Start with `app/PROGRESS.md`; read only what the next task needs. Keep PROGRESS.md current and commit and push to `app-build` after each fixed batch.
+- If GitHub asks for a login when pushing, stop and tell Bryson; do not try to work around it.
