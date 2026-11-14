@@ -46,3 +46,25 @@
 | To check on a Mac with Proclaim | The app identifier in `Settings.swift` is a guess; the key that opens Proclaim's Bible search |
 
 Sources: [Proclaim App Command API](https://support.faithlife.com/hc/en-us/articles/4972373093005-Proclaim-App-Command-API) (did not load from here), [Bitfocus Companion module for Proclaim](https://github.com/bitfocus/companion-module-logos-proclaim/blob/main/companion/HELP.md), [Faithlife community thread](https://community.logos.com/discussion/comment/1331041)
+
+## Using the presentation app's own Bible (added November 14)
+
+Word Cue only includes the King James text, because NKJV, ESV and most other translations are licensed. A church that owns another translation inside its presentation app can pick **Settings > Scripture Detection > Verse text from: [app]'s Bible**. Then Word Cue sends the *reference*, and the presentation app shows its own text.
+
+| App | How it works with this setting |
+|---|---|
+| FreeShow, OpenLP | Already this way: their APIs look the reference up in the app's own Bible |
+| ProPresenter, EasyWorship, Proclaim, Other | Word Cue brings the app forward and types the reference into its Bible search, then Return |
+
+**How stable is typing?** Less than an API.
+
+- It depends on the app's Bible search being ready: the right box selected, or a known key that opens it.
+- It breaks if the app changes its layout or keys in an update.
+- Word Cue cannot confirm the verse went live; the operator has to watch.
+- It takes the keyboard for about half a second, so an operator typing at that moment can collide with it.
+
+**How secure is it?**
+
+- It needs macOS Accessibility permission, which lets Word Cue send keystrokes to any app. Word Cue only sends them after Send (or Auto-send), only the reference text plus Return, and only after bringing the chosen presentation app forward.
+- If the wrong window is in front at that moment (a dialog, another app that steals focus), the reference is typed there instead. It is ordinary text, so the harm is small, but it is why Review first stays the default.
+- Nothing leaves the Mac.

@@ -12,8 +12,12 @@ enum SendOutcome: Equatable {
 
 final class OutputRouter: @unchecked Sendable {
     private func adapters(_ s: WordCueSettings) -> [PresentationAdapter] {
-        let api = Adapters.api(for: s)
+        var api = Adapters.api(for: s)
         let keyboard: PresentationAdapter = KeyboardAdapter(settings: s)
+        // "Verse text from: my presentation app's Bible". The keyboard route types the
+        // reference into the app's own Bible search, so the app shows its own translation.
+        // FreeShow's and OpenLP's APIs already do that; ProPresenter's cannot, so it types.
+        if s.verseSource == .presentationApp && !s.presentationApp.apiUsesOwnBible { api = nil }
         switch s.connectionMethod {
         case .apiOnly: return api.map { [$0] } ?? []
         case .keyboardOnly: return [keyboard]

@@ -17,7 +17,7 @@ ROOT CAUSE: rounds 1-2 used only `pdftotext` of ../manual/Word-Cue-User-Guide.pd
 - [x] R6 DONE: speech switch (Enhanced=SpeechTranscriber, Standard=DictationTranscriber, VERIFY options); require-chapter list drives engine.riskyBooks (bare "Acts 2" scores lower), toggle off clears it; Recognize switches filter in AppModel.cue; sidebar-off-projector done in R2.
 - [x] R7 DONE: app/LICENSE drafted (marked DRAFT, not legal advice).
 - [x] R8 DONE: Proclaim added (keyboard). Its App Command API has no Bible command; noted in CONNECTIONS.md.
-- [ ] R9 "Bible text via the app's own search": to get NKJV/ESV etc without licensing, let Word Cue type the reference into the presentation app's Bible search and send it live (that is what KeyboardAdapter does). Make it a per-church choice: "Verse text from: Word Cue (KJV) / my presentation app's Bible". Write up how stable/secure it is in docs/CONNECTIONS.md.
+- [x] R9 DONE: verseSource setting (Word Cue KJV / presentation app Bible); ProPresenter switches to typing when chosen; stability + security write-up in CONNECTIONS.md.
 - [ ] R10 Later/large, only if usage allows, each as its own commit: detection-engine chooser in Settings (rules / Apple Foundation Model second opinion; speech: Apple / other), Create ML tagger scaffold (training-data export from Lab), iPhone/iPad companion app target.
 - [ ] R11 Update docs, README, DECISIONS; delete this file.
 

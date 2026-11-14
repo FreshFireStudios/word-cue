@@ -19,6 +19,10 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
         }
     }
 
+    /// Does the app's API look the verse up in the app's own Bible? (FreeShow and
+    /// OpenLP do; ProPresenter's API has no Bible command, so Word Cue sends the text itself.)
+    public var apiUsesOwnBible: Bool { self == .freeShow || self == .openLP }
+
     /// Does the app have an API Word Cue can talk to?
     public var hasAPI: Bool { self == .proPresenter || self == .openLP || self == .freeShow }
 
@@ -70,6 +74,9 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
 }
 
 public enum CueMode: String, Codable, CaseIterable, Sendable { case reviewFirst, autoSend }
+/// Where the verse text on the slide comes from. Word Cue ships only the KJV;
+/// "presentationApp" lets a church use any translation it already owns there.
+public enum VerseSource: String, Codable, CaseIterable, Sendable { case wordCue, presentationApp }
 public enum ConnectionMethod: String, Codable, CaseIterable, Sendable { case automatic, apiOnly, keyboardOnly }
 public enum SendBehavior: String, Codable, CaseIterable, Sendable { case goLive, addToServiceList }
 public enum StartListening: String, Codable, CaseIterable, Sendable { case whenAppOpens, manually }
@@ -115,6 +122,7 @@ public struct WordCueSettings: Codable, Equatable, Sendable {
     // Scripture Detection
     public var detectionEnabled = true
     public var translation = "KJV"
+    public var verseSource: VerseSource = .wordCue
     public var secondTranslation = ""
     public var showAbbreviation = true
     public var recognizeWritten = true                // "Acts 2:38"

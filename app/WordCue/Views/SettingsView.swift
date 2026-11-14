@@ -44,7 +44,7 @@ enum SettingsPanel: String, CaseIterable, Identifiable {
         switch self {
         case .general: return [("Cue mode", "Cue Mode"), ("Auto-send at", "Cue Mode"), ("Start listening", "Startup"), ("Launch Word Cue at login", "Application Basics"), ("Show menu bar icon", "Application Basics"), ("Keep Mac awake while listening", "Application Basics"), ("Confirm before quitting while listening", "Application Basics"), ("Open Service Log", "Quick Links"), ("Run a Practice Session", "Quick Links")]
         case .audio: return [("Enable live listening", "Audio Input"), ("Audio interface", "Input Source"), ("Input channel", "Input Source"), ("Input gain", "Input Source"), ("Noise gate", "Input Source"), ("Pause detection during music", "Listening Behavior"), ("Auto-pause after silence", "Listening Behavior"), ("Speech engine", "Transcription"), ("Language", "Transcription"), ("Custom vocabulary", "Transcription"), ("Keep transcripts for", "Privacy")]
-        case .detection: return [("Enable scripture detection", "Scripture Detection"), ("Bible translation", "Bible"), ("Second translation", "Bible"), ("Show translation abbreviation on slides", "Bible"), ("Written-style references", "Recognize"), ("Spoken references", "Recognize"), ("Verse ranges", "Recognize"), ("Follow-up verses", "Recognize"), ("Book name variations", "Recognize"), ("Quoted scripture without a reference", "Recognize"), ("Minimum confidence to show", "Accuracy"), ("Detection speed", "Accuracy")]
+        case .detection: return [("Enable scripture detection", "Scripture Detection"), ("Verse text from", "Bible"), ("Bible translation", "Bible"), ("Second translation", "Bible"), ("Show translation abbreviation on slides", "Bible"), ("Written-style references", "Recognize"), ("Spoken references", "Recognize"), ("Verse ranges", "Recognize"), ("Follow-up verses", "Recognize"), ("Book name variations", "Recognize"), ("Quoted scripture without a reference", "Recognize"), ("Minimum confidence to show", "Accuracy"), ("Detection speed", "Accuracy")]
         case .output: return [("Presentation app", "Connection"), ("Connection method", "Connection"), ("Port", "Connection"), ("Test Connection", "Connection"), ("Reconnect automatically", "Connection"), ("When a verse is sent", "Sending"), ("Verses per slide", "Sending"), ("Include surrounding verses", "Sending"), ("Clear the screen after", "Sending"), ("Play a sound when a verse is waiting", "Waiting Verses"), ("Dismiss unsent verses after", "Waiting Verses"), ("Pair with app", "Window"), ("Show Word Cue when app opens", "Window"), ("Open app when Word Cue starts", "Window"), ("When the app quits", "Window"), ("Snap app beside Word Cue", "Window"), ("Word Cue\u{2019}s screen", "Window")]
         case .appearance: return [("Appearance", "General Appearance"), ("Accent color", "General Appearance"), ("Position", "Compact Panel"), ("Opacity", "Compact Panel"), ("Show confidence level", "Compact Panel"), ("Keep compact panel above other windows", "Compact Panel"), ("Menu bar icon", "Menu Bar"), ("Show listening status in the menu bar", "Menu Bar"), ("Show the waiting verse in the menu bar", "Menu Bar")]
         case .shortcuts: return [("Send", "Service Shortcuts"), ("Skip", "Service Shortcuts"), ("Pause or resume listening", "Service Shortcuts"), ("Clear screen", "Service Shortcuts"), ("Resend last verse", "Service Shortcuts"), ("Switch compact / full", "Service Shortcuts"), ("Show or hide Word Cue", "Service Shortcuts"), ("Shortcuts work while your app is in front", "Anywhere Shortcuts")]
@@ -615,7 +615,18 @@ struct DetectionPanel: View {
         .background(Theme.raise, in: RoundedRectangle(cornerRadius: 9))
 
         SCard("Bible") {
-            SRow("Bible translation", "Used for the verse text sent to \(app).", symbol: "book") {
+            SRow("Verse text from", settings.s.verseSource == .wordCue
+                    ? "Word Cue sends the King James text it includes."
+                    : "Word Cue types the reference into \(app)\u{2019}s Bible search, so \(app) shows the translation your church owns there.",
+                 symbol: "text.book.closed", tint: .blue) {
+                SelectPill(selection: $settings.s.verseSource, options: [(.wordCue, "Word Cue (KJV)"), (.presentationApp, "\(app)\u{2019}s Bible")])
+            }
+            if settings.s.verseSource == .presentationApp && !settings.s.presentationApp.apiUsesOwnBible {
+                SRow("Typing needs care", "\(app) is brought forward and its Bible search must be ready. Word Cue cannot confirm the verse went live. Needs Accessibility.",
+                     symbol: "exclamationmark.triangle", tint: .neutral)
+            }
+            SRow("Bible translation", settings.s.verseSource == .wordCue ? "Used for the verse text sent to \(app), and shown in Word Cue."
+                    : "Shown in Word Cue only. The slide uses \(app)\u{2019}s translation.", symbol: "book") {
                 SelectPill(selection: $settings.s.translation, options: [("KJV", "King James Version (KJV)")])
             }
             SRow("Second translation", "Optional parallel translation shown under the first.", symbol: "book", tint: .purple) {
