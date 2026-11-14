@@ -11,6 +11,7 @@ a change here can be copied across by eye. Keep it that way.
 Pipeline:  text -> tokens -> scan left to right -> Detection list
 """
 import json
+import math
 import os
 import re
 
@@ -69,6 +70,11 @@ class Engine:
         self.numbers = load("numbers.json")
         self.rules = load("rules.json")
         self.verses = load("versification.json")
+        norm = load("normalize.json")
+        self.archaic = norm["archaic"]
+        self.suffixes = norm["suffixes"]
+        self.min_stem = norm["minStem"]
+        self.stop = set(norm["stopWords"])
         self.by_id = {b["id"]: b for b in self.books}
         self.units = self.numbers["units"]
         self.tens = self.numbers["tens"]
@@ -92,6 +98,8 @@ class Engine:
         self.limits = r["limits"]
         self.conf = r["confidence"]
         self.quote_rules = r["quotes"]
+        self.loose_rules = r["looseQuotes"]
+        self._loose_index = None
         self.ignored_books = set()      # book ids the church never wants suggested (Settings > Filters)
         self.ignored_phrases = []       # token lists; a match touching one of these is dropped
         self._quote_index = None        # built the first time quoted-scripture matching is used
@@ -487,6 +495,7 @@ class Engine:
         dets, ctx = self._detect_references(t, mode, ctx)
         if quotes and mode == "speech":
             dets = self.merge_quotes(dets, self.detect_quotes(t, dets))
+            dets = self.merge_quotes(dets, self.detect_loose(t))
         spans = self.ignored_spans(t) if self.ignored_phrases else []
         dets = [d for d in dets if d.book not in self.ignored_books
                 and not any(d.start < e and s < d.end for s, e in spans)]
@@ -547,6 +556,25 @@ class Engine:
             h = ((h ^ b) * 0x100000001b3) & 0xFFFFFFFFFFFFFFFF
         return h
 
+    def stem(self, w):
+        """King James form to modern form, then trim one common ending.
+        'cometh', 'comes' and 'coming' all become 'com'. Same in Swift."""
+        w = self.archaic.get(w, w)
+        for suf in self.suffixes:
+            if w.endswith(suf) and len(w) - len(suf) >= self.min_stem:
+                return w[:-len(suf)]
+        return w
+
+    def content_words(self, t):
+        """(token index, stem) for the words that carry meaning: no punctuation,
+        numbers or very common words."""
+        out = []
+        for i, w in enumerate(t):
+            if w in PUNCT or w[0].isdigit() or w in self.stop or self.archaic.get(w, w) in self.stop:
+                continue
+            out.append((i, self.stem(w)))
+        return out
+
     def quote_index(self):
         """Every run of 4 words in the KJV -> the verses containing it."""
         if self._quote_index is None:
@@ -556,7 +584,7 @@ class Engine:
             for b in self.books:
                 for ci, chapter in enumerate(kjv[b["id"]]):
                     for vi, text in enumerate(chapter):
-                        words = [w for w in tokenize(text) if w not in PUNCT]
+                        words = [self.stem(w) for w in tokenize(text) if w not in PUNCT]
                         n = len(refs)
                         refs.append((b["id"], ci + 1, vi + 1))
                         for i in range(len(words) - g + 1):
@@ -571,7 +599,7 @@ class Engine:
         g, window, need = q["gram"], q["window"], q["minHits"]
         index, refs = self.quote_index()
         pos = [i for i, w in enumerate(t) if w not in PUNCT]     # word positions (punctuation skipped)
-        words = [t[i] for i in pos]
+        words = [self.stem(t[i]) for i in pos]
         hits = []                                                # (word index, set of verse numbers)
         for i in range(len(words) - g + 1):
             v = index.get(self.gram_hash(words[i:i + g]))
@@ -609,6 +637,93 @@ class Engine:
             # move past this verse's words
             while i < len(hits) and hits[i][0] <= last_word - g + 1:
                 i += 1
+        return out
+
+    # ---------------------------------------------- looser quotes (Beta)
+
+    def loose_index(self):
+        """For each meaningful word, the verses that contain it; how rare each
+        word is; and each verse's meaningful words in order."""
+        if self._loose_index is None:
+            kjv = json.load(open(os.path.join(RESOURCES, "kjv.json"), encoding="utf-8"))
+            max_df = self.loose_rules["maxDf"]
+            refs, seqs, df = [], [], {}
+            for b in self.books:
+                for ci, chapter in enumerate(kjv[b["id"]]):
+                    for vi, text in enumerate(chapter):
+                        seq = [s for _, s in self.content_words(tokenize(text))]
+                        refs.append((b["id"], ci + 1, vi + 1))
+                        seqs.append(seq)
+                        for s in set(seq):
+                            df[s] = df.get(s, 0) + 1
+            n = len(refs)
+            idf = {s: math.log(n / d) for s, d in df.items() if d <= max_df}
+            post = {}
+            for v, seq in enumerate(seqs):
+                for s in set(seq):
+                    if s in idf:
+                        post.setdefault(s, []).append(v)
+            mass = [sum(idf.get(s, 0) for s in set(seq)) for seq in seqs]
+            self._loose_index = (post, idf, mass, seqs, refs)
+        return self._loose_index
+
+    @staticmethod
+    def pairs_in_order(spoken, verse):
+        """How many neighbouring spoken words also appear in that order in the
+        verse, at most two words apart."""
+        pos = {}
+        for i, s in enumerate(verse):
+            pos.setdefault(s, []).append(i)
+        n = 0
+        for a, b in zip(spoken, spoken[1:]):
+            if any(0 < j - i <= 2 for i in pos.get(a, ()) for j in pos.get(b, ())):
+                n += 1
+        return n
+
+    def detect_loose(self, t):
+        """Finds paraphrased or loosely quoted scripture ("seek the kingdom of
+        God first"): rare words of one verse close together, mostly in the
+        verse's own order, and clearly ahead of every other verse."""
+        L = self.loose_rules
+        post, idf, mass, seqs, refs = self.loose_index()
+        cw = self.content_words(t)
+        hits = {}
+        for k, (_, s) in enumerate(cw):
+            for v in post.get(s, ()):
+                hits.setdefault(v, []).append((k, s))
+        cands = []      # (first word, last word, verse, score)
+        for v, hs in hits.items():
+            if len(hs) < L["minWords"]:
+                continue
+            j = 0
+            for i in range(len(hs)):
+                while hs[i][0] - hs[j][0] >= L["window"]:
+                    j += 1
+                win = hs[j:i + 1]
+                words = set(s for _, s in win)
+                if len(words) < L["minWords"]:
+                    continue
+                score = sum(idf[s] for s in words)
+                cov = score / mass[v] if mass[v] else 0
+                spoken = [s for _, s in cw[win[0][0]:win[-1][0] + 1]]
+                pairs = self.pairs_in_order(spoken, seqs[v])
+                if cov >= L["minCoverage"] or (pairs >= L["minPairs"] and cov >= L["pairCoverage"]):
+                    cands.append((win[0][0], win[-1][0], v, score + L["pairWeight"] * pairs))
+        chosen = []
+        for a, b, v, score in sorted(cands, key=lambda c: (-c[3], c[0], c[2])):
+            if any(not (b < x[0] or a > x[1]) for x in chosen):
+                continue
+            rival = max((d[3] for d in cands if d[2] != v and not (d[1] < a or d[0] > b)), default=0)
+            if score - rival < L["margin"]:
+                continue        # another verse fits just as well: no guess
+            chosen.append((a, b, v, score))
+        out = []
+        for a, b, v, score in sorted(chosen):
+            c = self.conf
+            conf = c["looseStrong"] if score >= L["strong"] else (c["looseMedium"] if score >= L["medium"] else c["looseWeak"])
+            book, chapter, verse = refs[v]
+            s_tok, e_tok = cw[a][0], cw[b][0] + 1
+            out.append(Detection(book, chapter, verse, None, s_tok, e_tok, conf, "quote", ["quote", "loose"], join_tokens(t[s_tok:e_tok])))
         return out
 
     def merge_quotes(self, dets, quotes):
@@ -670,10 +785,10 @@ class Session:
         self.seen = {}          # absolute start index -> key last reported
         self.quotes = False     # set True to also match quoted scripture (Beta)
 
-    def _scan(self, tokens):
+    def _scan(self, tokens, quotes=None):
         dets, _ = self.engine.detect_tokens(tokens, self.mode,
                                             Context(self.ctx0.book, self.ctx0.chapter, self.ctx0.verse, self.ctx0.pos),
-                                            quotes=self.quotes)
+                                            quotes=self.quotes if quotes is None else quotes)
         for d in dets:
             d.start += self.base
             d.end += self.base
@@ -700,7 +815,8 @@ class Session:
 
     def preview(self, volatile_text):
         """Detections including not-yet-final words. Nothing is remembered."""
-        return [d for d in self._scan(self.tokens + tokenize(volatile_text)) if d.start not in self.seen
+        # Quote matching is skipped here: it is the slow part, and previews run many times a second.
+        return [d for d in self._scan(self.tokens + tokenize(volatile_text), quotes=False) if d.start not in self.seen
                 or self.seen[d.start] != d.key]
 
     def _trim(self, dets):

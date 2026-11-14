@@ -89,6 +89,13 @@ final class SharedCasesTests: XCTestCase {
         XCTAssertEqual(Engine.gramHash(["for", "god", "so", "loved"][...]), 0xdd9b2a1e8a78ae70)
     }
 
+    func testStemMatchesPython() {
+        // Engine.stem() in Python gives these
+        let e = Self.engine
+        XCTAssertEqual(["cometh", "comes", "coming", "ye", "strengtheneth", "god", "loved"].map(e.stem),
+                       ["com", "com", "com", "you", "strengthen", "god", "lov"])
+    }
+
     func testKeyCombos() {
         XCTAssertEqual(KeyCombo("cmd+b")?.symbol, "\u{2318}B")
         XCTAssertEqual(KeyCombo("return")?.anywhere.text, "ctrl+opt+return")

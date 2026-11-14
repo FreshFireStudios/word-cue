@@ -32,8 +32,8 @@ public final class DetectionSession {
         self.mode = mode
     }
 
-    private func scan(_ tokens: [String]) -> [Detection] {
-        engine.detectTokens(tokens, mode: mode, context: context0, quotes: quotes).detections.map { d in
+    private func scan(_ tokens: [String], quotes: Bool? = nil) -> [Detection] {
+        engine.detectTokens(tokens, mode: mode, context: context0, quotes: quotes ?? self.quotes).detections.map { d in
             var d = d
             d.start += base
             d.end += base
@@ -68,7 +68,8 @@ public final class DetectionSession {
     /// Detections including words the recogniser has not finalized yet.
     /// Nothing is remembered, so call it as often as you like.
     public func preview(_ volatileText: String) -> [Detection] {
-        scan(tokens + Tokenizer.tokenize(volatileText)).filter { seen[$0.start] != $0.key }
+        // Quote matching is skipped here: it is the slow part, and previews run many times a second.
+        scan(tokens + Tokenizer.tokenize(volatileText), quotes: false).filter { seen[$0.start] != $0.key }
     }
 
     private func trim(_ detections: [Detection]) {

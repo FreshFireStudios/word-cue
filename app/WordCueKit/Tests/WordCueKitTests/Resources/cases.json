@@ -906,7 +906,7 @@
   {
    "id": "quote-05",
    "mode": "speech",
-   "text": "woe unto you scribes and Pharisees, hypocrites, for you are like something",
+   "text": "woe unto you scribes and Pharisees, hypocrites, and then he went on preaching",
    "expect": [],
    "quotes": true,
    "note": "words found in several verses: no guess"
@@ -944,6 +944,62 @@
    "ignoredPhrases": [
     "john 3 16 ministries"
    ]
+  },
+  {
+   "id": "quote-08",
+   "mode": "speech",
+   "text": "woe unto you scribes and Pharisees, hypocrites, for you are like something",
+   "expect": [
+    "MAT 23:27"
+   ],
+   "quotes": true,
+   "note": "'for ye are like' is only in Matthew 23:27"
+  },
+  {
+   "id": "quote-09",
+   "mode": "speech",
+   "text": "you shall receive power when the Holy Ghost comes upon you",
+   "expect": [
+    "ACT 1:8"
+   ],
+   "quotes": true,
+   "note": "modern wording of a King James verse"
+  },
+  {
+   "id": "quote-10",
+   "mode": "speech",
+   "text": "faith comes by hearing and hearing by the word of God",
+   "expect": [
+    "ROM 10:17"
+   ],
+   "quotes": true,
+   "note": "cometh/comes match after normalising"
+  },
+  {
+   "id": "quote-11",
+   "mode": "speech",
+   "text": "I can do all things through Christ which strengthens me",
+   "expect": [
+    "PHP 4:13"
+   ],
+   "quotes": true
+  },
+  {
+   "id": "quote-12",
+   "mode": "speech",
+   "text": "he said seek the kingdom of God first and all these things will be added",
+   "expect": [
+    "MAT 6:33"
+   ],
+   "quotes": true,
+   "note": "paraphrase with the word order changed (looser matching)"
+  },
+  {
+   "id": "quote-13",
+   "mode": "speech",
+   "text": "we're gonna have a great time in the Lord tonight, amen, give him praise",
+   "expect": [],
+   "quotes": true
   }
  ]
 }

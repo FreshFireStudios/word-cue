@@ -37,6 +37,12 @@ public final class Engine: @unchecked Sendable {
     let conf: [String: Double]
     var nameIndex: [String: [NameEntry]] = [:]
     let quoteRules: [String: Int]
+    let looseRules: [String: Double]
+    let archaic: [String: String]
+    let suffixes: [String]
+    let minStem: Int
+    let stop: Set<String>
+    private var looseIndexStorage: LooseIndex?
     /// Book ids the church never wants suggested (Settings > Filters).
     public var ignoredBooks: Set<String> = []
     private var ignoredPhraseTokens: [[String]] = []
@@ -70,6 +76,12 @@ public final class Engine: @unchecked Sendable {
         limits = r.limits
         conf = r.confidence
         quoteRules = r.quotes
+        looseRules = r.looseQuotes
+        let norm = Resources.load("normalize", as: NormalizeRules.self)
+        archaic = norm.archaic
+        suffixes = norm.suffixes
+        minStem = norm.minStem
+        stop = Set(norm.stopWords)
 
         // Name index: first word -> entries. A "family" is the list of books
         // sharing a name: "john" -> JHN, 1JN, 2JN, 3JN.
@@ -540,6 +552,7 @@ public final class Engine: @unchecked Sendable {
         var (dets, ctx) = detectReferences(t, mode: mode, context: context)
         if quotes && mode == .speech {
             dets = mergeQuotes(dets, detectQuotes(t, dets))
+            dets = mergeQuotes(dets, detectLoose(t))
         }
         let spans = ignoredPhraseTokens.isEmpty ? [] : ignoredSpans(t)
         dets = dets.filter { d in
@@ -619,6 +632,27 @@ public final class Engine: @unchecked Sendable {
         return h
     }
 
+    /// King James form to modern form, then trim one common ending.
+    /// "cometh", "comes" and "coming" all become "com". Same as stem() in Python.
+    func stem(_ word: String) -> String {
+        let w = archaic[word] ?? word
+        for suf in suffixes where w.hasSuffix(suf) && w.count - suf.count >= minStem {
+            return String(w.dropLast(suf.count))
+        }
+        return w
+    }
+
+    /// (token index, stem) for the words that carry meaning: no punctuation,
+    /// numbers or very common words.
+    func contentWords(_ t: [String]) -> [(index: Int, stem: String)] {
+        var out: [(index: Int, stem: String)] = []
+        for (i, w) in t.enumerated() {
+            if isPunct(w) || (w.first?.isNumber ?? true) || stop.contains(w) || stop.contains(archaic[w] ?? w) { continue }
+            out.append((i, stem(w)))
+        }
+        return out
+    }
+
     /// Every run of 4 words in the KJV -> the verses containing it.
     /// Built once, the first time quote matching is used (about a second).
     func quoteIndex() -> (index: [UInt64: [Int32]], refs: [(book: String, chapter: Int, verse: Int)]) {
@@ -632,7 +666,7 @@ public final class Engine: @unchecked Sendable {
         for b in books {
             for (ci, chapter) in (kjv[b.id] ?? []).enumerated() {
                 for (vi, text) in chapter.enumerated() {
-                    let words = Tokenizer.tokenize(text).filter { !isPunct($0) }
+                    let words = Tokenizer.tokenize(text).filter { !isPunct($0) }.map(stem)
                     let n = Int32(refs.count)
                     refs.append((b.id, ci + 1, vi + 1))
                     if words.count >= g {
@@ -653,7 +687,7 @@ public final class Engine: @unchecked Sendable {
         let g = quoteRules["gram"]!, window = quoteRules["window"]!, need = quoteRules["minHits"]!
         let (index, refs) = quoteIndex()
         let pos = t.indices.filter { !isPunct(t[$0]) }      // word positions (punctuation skipped)
-        let words = pos.map { t[$0] }
+        let words = pos.map { stem(t[$0]) }
         var hits: [(at: Int, verses: Set<Int32>)] = []
         if words.count >= g {
             for i in 0...(words.count - g) {
@@ -699,6 +733,119 @@ public final class Engine: @unchecked Sendable {
             while i < hits.count && hits[i].at <= lastWord - g + 1 { i += 1 }
         }
         return out
+    }
+
+    // MARK: - Looser quotes (Beta)
+
+    struct LooseIndex {
+        var postings: [String: [Int32]]      // meaningful word -> verses containing it
+        var idf: [String: Double]            // how rare each word is
+        var mass: [Double]                   // each verse's total rarity
+        var sequences: [[String]]            // each verse's meaningful words, in order
+        var refs: [(book: String, chapter: Int, verse: Int)]
+    }
+
+    /// Built once, the first time looser matching is used. Mirrors loose_index() in Python.
+    func looseIndex() -> LooseIndex {
+        quoteLock.lock()
+        defer { quoteLock.unlock() }
+        if let built = looseIndexStorage { return built }
+        let kjv = Resources.load("kjv", as: [String: [[String]]].self)
+        let maxDf = Int(looseRules["maxDf"]!)
+        var refs: [(book: String, chapter: Int, verse: Int)] = []
+        var seqs: [[String]] = []
+        var df: [String: Int] = [:]
+        for b in books {
+            for (ci, chapter) in (kjv[b.id] ?? []).enumerated() {
+                for (vi, text) in chapter.enumerated() {
+                    let seq = contentWords(Tokenizer.tokenize(text)).map(\.stem)
+                    refs.append((b.id, ci + 1, vi + 1))
+                    seqs.append(seq)
+                    for s in Set(seq) { df[s, default: 0] += 1 }
+                }
+            }
+        }
+        let n = Double(refs.count)
+        var idf: [String: Double] = [:]
+        for (s, d) in df where d <= maxDf { idf[s] = log(n / Double(d)) }
+        var postings: [String: [Int32]] = [:]
+        for (v, seq) in seqs.enumerated() {
+            for s in Set(seq) where idf[s] != nil { postings[s, default: []].append(Int32(v)) }
+        }
+        let mass = seqs.map { Set($0).reduce(0.0) { $0 + (idf[$1] ?? 0) } }
+        let built = LooseIndex(postings: postings, idf: idf, mass: mass, sequences: seqs, refs: refs)
+        looseIndexStorage = built
+        return built
+    }
+
+    /// Call at launch when quoted scripture is on, so the first sermon does not wait on it.
+    public func preloadQuoteMatching() {
+        _ = quoteIndex()
+        _ = looseIndex()
+    }
+
+    /// How many neighbouring spoken words also appear in that order in the verse, at most two words apart.
+    static func pairsInOrder(_ spoken: [String], _ verse: [String]) -> Int {
+        var pos: [String: [Int]] = [:]
+        for (i, s) in verse.enumerated() { pos[s, default: []].append(i) }
+        var n = 0
+        for k in 0..<max(0, spoken.count - 1) {
+            let a = pos[spoken[k]] ?? [], b = pos[spoken[k + 1]] ?? []
+            if a.contains(where: { i in b.contains { j in j - i > 0 && j - i <= 2 } }) { n += 1 }
+        }
+        return n
+    }
+
+    /// Finds paraphrased or loosely quoted scripture ("seek the kingdom of God
+    /// first"): rare words of one verse close together, mostly in the verse's
+    /// own order, and clearly ahead of every other verse. Mirrors detect_loose() in Python.
+    func detectLoose(_ t: [String]) -> [Detection] {
+        let L = looseRules
+        let window = Int(L["window"]!), minWords = Int(L["minWords"]!), minPairs = Int(L["minPairs"]!)
+        let ix = looseIndex()
+        let cw = contentWords(t)
+        var hits: [Int32: [(k: Int, s: String)]] = [:]
+        for (k, w) in cw.enumerated() {
+            for v in ix.postings[w.stem] ?? [] { hits[v, default: []].append((k, w.stem)) }
+        }
+        var cands: [(a: Int, b: Int, v: Int32, score: Double)] = []
+        for (v, hs) in hits where hs.count >= minWords {
+            var j = 0
+            for i in hs.indices {
+                while hs[i].k - hs[j].k >= window { j += 1 }
+                let win = hs[j...i]
+                let words = Set(win.map(\.s))
+                if words.count < minWords { continue }
+                let score = words.reduce(0.0) { $0 + ix.idf[$1]! }
+                let mass = ix.mass[Int(v)]
+                let cov = mass > 0 ? score / mass : 0
+                let spoken = cw[win.first!.k...win.last!.k].map(\.stem)
+                let pairs = Engine.pairsInOrder(spoken, ix.sequences[Int(v)])
+                if cov >= L["minCoverage"]! || (pairs >= minPairs && cov >= L["pairCoverage"]!) {
+                    cands.append((win.first!.k, win.last!.k, v, score + L["pairWeight"]! * Double(pairs)))
+                }
+            }
+        }
+        let ordered = cands.sorted {
+            if $0.score != $1.score { return $0.score > $1.score }
+            if $0.a != $1.a { return $0.a < $1.a }
+            return $0.v < $1.v
+        }
+        var chosen: [(a: Int, b: Int, v: Int32, score: Double)] = []
+        for c in ordered {
+            if chosen.contains(where: { !(c.b < $0.a || c.a > $0.b) }) { continue }
+            let rival = cands.filter { $0.v != c.v && !($0.b < c.a || $0.a > c.b) }.map(\.score).max() ?? 0
+            if c.score - rival < L["margin"]! { continue }      // another verse fits just as well: no guess
+            chosen.append(c)
+        }
+        return chosen.sorted { $0.a < $1.a }.map { c in
+            let confidence = c.score >= L["strong"]! ? conf["looseStrong"]! : (c.score >= L["medium"]! ? conf["looseMedium"]! : conf["looseWeak"]!)
+            let ref = ix.refs[Int(c.v)]
+            let s = cw[c.a].index, e = cw[c.b].index + 1
+            return Detection(reference: Reference(book: ref.book, chapter: ref.chapter, verse: ref.verse),
+                             start: s, end: e, confidence: confidence, kind: .quote, flags: ["quote", "loose"],
+                             text: Tokenizer.join(t[s..<e]))
+        }
     }
 
     /// Adds quote matches that are not already covered by a spoken reference.

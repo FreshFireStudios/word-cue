@@ -19,7 +19,7 @@ Read that score with one large caution: **I wrote the rules while looking at the
 
 "Spoken reference" means the preacher named a book and a chapter, with or without a verse. I built the answer key by reading all three transcripts start to finish.
 
-The shared test file now holds 119 cases (90 written by hand, 29 phrases from these sermons). The Python engine passes all 119, both when it reads the text at once and when it is fed one word at a time the way live speech arrives.
+The shared test file now holds 125 cases (96 written by hand, 29 phrases from these sermons). The Python engine passes all 125, both when it reads the text at once and when it is fed one word at a time the way live speech arrives.
 
 ## What it caught
 
@@ -92,7 +92,7 @@ Re-reading 3,000 words of transcript takes about **2 milliseconds** in Python, a
 | Rules were tuned on these three sermons | The score is a best case |
 | Transcripts came from Whisper (small English model), not Apple's recogniser | Apple will mishear different words and may write "Acts 2:38" where Whisper writes "Acts 2 and 38". Both styles are in the test cases, but real Apple output is untested |
 | Three preachers, one church, 108 minutes | Other accents, rooms and habits will bring new phrasings |
-| The Swift engine has not been compiled | It is a line-by-line copy of the Python and should pass the same 119 cases, but that is unproven until `swift test` runs on the Mac |
+| The Swift engine has not been compiled | It is a line-by-line copy of the Python and should pass the same 125 cases, but that is unproven until `swift test` runs on the Mac |
 | Verse text is King James only | Other translations need a licence |
 
 ## Next for accuracy
@@ -106,3 +106,19 @@ Re-reading 3,000 words of transcript takes about **2 milliseconds** in Python, a
 ⋮
 
 3. Try quoted-scripture matching on more sermons before turning it on by default.
+
+## Update, November 14: looser quote matching
+
+Quoted-scripture matching (Beta, off by default) now works in two layers:
+
+1. **Close quotes.** King James forms are mapped to modern ones before matching ("ye" to "you", "cometh" and "comes" to the same word), so "you shall receive power when the Holy Ghost comes upon you" finds Acts 1:8.
+
+⋮
+
+2. **Paraphrase.** Rare words from one verse, close together and mostly in the verse's order, clearly ahead of every other verse. "Seek the kingdom of God first" finds Matthew 6:33. Paraphrase matches are scored lower (60 to 80%) than close quotes.
+
+On the three sermons, with the 70% minimum, quote matching now shows 31 suggestions instead of 19. New ones include Luke 11:17 ("a house divided against itself"), Matthew 6:33, Matthew 12:44, 2 Corinthians 5:17, Jeremiah 31:33 and Revelation 13:8, all paraphrased by the preacher.
+
+The weak spot: talk *about* a passage can trigger it. In sermon 3, three stretches of talk about speaking in tongues each suggested Acts 2:4. The app's 60-second repeat rule hides two of the three. Weaker paraphrase matches (60%) stay hidden unless the church lowers its minimum.
+
+Speed: re-reading 3,000 words with quote matching on takes about a quarter of a second in Python. It runs only on settled text, not on the fast early guesses, and Swift will be quicker.

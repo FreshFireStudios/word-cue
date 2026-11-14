@@ -1,32 +1,97 @@
 {
  "version": 1,
- "chapterWords": ["chapter", "chapters", "chap"],
- "docChapterWords": ["ch"],
- "verseWords": ["verse", "verses"],
- "docVerseWords": ["v", "vs", "vv"],
- "verseNumberFillers": ["number", "numbers"],
- "rangeWords": ["through", "thru", "to"],
- "rangeSymbols": ["-", "–", "—"],
- "andWords": ["and"],
- "ofWords": ["of", "in", "from"],
- "bookIntroWords": ["book", "gospel", "epistle", "letter"],
- "nextWords": ["next", "following"],
- "shortAbbrChapterOnly": ["ps"],
- "limits": {"chapterGap": 6, "verseGap": 8, "contextTokens": 600, "dedupeTokens": 30},
+ "chapterWords": [
+  "chapter",
+  "chapters",
+  "chap"
+ ],
+ "docChapterWords": [
+  "ch"
+ ],
+ "verseWords": [
+  "verse",
+  "verses"
+ ],
+ "docVerseWords": [
+  "v",
+  "vs",
+  "vv"
+ ],
+ "verseNumberFillers": [
+  "number",
+  "numbers"
+ ],
+ "rangeWords": [
+  "through",
+  "thru",
+  "to"
+ ],
+ "rangeSymbols": [
+  "-",
+  "–",
+  "—"
+ ],
+ "andWords": [
+  "and"
+ ],
+ "ofWords": [
+  "of",
+  "in",
+  "from"
+ ],
+ "bookIntroWords": [
+  "book",
+  "gospel",
+  "epistle",
+  "letter"
+ ],
+ "nextWords": [
+  "next",
+  "following"
+ ],
+ "shortAbbrChapterOnly": [
+  "ps"
+ ],
+ "limits": {
+  "chapterGap": 6,
+  "verseGap": 8,
+  "contextTokens": 600,
+  "dedupeTokens": 30
+ },
  "confidence": {
   "explicitVerse": 0.95,
   "impliedVerse": 0.85,
-  "chapterKeyword": 0.80,
+  "chapterKeyword": 0.8,
   "chapterBare": 0.75,
   "followOn": 0.72,
   "penaltyRiskyBare": 0.05,
   "penaltyMishearing": 0.15,
   "penaltyAssumedOrdinal": 0.25,
-  "penaltyGap": 0.10,
+  "penaltyGap": 0.1,
   "penaltyDigitSplit": 0.15,
-  "penaltyVerseDropped": 0.10,
+  "penaltyVerseDropped": 0.1,
   "quote": 0.72,
-  "quoteInContext": 0.80
+  "quoteInContext": 0.8,
+  "looseStrong": 0.8,
+  "looseMedium": 0.7,
+  "looseWeak": 0.6
  },
- "quotes": {"gram": 4, "window": 14, "minHits": 5, "dedupeTokens": 60}
+ "quotes": {
+  "gram": 4,
+  "window": 14,
+  "minHits": 5,
+  "dedupeTokens": 60
+ },
+ "looseQuotes": {
+  "window": 12,
+  "minWords": 4,
+  "minCoverage": 0.5,
+  "minPairs": 2,
+  "pairCoverage": 0.3,
+  "maxDf": 4000,
+  "margin": 1.0,
+  "pairWeight": 3,
+  "strong": 40,
+  "medium": 27
+ }
 }

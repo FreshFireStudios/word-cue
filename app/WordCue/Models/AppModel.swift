@@ -104,6 +104,11 @@ final class AppModel {
         engine.ignoredBooks = Set(s.ignoredBooks)
         engine.setIgnoredPhrases(s.ignoredPhrases)
         session.quotes = s.recognizeQuotedScripture
+        if s.recognizeQuotedScripture {
+            // Builds the Bible word indexes (about a second) before the sermon needs them.
+            let engine = self.engine
+            Task.detached(priority: .utility) { engine.preloadQuoteMatching() }
+        }
         DebugLog.enabled = s.debugLogging
         watcher.watch(s.presentationApp)
         SystemIntegration.setLaunchAtLogin(s.launchAtLogin)

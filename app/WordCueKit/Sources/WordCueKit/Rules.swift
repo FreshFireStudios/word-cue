@@ -24,6 +24,14 @@ struct NumberRules: Codable {
     let bookOrdinals: [String: Int]
 }
 
+/// normalize.json: King James forms, endings to trim, and very common words.
+struct NormalizeRules: Codable {
+    let archaic: [String: String]
+    let suffixes: [String]
+    let minStem: Int
+    let stopWords: [String]
+}
+
 struct DetectionRules: Codable {
     let chapterWords: [String]
     let docChapterWords: [String]
@@ -40,6 +48,7 @@ struct DetectionRules: Codable {
     let limits: [String: Int]
     let confidence: [String: Double]
     let quotes: [String: Int]
+    let looseQuotes: [String: Double]
 }
 
 enum Resources {
