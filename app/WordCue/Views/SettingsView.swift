@@ -218,7 +218,7 @@ struct SRow<Trailing: View>: View {
     @ViewBuilder var trailing: Trailing
 
     init(_ title: String, _ sub: String = "", symbol: String? = nil, tint: IconTile.Tint = .orange, last: Bool = false,
-         @ViewBuilder trailing: () -> Trailing = { EmptyView() }) {
+         @ViewBuilder trailing: () -> Trailing) {
         self.title = title
         self.sub = sub
         self.symbol = symbol
@@ -243,6 +243,14 @@ struct SRow<Trailing: View>: View {
             .padding(.vertical, 8)
             if !last { Rectangle().fill(Theme.hair).frame(height: 1) }
         }
+    }
+}
+
+// A generic default like `trailing: () -> Trailing = { EmptyView() }` cannot be
+// inferred when a caller leaves it out, so rows without a control use this.
+extension SRow where Trailing == EmptyView {
+    init(_ title: String, _ sub: String = "", symbol: String? = nil, tint: IconTile.Tint = .orange, last: Bool = false) {
+        self.init(title, sub, symbol: symbol, tint: tint, last: last) { EmptyView() }
     }
 }
 

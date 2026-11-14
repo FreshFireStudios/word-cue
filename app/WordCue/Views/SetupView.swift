@@ -87,7 +87,7 @@ struct SetupView: View {
     // MARK: Rows
 
     private func row<Trailing: View>(_ symbol: String, _ tint: IconTile.Tint, _ title: String, _ sub: String = "",
-                                     last: Bool = false, @ViewBuilder trailing: () -> Trailing = { EmptyView() }) -> some View {
+                                     last: Bool = false, @ViewBuilder trailing: () -> Trailing) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 9) {
                 IconTile(symbol: symbol, tint: tint)
@@ -102,6 +102,11 @@ struct SetupView: View {
             .padding(.vertical, 8)
             if !last { Rectangle().fill(Theme.hair).frame(height: 1) }
         }
+    }
+
+    /// A row with no control at the right.
+    private func row(_ symbol: String, _ tint: IconTile.Tint, _ title: String, _ sub: String = "", last: Bool = false) -> some View {
+        row(symbol, tint, title, sub, last: last) { EmptyView() }
     }
 
     private func ready(_ text: String, _ ok: Bool = true) -> some View {
