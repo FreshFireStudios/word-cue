@@ -18,7 +18,7 @@ ROOT CAUSE: rounds 1-2 used only `pdftotext` of ../manual/Word-Cue-User-Guide.pd
 - [x] R7 DONE: app/LICENSE drafted (marked DRAFT, not legal advice).
 - [x] R8 DONE: Proclaim added (keyboard). Its App Command API has no Bible command; noted in CONNECTIONS.md.
 - [x] R9 DONE: verseSource setting (Word Cue KJV / presentation app Bible); ProPresenter switches to typing when chosen; stability + security write-up in CONNECTIONS.md.
-- [ ] R10 Later/large, only if usage allows, each as its own commit: detection-engine chooser in Settings (rules / Apple Foundation Model second opinion; speech: Apple / other), Create ML tagger scaffold (training-data export from Lab), iPhone/iPad companion app target.
+- [~] R10 detection-method chooser (Rules + Apple Intelligence) DONE; Create ML tagger scaffold DONE (Lab export + docs/TAGGER.md); iPhone/iPad companion NOT started (large: new target, Mac/phone link). Do it after the first Mac build works, so there are fewer untested files.
 - [ ] R11 Update docs, README, DECISIONS; delete this file.
 
 ## Answers already given to Bryson (do not re-argue)

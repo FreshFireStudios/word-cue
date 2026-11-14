@@ -160,6 +160,41 @@ public final class LabStore: @unchecked Sendable {
 
     // MARK: Exporting test cases
 
+    // MARK: Create ML training data
+
+    /// Word-tagger training data for Create ML: one example per sentence, every
+    /// word labelled "REF" (part of a Bible reference) or "NONE". Only references
+    /// a reviewer marked correct count as REF, and sentences holding an unreviewed
+    /// or wrong detection are left out, so the tagger never learns from guesses.
+    /// Format: a JSON array of {"tokens": [...], "labels": [...]}, which the
+    /// Create ML app accepts for a Word Tagger.
+    public static func taggerTrainingData(_ sessions: [LabSession], engine: Engine) -> Data {
+        var examples: [[String: [String]]] = []
+        for session in sessions {
+            let tokens = session.segments.flatMap { Tokenizer.tokenize($0.text) }
+            let found = findings(in: session, engine: engine, quotes: false)
+            var labels = Array(repeating: "NONE", count: tokens.count)
+            var unsure = Set<Int>()       // token positions inside detections nobody confirmed
+            for f in found {
+                let range = max(0, f.detection.start)..<min(tokens.count, f.detection.end)
+                if f.review?.verdict == .correct {
+                    for i in range { labels[i] = "REF" }
+                } else if f.review?.verdict != .falseAlarm {
+                    unsure.formUnion(range)
+                }
+            }
+            var start = 0
+            for i in tokens.indices where tokens[i] == "." || i == tokens.count - 1 {
+                let end = i + 1
+                if end - start >= 3 && !(start..<end).contains(where: unsure.contains) {
+                    examples.append(["tokens": Array(tokens[start..<end]), "labels": Array(labels[start..<end])])
+                }
+                start = end
+            }
+        }
+        return (try? JSONSerialization.data(withJSONObject: examples, options: [.prettyPrinted])) ?? Data()
+    }
+
     /// Turns a session's reviews into cases in the cases.json shape:
     /// wrong detections (with the right answer), false alarms (expect nothing), and misses.
     public static func cases(from session: LabSession, findings: [LabFinding]) -> [[String: Any]] {

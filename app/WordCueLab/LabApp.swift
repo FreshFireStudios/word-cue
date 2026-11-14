@@ -99,7 +99,10 @@ struct LabView: View {
                 Toggle("Quoted scripture", isOn: $model.quotes)
                     .toggleStyle(.button)
                     .onChange(of: model.quotes) { model.rerun() }
-                Button("Export Cases", systemImage: "square.and.arrow.up") { model.proposeCases() }
+                Menu("Export", systemImage: "square.and.arrow.up") {
+                    Button("Test Cases for the Engine") { model.proposeCases() }
+                    Button("Create ML Training Data") { model.exportTaggerData() }
+                }
                 Button("Delete Session", systemImage: "trash") { model.deleteSelected() }.disabled(model.selected == nil)
             }
         }

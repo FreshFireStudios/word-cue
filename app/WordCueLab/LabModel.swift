@@ -143,6 +143,19 @@ final class LabModel {
         NSWorkspace.shared.activateFileViewerSelecting([store.proposedCasesURL])
     }
 
+    /// Writes training data for a Create ML Word Tagger from every reviewed session.
+    func exportTaggerData() {
+        let data = LabStore.taggerTrainingData(sessions, engine: engine)
+        let url = store.folder.appendingPathComponent("tagger-training.json")
+        do {
+            try data.write(to: url, options: .atomic)
+            message = "Saved Create ML training data. Only references marked Correct are labelled."
+            NSWorkspace.shared.activateFileViewerSelecting([url])
+        } catch {
+            message = "Could not save the training data: \(error.localizedDescription)"
+        }
+    }
+
     var summaryLine: String {
         guard let s = selected else { return "" }
         let x = LabStore.summary(findings, misses: s.misses.count)
