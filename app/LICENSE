@@ -1,0 +1,75 @@
+DRAFT - FOR BRYSON TO REVIEW BEFORE RELEASE. NOT LEGAL ADVICE.
+Written by Claude on November 14, 2026, modelled on the website license in
+the folder above. Have it read by someone qualified before Word Cue ships.
+
+Word Cue App License (Free & Source-Available)
+
+Copyright (c) 2026 Bryson Woods, Fresh Fire Studios. All rights reserved.
+
+1. WHAT THIS COVERS
+This license covers the Word Cue app, Word Cue Lab, the WordCueKit engine,
+and everything else in this "app" folder: source code, rule and data files,
+tests, designs, and documentation. The website and user manual are covered
+by the separate license in the folder above.
+
+2. OWNERSHIP
+Word Cue is owned by Bryson Woods, Fresh Fire Studios. Being able to see the
+source code does not make it open source.
+
+3. WHAT YOU MAY DO
+- Download official releases of Word Cue from Fresh Fire Studios and use
+  them free of charge, in any church, ministry, or personal setting, on as
+  many Macs as you like.
+- Read the source code to understand how Word Cue works or to check that it
+  keeps its privacy promises.
+- Build the source code on your own Mac only to examine or test it.
+- Report problems and suggest changes. Suggestions you send may be used in
+  Word Cue without payment or credit.
+
+4. WHAT YOU MAY NOT DO WITHOUT WRITTEN PERMISSION
+- Copy, modify, or redistribute the source code or any build made from it.
+- Publish, share, or sell your own builds of Word Cue or Word Cue Lab.
+- Use any part of the code, rules, data files, or designs in another app,
+  product, or service.
+- Charge for Word Cue, or bundle it with something you charge for.
+- Remove or change copyright notices.
+
+5. NAMES AND LOGOS
+The names "Word Cue," "Word Cue Lab," and "Fresh Fire Studios" and their
+logos may not be used in a way that suggests endorsement or affiliation
+without written permission.
+
+6. THIRD-PARTY MATERIAL
+- The King James Version Bible text included with Word Cue is in the public
+  domain in the United States. In the United Kingdom, rights in the King
+  James Version are held by the Crown.
+- Apple frameworks used by Word Cue are covered by Apple's own terms.
+- Any other third-party component added later will be listed here with its
+  license.
+
+7. GITHUB
+Because this repository is public, GitHub's Terms of Service allow other
+GitHub users to view and fork it on GitHub. This license grants no rights
+beyond what those terms require.
+
+8. YOUR DATA
+Word Cue processes audio on the Mac it runs on and does not record or send
+audio anywhere. Anything you choose to send (feedback, diagnostic reports,
+corrections) is sent only when you choose to send it.
+
+9. NO WARRANTY
+Word Cue is provided "as is," without warranty of any kind. Speech
+recognition and scripture detection can be wrong. Word Cue waits for an
+operator to approve each verse by default; a church that turns on
+Auto-send accepts that a wrong verse may reach the screen.
+
+10. LIMITATION OF LIABILITY
+To the extent the law allows, Bryson Woods and Fresh Fire Studios are not
+liable for any damages arising from the use of Word Cue.
+
+11. CHANGES
+Future versions of Word Cue may come with a different license. The license
+included with a version applies to that version.
+
+12. PERMISSION REQUESTS
+Contact: boiler_chaste.0o@icloud.com
