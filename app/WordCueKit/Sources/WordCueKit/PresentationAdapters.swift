@@ -4,7 +4,10 @@
 //   ProPresenter: official API, verse sent as a Message (see docs/PROPRESENTER-API.md)
 //   FreeShow:     confirmed from freeshow.app/api (Nov 2026)
 //   OpenLP:       VERIFY - written from memory of the Remote API v2, not checked against docs
-// EasyWorship and "Other" have no API; the app target's KeyboardAdapter types for them.
+// EasyWorship, Proclaim and "Other" use the app target's KeyboardAdapter, which types
+// the reference into the app's own Bible search. Proclaim does have an official
+// "App Command API" (next slide, blank, quick screens), but no command that shows
+// a Bible verse, so it is not used yet.
 import Foundation
 
 /// What gets sent: one verse (or a few) ready for the screen.
@@ -202,7 +205,7 @@ public enum Adapters {
         case .proPresenter: return ProPresenterAdapter(settings: settings)
         case .freeShow: return FreeShowAdapter(settings: settings)
         case .openLP: return OpenLPAdapter(settings: settings)
-        case .easyWorship, .other: return nil
+        case .easyWorship, .proclaim, .other: return nil
         }
     }
 }

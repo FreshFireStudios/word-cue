@@ -5,7 +5,7 @@
 import Foundation
 
 public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiable {
-    case proPresenter, openLP, freeShow, easyWorship, other
+    case proPresenter, openLP, freeShow, easyWorship, proclaim, other
     public var id: String { rawValue }
 
     public var displayName: String {
@@ -14,6 +14,7 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
         case .openLP: return "OpenLP"
         case .freeShow: return "FreeShow"
         case .easyWorship: return "EasyWorship"
+        case .proclaim: return "Proclaim"
         case .other: return "Other"
         }
     }
@@ -38,6 +39,7 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
         case .openLP: return ["org.openlp.OpenLP", "org.openlp"]
         case .freeShow: return ["app.freeshow", "com.electron.freeshow"]
         case .easyWorship: return ["com.softouch.easyworship"]
+        case .proclaim: return ["com.faithlife.proclaim", "com.logos.proclaim"]
         case .other: return []
         }
     }
@@ -49,6 +51,7 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
         case .openLP: return ["Open OpenLP on this Mac.", "In OpenLP\u{2019}s settings, turn on Remote.", "Come back here. Word Cue connects automatically."]
         case .freeShow: return ["Open FreeShow on this Mac.", "In FreeShow\u{2019}s Settings > Connections, turn on the API.", "Come back here. Word Cue connects automatically."]
         case .easyWorship: return ["Open EasyWorship on this Mac.", "Leave its Scriptures search selected.", "Allow Accessibility when macOS asks, so Word Cue can type for you."]
+        case .proclaim: return ["Open Proclaim on this Mac.", "Leave its Bible search selected.", "Allow Accessibility when macOS asks, so Word Cue can type for you."]
         case .other: return ["Open your presentation app on this Mac.", "Leave its Bible search selected.", "Allow Accessibility when macOS asks, so Word Cue can type for you."]
         }
     }
@@ -60,6 +63,7 @@ public enum PresentationApp: String, Codable, CaseIterable, Sendable, Identifiab
         case .openLP: return "In OpenLP, open Settings > Remote Interface and turn it on. Word Cue connects on port 4316."
         case .freeShow: return "In FreeShow, open Settings > Connections and turn on the API."
         case .easyWorship: return "Nothing to turn on in EasyWorship. Allow Accessibility when macOS asks."
+        case .proclaim: return "Nothing to turn on in Proclaim. Allow Accessibility; Word Cue types the reference into Proclaim\u{2019}s Bible search."
         case .other: return "Nothing to turn on in the app. Allow Accessibility; Word Cue types the reference for you."
         }
     }

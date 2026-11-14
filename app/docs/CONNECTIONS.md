@@ -35,3 +35,14 @@
 ⋮
 
 4. **Bundle IDs:** `PresentationApp.bundleIdentifiers` in `Settings.swift` are my best guesses. They drive "show when the app opens". Check each real one on your Mac.
+
+## Proclaim (added November 14)
+
+| | |
+|---|---|
+| How Word Cue sends a verse | Keyboard: brings Proclaim forward, types the reference into its Bible search, presses Return |
+| Proclaim's own API | Proclaim has an official "App Command API" (turn on a Network Control Password under Settings > Remote). Its commands cover slides, service items, going on and off air, and quick screens such as Blank and Logo. None of them shows a Bible verse, so Word Cue cannot use it to send scripture |
+| Later | The API's Blank command could power Word Cue's Clear Screen for Proclaim. Its port and message format still need reading from Faithlife's article, which would not load from here |
+| To check on a Mac with Proclaim | The app identifier in `Settings.swift` is a guess; the key that opens Proclaim's Bible search |
+
+Sources: [Proclaim App Command API](https://support.faithlife.com/hc/en-us/articles/4972373093005-Proclaim-App-Command-API) (did not load from here), [Bitfocus Companion module for Proclaim](https://github.com/bitfocus/companion-module-logos-proclaim/blob/main/companion/HELP.md), [Faithlife community thread](https://community.logos.com/discussion/comment/1331041)
