@@ -45,6 +45,10 @@ public final class Engine: @unchecked Sendable {
     private var looseIndexStorage: LooseIndex?
     /// Book ids the church never wants suggested (Settings > Filters).
     public var ignoredBooks: Set<String> = []
+    /// Books whose names are everyday words ("mark", "job", "acts"). A bare
+    /// "Acts 2" with no "chapter" or verse scores lower for these.
+    /// Settings > Filters > Require a chapter number edits this list.
+    public var riskyBooks: Set<String> = []
     private var ignoredPhraseTokens: [[String]] = []
     private var quoteIndexStorage: (index: [UInt64: [Int32]], refs: [(book: String, chapter: Int, verse: Int)])?
     private let quoteLock = NSLock()
@@ -55,6 +59,7 @@ public final class Engine: @unchecked Sendable {
         let r = Resources.load("rules", as: DetectionRules.self)
         verses = Resources.load("versification", as: [String: [Int]].self)
         byId = Dictionary(uniqueKeysWithValues: books.map { ($0.id, $0) })
+        riskyBooks = Set(books.filter(\.risky).map(\.id))
         units = numbers.units
         tens = numbers.tens
         hundred = Set(numbers.hundred)
@@ -432,7 +437,7 @@ public final class Engine: @unchecked Sendable {
         if flags.contains("gap") { s -= conf["penaltyGap"]! }
         if flags.contains("digitSplit") { s -= conf["penaltyDigitSplit"]! }
         if flags.contains("verseDropped") { s -= conf["penaltyVerseDropped"]! }
-        if byId[book]!.risky && verse == nil && base == conf["chapterBare"]! && !flags.contains("followOn") {
+        if riskyBooks.contains(book) && verse == nil && base == conf["chapterBare"]! && !flags.contains("followOn") {
             s -= conf["penaltyRiskyBare"]!
             flags.append("riskyBare")
         }

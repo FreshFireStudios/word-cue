@@ -101,6 +101,10 @@ class Engine:
         self.loose_rules = r["looseQuotes"]
         self._loose_index = None
         self.ignored_books = set()      # book ids the church never wants suggested (Settings > Filters)
+        # Books whose names are everyday words ("mark", "job", "acts"). A bare
+        # "Acts 2" with no "chapter" or verse scores lower for these.
+        # Settings > Filters > Require a chapter number edits this list.
+        self.risky = set(b["id"] for b in self.books if b["risky"])
         self.ignored_phrases = []       # token lists; a match touching one of these is dropped
         self._quote_index = None        # built the first time quoted-scripture matching is used
         # name index: first word -> list of (words, family, kind)
@@ -393,7 +397,7 @@ class Engine:
             s -= c["penaltyDigitSplit"]
         if "verseDropped" in flags:
             s -= c["penaltyVerseDropped"]
-        if self.by_id[book]["risky"] and verse is None and base == c["chapterBare"] and "followOn" not in flags:
+        if book in self.risky and verse is None and base == c["chapterBare"] and "followOn" not in flags:
             s -= c["penaltyRiskyBare"]
             flags.append("riskyBare")
         return round(max(0.05, min(0.99, s)), 2)

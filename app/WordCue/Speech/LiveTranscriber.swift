@@ -26,7 +26,6 @@ enum TranscriberError: LocalizedError {
 /// On-device speech-to-text. Audio never leaves the Mac.
 final class LiveTranscriber: @unchecked Sendable {
     private var analyzer: SpeechAnalyzer?
-    private var transcriber: SpeechTranscriber?
     private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
     private var resultsTask: Task<Void, Never>?
     private var converter: AVAudioConverter?
@@ -34,46 +33,72 @@ final class LiveTranscriber: @unchecked Sendable {
 
     /// Gets the recogniser ready and starts it.
     /// - Parameter vocabulary: words to listen for especially (the book names).
-    func start(locale: Locale = Locale(identifier: "en-US"), vocabulary: [String],
+    /// Gets the recogniser ready and starts it.
+    /// - Parameters:
+    ///   - enhanced: Settings > Audio Input > Speech engine. Enhanced uses Apple's
+    ///     newer SpeechTranscriber; Standard uses DictationTranscriber, the same
+    ///     models as system dictation, which also runs on older Macs.
+    ///   - vocabulary: words to listen for especially (the book names and the church's own words).
+    func start(locale: Locale = Locale(identifier: "en-US"), enhanced: Bool = true, vocabulary: [String],
                onUpdate: @escaping @Sendable (TranscriptUpdate) -> Void) async throws {
-        guard let supported = await SpeechTranscriber.supportedLocale(equivalentTo: locale) else {
-            throw TranscriberError.unsupportedLocale
+        let module: any SpeechModule
+        if enhanced {
+            guard let supported = await SpeechTranscriber.supportedLocale(equivalentTo: locale) else {
+                throw TranscriberError.unsupportedLocale
+            }
+            // .volatileResults = also send early guesses. That is what makes a
+            // suggestion show up before the preacher has finished the sentence.
+            let t = SpeechTranscriber(locale: supported, transcriptionOptions: [],
+                                      reportingOptions: [.volatileResults], attributeOptions: [])
+            module = t
+            resultsTask = Task {
+                do {
+                    for try await result in t.results {
+                        let text = String(result.text.characters)
+                        onUpdate(result.isFinal ? .final(text) : .volatile(text))
+                    }
+                } catch {
+                    onUpdate(.final(""))   // stream ended; AppModel notices listening stopped
+                }
+            }
+        } else {
+            guard let supported = await DictationTranscriber.supportedLocale(equivalentTo: locale) else {
+                throw TranscriberError.unsupportedLocale
+            }
+            // .farField: the soundboard feed is close-miked, but room mics are not. VERIFY the
+            // option names (.volatileResults) against DictationTranscriber's reference page.
+            let t = DictationTranscriber(locale: supported, contentHints: [], transcriptionOptions: [],
+                                         reportingOptions: [.volatileResults], attributeOptions: [])
+            module = t
+            resultsTask = Task {
+                do {
+                    for try await result in t.results {
+                        let text = String(result.text.characters)
+                        onUpdate(result.isFinal ? .final(text) : .volatile(text))
+                    }
+                } catch {
+                    onUpdate(.final(""))
+                }
+            }
         }
-        // .volatileResults = also send early guesses. That is what makes a
-        // suggestion show up before the preacher has finished the sentence.
-        let transcriber = SpeechTranscriber(locale: supported,
-                                            transcriptionOptions: [],
-                                            reportingOptions: [.volatileResults],
-                                            attributeOptions: [])
         // The language model downloads once (needs internet that one time).
-        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+        if let request = try await AssetInventory.assetInstallationRequest(supporting: [module]) {
             try await request.downloadAndInstall()
         }
-        let analyzer = SpeechAnalyzer(modules: [transcriber])
+        let analyzer = SpeechAnalyzer(modules: [module])
         // Teach it the words that matter. VERIFY: the `.general` tag name.
         let context = AnalysisContext()
         context.contextualStrings[.general] = vocabulary
         try await analyzer.setContext(context)
 
-        guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]) else {
+        guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [module]) else {
+            resultsTask?.cancel()
             throw TranscriberError.noAudioFormat
         }
         analyzerFormat = format
         let (stream, continuation) = AsyncStream<AnalyzerInput>.makeStream()
         inputContinuation = continuation
         self.analyzer = analyzer
-        self.transcriber = transcriber
-
-        resultsTask = Task {
-            do {
-                for try await result in transcriber.results {
-                    let text = String(result.text.characters)
-                    onUpdate(result.isFinal ? .final(text) : .volatile(text))
-                }
-            } catch {
-                onUpdate(.final(""))   // stream ended; AppModel notices listening stopped
-            }
-        }
         try await analyzer.start(inputSequence: stream)
     }
 
@@ -141,7 +166,6 @@ final class LiveTranscriber: @unchecked Sendable {
         resultsTask?.cancel()
         resultsTask = nil
         analyzer = nil
-        transcriber = nil
         converter = nil
     }
 }

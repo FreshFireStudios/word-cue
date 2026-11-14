@@ -102,6 +102,7 @@ final class AppModel {
     /// Called whenever a setting changes, and once at launch.
     func applySettings() {
         engine.ignoredBooks = Set(s.ignoredBooks)
+        engine.riskyBooks = s.requireChapterEnabled ? Set(s.requireChapterBooks) : []
         engine.setIgnoredPhrases(s.ignoredPhrases)
         session.quotes = s.recognizeQuotedScripture
         if s.recognizeQuotedScripture {
@@ -172,7 +173,7 @@ final class AppModel {
         let watchMusic = s.pauseDuringMusic
         Task {
             do {
-                try await transcriber.start(locale: locale, vocabulary: vocabulary) { [weak self] update in
+                try await transcriber.start(locale: locale, enhanced: s.speechEngine == .enhanced, vocabulary: vocabulary) { [weak self] update in
                     Task { @MainActor in self?.handle(update) }
                 }
                 let transcriber = self.transcriber
@@ -300,6 +301,16 @@ final class AppModel {
     private func cue(_ detection: Detection, provisional: Bool) {
         var d = detection
         if d.kind == .followOn && !s.recognizeFollowUps { return }
+        // Settings > Scripture Detection > Recognize. "Written-style" means the
+        // recogniser wrote it with a colon ("Acts 2:38"); everything else counts as spoken.
+        if d.kind != .quote {
+            let written = d.text.contains(":")
+            if written && !s.recognizeWritten { return }
+            if !written && !s.recognizeSpoken { return }
+            let variation = d.flags.contains("mishearing") || d.flags.contains("abbr") || d.flags.contains("abbrShort")
+                || d.text.split(separator: " ").first.map { ["first", "second", "third", "1st", "2nd", "3rd", "song of songs"].contains(String($0)) } == true
+            if variation && !s.recognizeBookVariations { return }
+        }
         if !s.recognizeRanges { d.reference.endVerse = nil }
         guard d.confidence >= s.minimumConfidence else {
             DebugLog.write("Dropped \(d.key) at \(d.confidence): under the minimum")
