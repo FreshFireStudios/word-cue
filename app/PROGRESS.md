@@ -10,7 +10,7 @@ Bryson's words: the preview "looks a lot blander and less designed" than the man
 ROOT CAUSE: rounds 1-2 used only `pdftotext` of ../manual/Word-Cue-User-Guide.pdf and never looked at the figures.
 
 - [x] R1 DONE: all figures read (notes below), preview rebuilt for every screen incl. all 9 Settings panels + search, published as artifact version 4.
-- [ ] R2 Bring the SwiftUI screens in line with the same figures (WordCue/Views/*.swift).
+- [~] R2 (Theme, Service View, compact, drop, setup, Settings all rebuilt and pushed; left: hide title-bar buttons in compact mode, settings window size in WordCueApp) Bring the SwiftUI screens in line with the same figures (WordCue/Views/*.swift).
 - [x] R3 File import stays in Word Cue: dropped-file verses go to a list inside Word Cue, each with a go-live button; do NOT push them into the presentation app's service list (remove the addToServiceList attempt in AppModel.importFiles; keep Undo). Note that manual section 06 needs rewording. Add to DECISIONS.
 - [x] R4 EasyWorship: Page Down = Go Live, Control-C = text off (from help.easyworship.com). No documented search-focus key, no Mac-specific keys listed, bundle id still a guess: all noted in DECISIONS 55.
 - [ ] R5 Tune quoted-scripture matching ("semantic search"): catch looser quotes/paraphrase (e.g. "seek the kingdom of God first" = Matt 6:33; modernised words hath/has, thee/you; allow gaps). Python first, cases, then Swift.
